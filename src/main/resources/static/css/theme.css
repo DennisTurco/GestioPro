@@ -1,0 +1,107 @@
+/*
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║                    THEME.CSS — BRAND CONFIG                  ║
+ * ║  ✅ This is the ONLY file to modify when changing the client ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * To customize for a new client:
+ *   1. Change the colors in the "BRAND COLORS" section
+ *   2. Change the font (import from Google Fonts if needed)
+ *   3. Change --app-name if you want a different name in the sidebar
+ */
+
+/* ── Google Fonts (optional: replace to change the font) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+
+    /* ═══════════════════════════════════════
+       BRAND COLORS  ← change here for each client
+       ═══════════════════════════════════════ */
+    --color-primary:        #2563EB;   /* main color (buttons, active links) */
+    --color-primary-dark:   #1D4ED8;   /* primary hover state */
+    --color-primary-light:  #EFF6FF;   /* light accent background */
+    --color-primary-rgb:    37, 99, 235; /* for rgba() usage */
+
+    --color-accent:         #10B981;   /* secondary accent (paid badges, success states) */
+    --color-accent-dark:    #059669;
+
+    /* ═══════════════════════════════════════
+       SIDEBAR
+       ═══════════════════════════════════════ */
+    --sidebar-bg:           #1E293B;   /* sidebar background */
+    --sidebar-text:         #94A3B8;   /* inactive menu item text */
+    --sidebar-text-hover:   #E2E8F0;   /* menu item hover text */
+    --sidebar-active-bg:    rgba(37, 99, 235, 0.18); /* active item background */
+    --sidebar-active-text:  #60A5FA;   /* active item text */
+    --sidebar-active-border:var(--color-primary); /* left border of active item */
+    --sidebar-logo-color:   #FFFFFF;
+    --sidebar-width:        240px;
+
+    /* ═══════════════════════════════════════
+       SURFACES & BACKGROUNDS
+       ═══════════════════════════════════════ */
+    --color-bg:             #F1F5F9;   /* page background */
+    --color-surface:        #FFFFFF;   /* cards, panels, inputs */
+    --color-surface-hover:  #F8FAFC;
+    --color-border:         #E2E8F0;
+    --color-border-focus:   var(--color-primary);
+
+    /* ═══════════════════════════════════════
+       TEXT
+       ═══════════════════════════════════════ */
+    --color-text:           #1E293B;
+    --color-text-muted:     #64748B;
+    --color-text-light:     #94A3B8;
+
+    /* ═══════════════════════════════════════
+       STATUS / BADGE
+       ═══════════════════════════════════════ */
+    --color-success:        #10B981;
+    --color-success-bg:     #D1FAE5;
+    --color-warning:        #F59E0B;
+    --color-warning-bg:     #FEF3C7;
+    --color-danger:         #EF4444;
+    --color-danger-bg:      #FEE2E2;
+    --color-info:           #3B82F6;
+    --color-info-bg:        #DBEAFE;
+
+    /* ═══════════════════════════════════════
+       TYPOGRAPHY
+       ═══════════════════════════════════════ */
+    --font-family:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs:         11px;
+    --font-size-sm:         12px;
+    --font-size-base:       14px;
+    --font-size-md:         15px;
+    --font-size-lg:         18px;
+    --font-size-xl:         22px;
+    --font-size-2xl:        28px;
+    --font-weight-normal:   400;
+    --font-weight-medium:   500;
+    --font-weight-semibold: 600;
+    --font-weight-bold:     700;
+
+    /* ═══════════════════════════════════════
+       GEOMETRY
+       ═══════════════════════════════════════ */
+    --radius-sm:            6px;
+    --radius:               10px;
+    --radius-lg:            14px;
+    --radius-xl:            20px;
+    --radius-full:          9999px;
+
+    /* ═══════════════════════════════════════
+       SHADOWS
+       ═══════════════════════════════════════ */
+    --shadow-sm:   0 1px 2px rgba(0,0,0,0.05);
+    --shadow:      0 1px 4px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
+    --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+
+    /* ═══════════════════════════════════════
+       TRANSITIONS
+       ═══════════════════════════════════════ */
+    --transition:           0.18s ease;
+    --transition-slow:      0.3s ease;
+}

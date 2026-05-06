@@ -1,0 +1,5 @@
+com\example\Cliente.class
+com\example\DesktopApp.class
+com\example\WebApp.class
+com\example\ClienteRepository.class
+com\example\ClienteController.class

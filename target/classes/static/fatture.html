@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatture — Gestionale</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">📊</div>
+            Gestionale
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Menu principale</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon">👥</span> Clienti</div>
+            <div class="nav-item" data-page="fatture"><span class="nav-icon">📄</span> Fatture</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon">✅</span> Task</div>
+            <div class="sidebar-section-label">Sistema</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon">⚙️</span> Impostazioni</div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">U</div>
+                <div>
+                    <div class="font-medium" style="color:#E2E8F0;font-size:13px">Utente</div>
+                    <div style="font-size:11px">Freelance</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-title">Fatture</div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary btn-sm" data-modal-open="modal-fattura">
+                    ➕ Nuova fattura
+                </button>
+            </div>
+        </header>
+
+        <main class="page-body">
+
+            <!-- KPI fatture -->
+            <div class="grid-4 mb-24">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📄</div>
+                    <div class="kpi-label">Totale fatture</div>
+                    <div class="kpi-value" id="kpi-tot">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-success-bg);color:var(--color-success)">✅</div>
+                    <div class="kpi-label">Pagate</div>
+                    <div class="kpi-value" id="kpi-pagate">0</div>
+                    <div class="kpi-delta" id="kpi-pagate-val"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-warning-bg);color:var(--color-warning)">⏳</div>
+                    <div class="kpi-label">In attesa</div>
+                    <div class="kpi-value" id="kpi-attesa">0</div>
+                    <div class="kpi-delta" id="kpi-attesa-val"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-danger-bg);color:var(--color-danger)">❌</div>
+                    <div class="kpi-label">Scadute</div>
+                    <div class="kpi-value" id="kpi-scadute">0</div>
+                    <div class="kpi-delta" id="kpi-scadute-val"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="search-bar" style="width:260px">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca fattura…">
+                    </div>
+                    <select class="form-control" id="filtro-stato" style="width:auto">
+                        <option value="">Tutti gli stati</option>
+                        <option value="pagata">✅ Pagate</option>
+                        <option value="attesa">⏳ In attesa</option>
+                        <option value="scaduta">❌ Scadute</option>
+                    </select>
+                    <div class="toolbar-right">
+                        <button class="btn btn-ghost btn-sm">📥 Esporta</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper" style="border:none;border-radius:0">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>N° Fattura</th>
+                                <th>Cliente</th>
+                                <th>Descrizione</th>
+                                <th>Importo</th>
+                                <th>Data emissione</th>
+                                <th>Scadenza</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fatture-tbody">
+                            <tr><td colspan="8" class="text-center text-muted" style="padding:48px">
+                                <div class="empty-state">
+                                    <div class="empty-icon">📄</div>
+                                    <h3>Nessuna fattura ancora</h3>
+                                    <p>Crea la tua prima fattura per iniziare a tracciare i pagamenti</p>
+                                    <button class="btn btn-primary" data-modal-open="modal-fattura">➕ Nuova fattura</button>
+                                </div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer flex justify-between items-center">
+                    <span class="text-muted text-sm" id="table-footer">0 fatture</span>
+                    <span class="font-semibold" id="totale-importo"></span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- MODAL: Nuova / Modifica Fattura -->
+<div class="modal-overlay" id="modal-fattura">
+    <div class="modal" style="width:min(600px,95vw)">
+        <div class="modal-header">
+            <span id="modal-fattura-title">📄 Nuova fattura</span>
+            <button class="btn-close" data-modal-close="modal-fattura">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="fattura-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Numero fattura *</label>
+                    <input type="text" class="form-control" id="fattura-numero" placeholder="2025-001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cliente *</label>
+                    <select class="form-control" id="fattura-cliente">
+                        <option value="">— Seleziona cliente —</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descrizione</label>
+                <textarea class="form-control" id="fattura-descrizione" rows="2" placeholder="Sviluppo sito web, consulenza…"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Importo (€) *</label>
+                    <input type="number" class="form-control" id="fattura-importo" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">IVA (%)</label>
+                    <input type="number" class="form-control" id="fattura-iva" value="22" min="0" max="100">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Data emissione</label>
+                    <input type="date" class="form-control" id="fattura-emissione">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Scadenza</label>
+                    <input type="date" class="form-control" id="fattura-scadenza">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Stato</label>
+                <select class="form-control" id="fattura-stato">
+                    <option value="attesa">⏳ In attesa di pagamento</option>
+                    <option value="pagata">✅ Pagata</option>
+                    <option value="scaduta">❌ Scaduta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <textarea class="form-control" id="fattura-note" rows="2" placeholder="Note aggiuntive…"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-fattura">Annulla</button>
+            <button class="btn btn-primary" onclick="salvaFattura()">💾 Salva fattura</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+let tutteFatture = [];
+
+const STATI = {
+    pagata:  { label: 'Pagata',      cls: 'badge-success' },
+    attesa:  { label: 'In attesa',   cls: 'badge-warning' },
+    scaduta: { label: 'Scaduta',     cls: 'badge-danger'  },
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Imposta data odierna come default
+    const oggi = new Date().toISOString().slice(0,10);
+    const tra30 = new Date(Date.now() + 30*24*3600*1000).toISOString().slice(0,10);
+    document.getElementById('fattura-emissione').value = oggi;
+    document.getElementById('fattura-scadenza').value  = tra30;
+
+    await Promise.allSettled([loadFatture(), populateClientiSelect()]);
+
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('filtro-stato').addEventListener('change', applyFilters);
+});
+
+async function loadFatture() {
+    try {
+        tutteFatture = await FattureAPI.getAll();
+    } catch (e) {
+        tutteFatture = [];
+    }
+    renderTabella(tutteFatture);
+    updateKpi(tutteFatture);
+}
+
+async function populateClientiSelect() {
+    try {
+        const clienti = await ClientiAPI.getAll();
+        const sel = document.getElementById('fattura-cliente');
+        clienti.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.nome;
+            sel.appendChild(opt);
+        });
+    } catch (e) { /* silenzioso */ }
+}
+
+function applyFilters() {
+    const q = document.getElementById('search-input').value;
+    const stato = document.getElementById('filtro-stato').value;
+    let risultati = filterItems(tutteFatture, q, ['numero', 'clienteNome', 'descrizione']);
+    if (stato) risultati = risultati.filter(f => f.stato === stato);
+    renderTabella(risultati);
+}
+
+function renderTabella(fatture) {
+    const tbody = document.getElementById('fatture-tbody');
+    const footer = document.getElementById('table-footer');
+    const totEl  = document.getElementById('totale-importo');
+
+    if (footer) footer.textContent = `${fatture.length} fatture`;
+
+    const totale = fatture.reduce((s, f) => s + (f.importo ?? 0), 0);
+    if (totEl) totEl.textContent = `Totale: ${formatCurrency(totale)}`;
+
+    if (!fatture.length) {
+        setHTML(tbody, `<tr><td colspan="8" style="padding:0">
+            <div class="empty-state">
+                <div class="empty-icon">📄</div>
+                <h3>Nessuna fattura trovata</h3>
+                <p>Prova a modificare i filtri di ricerca</p>
+            </div>
+        </td></tr>`);
+        return;
+    }
+
+    setHTML(tbody, fatture.map(f => {
+        const s = STATI[f.stato] ?? { label: f.stato, cls: 'badge-muted' };
+        return `<tr>
+            <td class="font-medium">${f.numero ?? f.id}</td>
+            <td>${f.clienteNome ?? '—'}</td>
+            <td class="text-muted">${f.descrizione ?? '—'}</td>
+            <td class="font-semibold">${formatCurrency(f.importo ?? 0)}</td>
+            <td>${formatDate(f.dataEmissione)}</td>
+            <td>${formatDate(f.scadenza)}</td>
+            <td><span class="badge ${s.cls}">${s.label}</span></td>
+            <td>
+                <div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaFattura(${f.id})">✏️</button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna pagata" onclick="segnaComePagata(${f.id})">✅</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join(''));
+}
+
+function updateKpi(fatture) {
+    document.getElementById('kpi-tot').textContent    = fatture.length;
+    const pagate  = fatture.filter(f => f.stato === 'pagata');
+    const attesa  = fatture.filter(f => f.stato === 'attesa');
+    const scadute = fatture.filter(f => f.stato === 'scaduta');
+    document.getElementById('kpi-pagate').textContent  = pagate.length;
+    document.getElementById('kpi-pagate-val').textContent = formatCurrency(pagate.reduce((s,f)=>s+(f.importo??0),0));
+    document.getElementById('kpi-attesa').textContent  = attesa.length;
+    document.getElementById('kpi-attesa-val').textContent = formatCurrency(attesa.reduce((s,f)=>s+(f.importo??0),0));
+    document.getElementById('kpi-scadute').textContent = scadute.length;
+    document.getElementById('kpi-scadute-val').textContent = formatCurrency(scadute.reduce((s,f)=>s+(f.importo??0),0));
+}
+
+async function salvaFattura() {
+    const numero  = document.getElementById('fattura-numero').value.trim();
+    const importo = parseFloat(document.getElementById('fattura-importo').value);
+    if (!numero) { showToast('Numero fattura obbligatorio', 'warning'); return; }
+    if (isNaN(importo) || importo < 0) { showToast('Importo non valido', 'warning'); return; }
+
+    const data = {
+        numero,
+        clienteId:     document.getElementById('fattura-cliente').value || null,
+        descrizione:   document.getElementById('fattura-descrizione').value.trim() || null,
+        importo,
+        iva:           parseFloat(document.getElementById('fattura-iva').value) || 0,
+        dataEmissione: document.getElementById('fattura-emissione').value || null,
+        scadenza:      document.getElementById('fattura-scadenza').value || null,
+        stato:         document.getElementById('fattura-stato').value,
+        note:          document.getElementById('fattura-note').value.trim() || null,
+    };
+
+    const id = document.getElementById('fattura-id').value;
+    try {
+        if (id) { await FattureAPI.update(id, data); showToast('Fattura aggiornata', 'success'); }
+        else     { await FattureAPI.create(data);    showToast('Fattura creata', 'success'); }
+        closeModal('modal-fattura');
+        await loadFatture();
+    } catch (e) {
+        showToast(`Errore: ${e.message}`, 'error');
+    }
+}
+
+function modificaFattura(id) {
+    const f = tutteFatture.find(x => x.id === id);
+    if (!f) return;
+    document.getElementById('fattura-id').value          = f.id;
+    document.getElementById('modal-fattura-title').textContent = '✏️ Modifica fattura';
+    document.getElementById('fattura-numero').value      = f.numero ?? '';
+    document.getElementById('fattura-cliente').value     = f.clienteId ?? '';
+    document.getElementById('fattura-descrizione').value = f.descrizione ?? '';
+    document.getElementById('fattura-importo').value     = f.importo ?? '';
+    document.getElementById('fattura-iva').value         = f.iva ?? 22;
+    document.getElementById('fattura-emissione').value   = f.dataEmissione?.slice(0,10) ?? '';
+    document.getElementById('fattura-scadenza').value    = f.scadenza?.slice(0,10) ?? '';
+    document.getElementById('fattura-stato').value       = f.stato ?? 'attesa';
+    document.getElementById('fattura-note').value        = f.note ?? '';
+    openModal('modal-fattura');
+}
+
+async function segnaComePagata(id) {
+    try {
+        await FattureAPI.update(id, { stato: 'pagata' });
+        showToast('Fattura segnata come pagata ✅', 'success');
+        await loadFatture();
+    } catch (e) { showToast(`Errore: ${e.message}`, 'error'); }
+}
+</script>
+</body>
+</html>

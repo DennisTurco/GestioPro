@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostazioni — Gestionale</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">📊</div>
+            Gestionale
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Menu principale</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon">👥</span> Clienti</div>
+            <div class="nav-item" data-page="fatture"><span class="nav-icon">📄</span> Fatture</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon">✅</span> Task</div>
+            <div class="sidebar-section-label">Sistema</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon">⚙️</span> Impostazioni</div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="sidebar-avatar">U</div>
+                <div>
+                    <div class="font-medium" style="color:#E2E8F0;font-size:13px" id="sidebar-nome">Utente</div>
+                    <div style="font-size:11px">Freelance</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-title">Impostazioni</div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary btn-sm" onclick="salvaImpostazioni()">💾 Salva tutto</button>
+            </div>
+        </header>
+
+        <main class="page-body">
+
+            <div style="max-width:720px">
+
+                <!-- Profilo Utente / Azienda -->
+                <div class="card mb-24">
+                    <div class="card-header">👤 Profilo e Azienda</div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nome / Ragione sociale *</label>
+                                <input type="text" class="form-control" id="pref-nome" placeholder="Mario Rossi">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">P. IVA</label>
+                                <input type="text" class="form-control" id="pref-piva" placeholder="IT01234567890">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="pref-email" placeholder="mario@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telefono</label>
+                                <input type="tel" class="form-control" id="pref-telefono" placeholder="+39 333 000 0000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Indirizzo</label>
+                            <input type="text" class="form-control" id="pref-indirizzo" placeholder="Via Roma 1, 20100 Milano MI">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sito web</label>
+                            <input type="url" class="form-control" id="pref-sito" placeholder="https://mariorossi.it">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferenze Fatturazione -->
+                <div class="card mb-24">
+                    <div class="card-header">📄 Preferenze fatturazione</div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">IVA predefinita (%)</label>
+                                <input type="number" class="form-control" id="pref-iva" value="22" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Giorni scadenza fattura</label>
+                                <input type="number" class="form-control" id="pref-scadenza-giorni" value="30" min="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prefisso numerazione fatture</label>
+                            <input type="text" class="form-control" id="pref-prefisso" placeholder="2025-" style="max-width:180px">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Note standard in fattura</label>
+                            <textarea class="form-control" id="pref-note-fattura" rows="3"
+                                placeholder="Es: Pagamento a 30 giorni dalla data fattura. Coordine bancarie: IBAN IT…"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aspetto / Tema -->
+                <div class="card mb-24">
+                    <div class="card-header">🎨 Personalizzazione tema</div>
+                    <div class="card-body">
+                        <p class="text-muted text-sm mb-16">
+                            Per cambiare i colori del gestionale modifica il file
+                            <code style="background:var(--color-bg);padding:2px 6px;border-radius:4px;font-size:12px">css/theme.css</code>
+                            — tutte le variabili sono raggruppate nella sezione <em>BRAND COLORS</em>.
+                        </p>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Colore principale (anteprima)</label>
+                                <div style="display:flex;gap:10px;align-items:center">
+                                    <input type="color" id="preview-primary" value="#2563EB"
+                                        style="width:42px;height:38px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;padding:2px">
+                                    <span class="text-sm text-muted">modifica poi manualmente theme.css</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Colore accento</label>
+                                <div style="display:flex;gap:10px;align-items:center">
+                                    <input type="color" id="preview-accent" value="#10B981"
+                                        style="width:42px;height:38px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;padding:2px">
+                                    <span class="text-sm text-muted">badge successo, completati</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Nome applicazione (sidebar)</label>
+                            <input type="text" class="form-control" id="pref-app-name" placeholder="Gestionale" style="max-width:220px">
+                        </div>
+
+                        <!-- Preview pallette -->
+                        <div class="divider"></div>
+                        <div class="text-sm font-medium mb-8">Palette corrente</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">
+                            <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-primary)" title="Primary"></div>
+                            <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-accent)" title="Accent"></div>
+                            <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--sidebar-bg)" title="Sidebar"></div>
+                            <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-success)" title="Success"></div>
+                            <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-warning)" title="Warning"></div>
+                            <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:var(--color-danger)" title="Danger"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info sistema -->
+                <div class="card">
+                    <div class="card-header">🖥️ Informazioni di sistema</div>
+                    <div class="card-body">
+                        <table style="width:100%;border-collapse:collapse">
+                            <tr style="border-bottom:1px solid var(--color-border)">
+                                <td class="text-muted text-sm" style="padding:10px 0;width:40%">Framework</td>
+                                <td class="text-sm font-medium">Spring Boot 3.2.5 + JavaFX 21</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--color-border)">
+                                <td class="text-muted text-sm" style="padding:10px 0">Database</td>
+                                <td class="text-sm font-medium">SQLite (database.db)</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--color-border)">
+                                <td class="text-muted text-sm" style="padding:10px 0">Server</td>
+                                <td class="text-sm font-medium" id="info-server">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted text-sm" style="padding:10px 0">Versione</td>
+                                <td class="text-sm font-medium">1.0</td>
+                            </tr>
+                        </table>
+
+                        <div class="divider"></div>
+
+                        <div class="flex gap-8">
+                            <button class="btn btn-ghost btn-sm" onclick="testConnessione()">🔌 Test connessione API</button>
+                            <button class="btn btn-ghost btn-sm" onclick="apriDevTools()">🛠️ Console</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+const PREF_KEY = 'gestionale_prefs';
+
+document.addEventListener('DOMContentLoaded', () => {
+    caricaPreferenze();
+
+    // Info server
+    const serverEl = document.getElementById('info-server');
+    if (serverEl) serverEl.textContent = window.location.origin;
+
+    // Preview colori in tempo reale
+    document.getElementById('preview-primary').addEventListener('input', (e) => {
+        document.documentElement.style.setProperty('--color-primary', e.target.value);
+    });
+    document.getElementById('preview-accent').addEventListener('input', (e) => {
+        document.documentElement.style.setProperty('--color-accent', e.target.value);
+        document.documentElement.style.setProperty('--color-success', e.target.value);
+    });
+
+    // Nome app live
+    document.getElementById('pref-app-name').addEventListener('input', (e) => {
+        document.querySelectorAll('.sidebar-logo').forEach(el => {
+            const icon = el.querySelector('.logo-icon');
+            el.textContent = e.target.value || 'Gestionale';
+            if (icon) el.prepend(icon);
+        });
+    });
+});
+
+function caricaPreferenze() {
+    try {
+        const prefs = JSON.parse(localStorage.getItem(PREF_KEY) ?? '{}');
+        const fields = ['nome','piva','email','telefono','indirizzo','sito','iva',
+                        'scadenza-giorni','prefisso','note-fattura','app-name'];
+        fields.forEach(f => {
+            const el = document.getElementById(`pref-${f}`);
+            if (el && prefs[f] !== undefined) el.value = prefs[f];
+        });
+
+        // Aggiorna sidebar con nome salvato
+        if (prefs['nome']) {
+            const av = document.getElementById('sidebar-avatar');
+            const nm = document.getElementById('sidebar-nome');
+            if (av) av.textContent = prefs['nome'][0].toUpperCase();
+            if (nm) nm.textContent = prefs['nome'];
+        }
+    } catch (e) { /* ignora */ }
+}
+
+function salvaImpostazioni() {
+    const fields = ['nome','piva','email','telefono','indirizzo','sito','iva',
+                    'scadenza-giorni','prefisso','note-fattura','app-name'];
+    const prefs = {};
+    fields.forEach(f => {
+        const el = document.getElementById(`pref-${f}`);
+        if (el) prefs[f] = el.value;
+    });
+    localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
+    showToast('Impostazioni salvate ✅', 'success');
+
+    // Aggiorna avatar sidebar
+    if (prefs['nome']) {
+        const av = document.getElementById('sidebar-avatar');
+        const nm = document.getElementById('sidebar-nome');
+        if (av) av.textContent = prefs['nome'][0].toUpperCase();
+        if (nm) nm.textContent = prefs['nome'];
+    }
+}
+
+async function testConnessione() {
+    try {
+        const clienti = await ClientiAPI.getAll();
+        showToast(`✅ API raggiungibile — ${clienti.length} clienti nel DB`, 'success');
+    } catch (e) {
+        showToast(`❌ API non raggiungibile: ${e.message}`, 'error');
+    }
+}
+
+function apriDevTools() {
+    showToast('In JavaFX usa F12 o il menu contestuale per aprire la console', 'info', 5000);
+}
+</script>
+</body>
+</html>
