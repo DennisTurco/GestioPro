@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clienti — Gestionale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/components.css">
@@ -15,17 +16,17 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon">📊</div>
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
             Gestionale
         </div>
         <nav class="sidebar-nav">
             <div class="sidebar-section-label">Menu principale</div>
-            <div class="nav-item" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
-            <div class="nav-item" data-page="clienti"><span class="nav-icon">👥</span> Clienti</div>
-            <div class="nav-item" data-page="fatture"><span class="nav-icon">📄</span> Fatture</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon">✅</span> Task</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
+            <div class="nav-item" data-page="fatture"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Fatture</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
             <div class="sidebar-section-label">Sistema</div>
-            <div class="nav-item" data-page="impostazioni"><span class="nav-icon">⚙️</span> Impostazioni</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni</div>
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
@@ -46,7 +47,7 @@
             <div class="topbar-actions">
                 <span class="text-muted text-sm" id="count-clienti"></span>
                 <button class="btn btn-primary btn-sm" data-modal-open="modal-cliente">
-                    ➕ Nuovo cliente
+                    <i class="fa-solid fa-circle-plus"></i> Nuovo cliente
                 </button>
             </div>
         </header>
@@ -57,11 +58,11 @@
                 <!-- Toolbar ricerca + filtri -->
                 <div class="toolbar">
                     <div class="search-bar" style="width:260px">
-                        <span class="search-icon">🔍</span>
+                        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                         <input type="text" class="form-control" id="search-input" placeholder="Cerca cliente…">
                     </div>
                     <div class="toolbar-right">
-                        <button class="btn btn-ghost btn-sm" onclick="exportClienti()">📥 Esporta CSV</button>
+                        <button class="btn btn-ghost btn-sm" onclick="exportClienti()"><i class="fa-solid fa-download"></i> Esporta CSV</button>
                     </div>
                 </div>
 
@@ -100,7 +101,7 @@
 <div class="modal-overlay" id="modal-cliente">
     <div class="modal">
         <div class="modal-header">
-            <span id="modal-cliente-title">👤 Nuovo cliente</span>
+            <span id="modal-cliente-title"><i class="fa-solid fa-users"></i> Nuovo cliente</span>
             <button class="btn-close" data-modal-close="modal-cliente">✕</button>
         </div>
         <div class="modal-body">
@@ -142,7 +143,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-modal-close="modal-cliente">Annulla</button>
-            <button class="btn btn-primary" onclick="salvaCliente()">💾 Salva</button>
+            <button class="btn btn-primary" onclick="salvaCliente()"><i class="fa-solid fa-floppy-disk"></i> Salva</button>
         </div>
     </div>
 </div>
@@ -151,7 +152,7 @@
 <div class="modal-overlay" id="modal-elimina">
     <div class="modal">
         <div class="modal-header">
-            ⚠️ Conferma eliminazione
+            <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
             <button class="btn-close" data-modal-close="modal-elimina">✕</button>
         </div>
         <div class="modal-body">
@@ -193,7 +194,7 @@ async function loadClienti() {
     } catch (e) {
         const tbody = document.getElementById('clienti-tbody');
         setHTML(tbody, `<tr><td colspan="7" class="text-center text-muted" style="padding:32px">
-            ❌ Errore nel caricamento dei clienti.<br>
+            <i class="fa-solid fa-x"></i> Errore nel caricamento dei clienti.<br>
             <span class="text-sm">Verificare che il server Spring Boot sia avviato.</span>
         </td></tr>`);
     }
@@ -208,7 +209,7 @@ function renderTabella(clienti) {
     if (footer) footer.textContent = `${clienti.length} risultati`;
 
     if (!clienti.length) {
-        showEmptyState(tbody.parentElement.parentElement, 'Nessun cliente trovato', '➕ Aggiungi il primo', "openModal('modal-cliente');resetForm()");
+        showEmptyState(tbody.parentElement.parentElement, 'Nessun cliente trovato', '<i class="fa-solid fa-circle-plus"></i> Aggiungi il primo', "openModal('modal-cliente');resetForm()");
         tbody.innerHTML = '';
         return;
     }
@@ -231,7 +232,7 @@ function renderTabella(clienti) {
             <td><span class="badge badge-info">0 fatture</span></td>
             <td>
                 <div style="display:flex;gap:6px">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaCliente(${c.id})">✏️</button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaCliente(${c.id})"><i class="fa-solid fa-pen"></i></button>
                     <button class="btn btn-ghost btn-sm btn-icon" title="Elimina" onclick="chiediElimina(${c.id}, '${(c.nome ?? '').replace(/'/g, "\\'")}')">🗑️</button>
                 </div>
             </td>
@@ -240,7 +241,7 @@ function renderTabella(clienti) {
 
 function resetForm() {
     document.getElementById('cliente-id').value = '';
-    document.getElementById('modal-cliente-title').textContent = '👤 Nuovo cliente';
+    document.getElementById('modal-cliente-title').textContent = '<i class="fa-solid fa-users"></i> Nuovo cliente';
     ['nome','azienda','email','telefono','citta','piva','note'].forEach(f => {
         const el = document.getElementById(`cliente-${f}`);
         if (el) el.value = '';
@@ -251,7 +252,7 @@ function modificaCliente(id) {
     const c = tuttiClienti.find(x => x.id === id);
     if (!c) return;
     document.getElementById('cliente-id').value = c.id;
-    document.getElementById('modal-cliente-title').textContent = '✏️ Modifica cliente';
+    document.getElementById('modal-cliente-title').textContent = '<i class="fa-solid fa-pen"></i> Modifica cliente';
     document.getElementById('cliente-nome').value = c.nome ?? '';
     document.getElementById('cliente-azienda').value = c.azienda ?? '';
     document.getElementById('cliente-email').value = c.email ?? '';

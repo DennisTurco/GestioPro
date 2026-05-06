@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Impostazioni — Gestionale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/components.css">
@@ -15,17 +16,17 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon">📊</div>
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
             Gestionale
         </div>
         <nav class="sidebar-nav">
             <div class="sidebar-section-label">Menu principale</div>
-            <div class="nav-item" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
-            <div class="nav-item" data-page="clienti"><span class="nav-icon">👥</span> Clienti</div>
-            <div class="nav-item" data-page="fatture"><span class="nav-icon">📄</span> Fatture</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon">✅</span> Task</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
+            <div class="nav-item" data-page="fatture"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Fatture</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
             <div class="sidebar-section-label">Sistema</div>
-            <div class="nav-item" data-page="impostazioni"><span class="nav-icon">⚙️</span> Impostazioni</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni</div>
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
@@ -44,7 +45,7 @@
         <header class="topbar">
             <div class="topbar-title">Impostazioni</div>
             <div class="topbar-actions">
-                <button class="btn btn-primary btn-sm" onclick="salvaImpostazioni()">💾 Salva tutto</button>
+                <button class="btn btn-primary btn-sm" onclick="salvaImpostazioni()"><i class="fa-solid fa-floppy-disk"></i> Salva tutto</button>
             </div>
         </header>
 
@@ -54,7 +55,7 @@
 
                 <!-- Profilo Utente / Azienda -->
                 <div class="card mb-24">
-                    <div class="card-header">👤 Profilo e Azienda</div>
+                    <div class="card-header"><i class="fa-solid fa-users"></i> Profilo e Azienda</div>
                     <div class="card-body">
                         <div class="form-row">
                             <div class="form-group">
@@ -89,7 +90,7 @@
 
                 <!-- Preferenze Fatturazione -->
                 <div class="card mb-24">
-                    <div class="card-header">📄 Preferenze fatturazione</div>
+                    <div class="card-header"><i class="fa-solid fa-receipt"></i> Preferenze fatturazione</div>
                     <div class="card-body">
                         <div class="form-row">
                             <div class="form-group">
@@ -115,7 +116,7 @@
 
                 <!-- Aspetto / Tema -->
                 <div class="card mb-24">
-                    <div class="card-header">🎨 Personalizzazione tema</div>
+                    <div class="card-header"><i class="fa-solid fa-palette"></i> Personalizzazione tema</div>
                     <div class="card-body">
                         <p class="text-muted text-sm mb-16">
                             Per cambiare i colori del gestionale modifica il file
@@ -163,7 +164,7 @@
 
                 <!-- Info sistema -->
                 <div class="card">
-                    <div class="card-header">🖥️ Informazioni di sistema</div>
+                    <div class="card-header"><i class="fa-solid fa-desktop"></i> Informazioni di sistema</div>
                     <div class="card-body">
                         <table style="width:100%;border-collapse:collapse">
                             <tr style="border-bottom:1px solid var(--color-border)">
@@ -187,8 +188,8 @@
                         <div class="divider"></div>
 
                         <div class="flex gap-8">
-                            <button class="btn btn-ghost btn-sm" onclick="testConnessione()">🔌 Test connessione API</button>
-                            <button class="btn btn-ghost btn-sm" onclick="apriDevTools()">🛠️ Console</button>
+                            <button class="btn btn-ghost btn-sm" onclick="testConnessione()"><i class="fa-solid fa-plug"></i> Test connessione API</button>
+                            <button class="btn btn-ghost btn-sm" onclick="apriDevTools()"><i class="fa-solid fa-screwdriver-wrench"></i> Console</button>
                         </div>
                     </div>
                 </div>
@@ -261,7 +262,7 @@ function salvaImpostazioni() {
         if (el) prefs[f] = el.value;
     });
     localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-    showToast('Impostazioni salvate ✅', 'success');
+    showToast('Impostazioni salvate <i class="fa-solid fa-calendar-check"></i><', 'success');
 
     // Update sidebar avatar with saved name
     if (prefs['nome']) {
@@ -275,9 +276,9 @@ function salvaImpostazioni() {
 async function testConnessione() {
     try {
         const clienti = await ClientiAPI.getAll();
-        showToast(`✅ API raggiungibile — ${clienti.length} clienti nel DB`, 'success');
+        showToast(`<i class="fa-solid fa-check"></i> API raggiungibile — ${clienti.length} clienti nel DB`, 'success');
     } catch (e) {
-        showToast(`❌ API non raggiungibile: ${e.message}`, 'error');
+        showToast(`<i class="fa-solid fa-x"></i> API non raggiungibile: ${e.message}`, 'error');
     }
 }
 

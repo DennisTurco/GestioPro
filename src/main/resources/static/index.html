@@ -6,6 +6,7 @@
     <title>Dashboard — Gestionale</title>
 
     <!-- ⭐ THEME PRIMA DI TUTTO — solo questo file cambia per nuovo cliente -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/components.css">
@@ -17,7 +18,7 @@
     <!-- ═══════ SIDEBAR ═══════════════════════════════════ -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon">📊</div>
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
             Gestionale
         </div>
 
@@ -25,23 +26,23 @@
             <div class="sidebar-section-label">Menu principale</div>
 
             <div class="nav-item" data-page="dashboard">
-                <span class="nav-icon">🏠</span> Dashboard
+                <span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard
             </div>
             <div class="nav-item" data-page="clienti">
-                <span class="nav-icon">👥</span> Clienti
+                <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti
             </div>
             <div class="nav-item" data-page="fatture">
-                <span class="nav-icon">📄</span> Fatture
+                <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Fatture
             </div>
             <div class="nav-item" data-page="task">
-                <span class="nav-icon">✅</span> Task
+                <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task
                 <span class="nav-badge" id="badge-task">0</span>
             </div>
 
             <div class="sidebar-section-label">Sistema</div>
 
             <div class="nav-item" data-page="impostazioni">
-                <span class="nav-icon">⚙️</span> Impostazioni
+                <span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni
             </div>
         </nav>
 
@@ -65,7 +66,7 @@
             <div class="topbar-actions">
                 <span class="text-muted text-sm" id="topbar-date"></span>
                 <button class="btn btn-primary btn-sm" data-modal-open="modal-azione-rapida">
-                    ➕ Azione rapida
+                    <i class="fa-solid fa-circle-plus"></i> Azione rapida
                 </button>
             </div>
         </header>
@@ -76,25 +77,25 @@
             <!-- KPI CARDS -->
             <div class="grid-4 mb-24">
                 <div class="kpi-card">
-                    <div class="kpi-icon">👥</div>
+                    <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
                     <div class="kpi-label">Clienti totali</div>
                     <div class="kpi-value" id="kpi-clienti">—</div>
                     <div class="kpi-delta up" id="kpi-clienti-delta"></div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-icon"><i class="fa-solid fa-sack-dollar"></i></div>
                     <div class="kpi-label">Fatturato mese</div>
                     <div class="kpi-value" id="kpi-fatturato">—</div>
                     <div class="kpi-delta" id="kpi-fatturato-delta"></div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon">📄</div>
+                    <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
                     <div class="kpi-label">Fatture aperte</div>
                     <div class="kpi-value" id="kpi-fatture">—</div>
                     <div class="kpi-delta" id="kpi-fatture-delta"></div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon">✅</div>
+                    <div class="kpi-icon"><i class="fa-solid fa-calendar-check"></i></div>
                     <div class="kpi-label">Task attivi</div>
                     <div class="kpi-value" id="kpi-task">—</div>
                     <div class="kpi-delta" id="kpi-task-delta"></div>
@@ -106,7 +107,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        👥 Clienti recenti
+                        <i class="fa-solid fa-users"></i> Clienti recenti
                         <button class="btn btn-ghost btn-sm" onclick="navigateTo('clienti')">Vedi tutti →</button>
                     </div>
                     <div id="lista-clienti-recenti">
@@ -129,7 +130,7 @@
             <!-- ULTIME FATTURE -->
             <div class="card">
                 <div class="card-header">
-                    📄 Ultime fatture
+                    <i class="fa-solid fa-receipt"></i> Ultime fatture
                     <button class="btn btn-ghost btn-sm" onclick="navigateTo('fatture')">Vedi tutte →</button>
                 </div>
                 <div class="table-wrapper" style="border:none;border-radius:0 0 var(--radius) var(--radius)">
@@ -160,16 +161,16 @@
 <div class="modal-overlay" id="modal-azione-rapida">
     <div class="modal">
         <div class="modal-header">
-            ➕ Azione rapida
+            <i class="fa-solid fa-circle-plus"></i> Azione rapida
             <button class="btn-close" data-modal-close="modal-azione-rapida">✕</button>
         </div>
         <div class="modal-body">
             <p class="text-muted mb-16">Cosa vuoi fare?</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <button class="btn btn-outline" onclick="navigateTo('clienti')">👥 Nuovo cliente</button>
-                <button class="btn btn-outline" onclick="navigateTo('fatture')">📄 Nuova fattura</button>
-                <button class="btn btn-outline" onclick="navigateTo('task')">✅ Nuovo task</button>
-                <button class="btn btn-outline" onclick="navigateTo('impostazioni')">⚙️ Impostazioni</button>
+                <button class="btn btn-outline" onclick="navigateTo('clienti')"><i class="fa-solid fa-users"></i> Nuovo cliente</button>
+                <button class="btn btn-outline" onclick="navigateTo('fatture')"><i class="fa-solid fa-receipt"></i> Nuova fattura</button>
+                <button class="btn btn-outline" onclick="navigateTo('task')"><i class="fa-solid fa-calendar-check"></i>< Nuovo task</button>
+                <button class="btn btn-outline" onclick="navigateTo('impostazioni')"><i class="fa-solid fa-gear"></i> Impostazioni</button>
             </div>
         </div>
     </div>
@@ -211,7 +212,7 @@ async function loadClientiRecenti() {
     const container = document.getElementById('lista-clienti-recenti');
     try {
         const clienti = await ClientiAPI.getAll();
-        if (!clienti.length) { showEmptyState(container, 'Nessun cliente ancora', '➕ Aggiungi', "navigateTo('clienti')"); return; }
+        if (!clienti.length) { showEmptyState(container, 'Nessun cliente ancora', '<i class="fa-solid fa-circle-plus"></i> Aggiungi', "navigateTo('clienti')"); return; }
         const ultimi = clienti.slice(-5).reverse();
         setHTML(container, `<ul>` + ultimi.map(c => `
             <li style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--color-border)">
@@ -223,7 +224,7 @@ async function loadClientiRecenti() {
 
 async function loadTaskRecenti() {
     const container = document.getElementById('lista-task-recenti');
-    showEmptyState(container, 'Nessun task ancora', '➕ Crea task', "navigateTo('task')");
+    showEmptyState(container, 'Nessun task ancora', '<i class="fa-solid fa-circle-plus"></i> Crea task', "navigateTo('task')");
 }
 
 async function loadFattureRecenti() {

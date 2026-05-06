@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fatture — Gestionale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/components.css">
@@ -15,17 +16,17 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon">📊</div>
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
             Gestionale
         </div>
         <nav class="sidebar-nav">
             <div class="sidebar-section-label">Menu principale</div>
-            <div class="nav-item" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
-            <div class="nav-item" data-page="clienti"><span class="nav-icon">👥</span> Clienti</div>
-            <div class="nav-item" data-page="fatture"><span class="nav-icon">📄</span> Fatture</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon">✅</span> Task</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
+            <div class="nav-item" data-page="fatture"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Fatture</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
             <div class="sidebar-section-label">Sistema</div>
-            <div class="nav-item" data-page="impostazioni"><span class="nav-icon">⚙️</span> Impostazioni</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni</div>
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
@@ -45,7 +46,7 @@
             <div class="topbar-title">Fatture</div>
             <div class="topbar-actions">
                 <button class="btn btn-primary btn-sm" data-modal-open="modal-fattura">
-                    ➕ Nuova fattura
+                    <i class="fa-solid fa-circle-plus"></i> Nuova fattura
                 </button>
             </div>
         </header>
@@ -55,24 +56,24 @@
             <!-- KPI fatture -->
             <div class="grid-4 mb-24">
                 <div class="kpi-card">
-                    <div class="kpi-icon">📄</div>
+                    <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
                     <div class="kpi-label">Totale fatture</div>
                     <div class="kpi-value" id="kpi-tot">0</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background:var(--color-success-bg);color:var(--color-success)">✅</div>
+                    <div class="kpi-icon" style="background:var(--color-success-bg);color:var(--color-success)"><i class="fa-solid fa-check"></i></div>
                     <div class="kpi-label">Pagate</div>
                     <div class="kpi-value" id="kpi-pagate">0</div>
                     <div class="kpi-delta" id="kpi-pagate-val"></div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background:var(--color-warning-bg);color:var(--color-warning)">⏳</div>
+                    <div class="kpi-icon" style="background:var(--color-warning-bg);color:var(--color-warning)"><i class="fa-solid fa-spinner"></i></div>
                     <div class="kpi-label">In attesa</div>
                     <div class="kpi-value" id="kpi-attesa">0</div>
                     <div class="kpi-delta" id="kpi-attesa-val"></div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background:var(--color-danger-bg);color:var(--color-danger)">❌</div>
+                    <div class="kpi-icon" style="background:var(--color-danger-bg);color:var(--color-danger)"><i class="fa-solid fa-x"></i></div>
                     <div class="kpi-label">Scadute</div>
                     <div class="kpi-value" id="kpi-scadute">0</div>
                     <div class="kpi-delta" id="kpi-scadute-val"></div>
@@ -83,17 +84,17 @@
                 <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="search-bar" style="width:260px">
-                        <span class="search-icon">🔍</span>
+                        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                         <input type="text" class="form-control" id="search-input" placeholder="Cerca fattura…">
                     </div>
                     <select class="form-control" id="filtro-stato" style="width:auto">
                         <option value="">Tutti gli stati</option>
-                        <option value="pagata">✅ Pagate</option>
-                        <option value="attesa">⏳ In attesa</option>
-                        <option value="scaduta">❌ Scadute</option>
+                        <option value="pagata"><i class="fa-solid fa-check"></i> Pagate</option>
+                        <option value="attesa"><i class="fa-solid fa-spinner"></i> In attesa</option>
+                        <option value="scaduta"><i class="fa-solid fa-x"></i> Scadute</option>
                     </select>
                     <div class="toolbar-right">
-                        <button class="btn btn-ghost btn-sm">📥 Esporta</button>
+                        <button class="btn btn-ghost btn-sm"><i class="fa-solid fa-download"></i> Esporta</button>
                     </div>
                 </div>
 
@@ -114,10 +115,10 @@
                         <tbody id="fatture-tbody">
                             <tr><td colspan="8" class="text-center text-muted" style="padding:48px">
                                 <div class="empty-state">
-                                    <div class="empty-icon">📄</div>
+                                    <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
                                     <h3>Nessuna fattura ancora</h3>
                                     <p>Crea la tua prima fattura per iniziare a tracciare i pagamenti</p>
-                                    <button class="btn btn-primary" data-modal-open="modal-fattura">➕ Nuova fattura</button>
+                                    <button class="btn btn-primary" data-modal-open="modal-fattura"><i class="fa-solid fa-circle-plus"></i> Nuova fattura</button>
                                 </div>
                             </td></tr>
                         </tbody>
@@ -138,7 +139,7 @@
 <div class="modal-overlay" id="modal-fattura">
     <div class="modal" style="width:min(600px,95vw)">
         <div class="modal-header">
-            <span id="modal-fattura-title">📄 Nuova fattura</span>
+            <span id="modal-fattura-title"><i class="fa-solid fa-receipt"></i> Nuova fattura</span>
             <button class="btn-close" data-modal-close="modal-fattura">✕</button>
         </div>
         <div class="modal-body">
@@ -182,9 +183,9 @@
             <div class="form-group">
                 <label class="form-label">Stato</label>
                 <select class="form-control" id="fattura-stato">
-                    <option value="attesa">⏳ In attesa di pagamento</option>
-                    <option value="pagata">✅ Pagata</option>
-                    <option value="scaduta">❌ Scaduta</option>
+                    <option value="attesa"><i class="fa-solid fa-spinner"></i> In attesa di pagamento</option>
+                    <option value="pagata"><i class="fa-solid fa-check"></i> Pagata</option>
+                    <option value="scaduta"><i class="fa-solid fa-x"></i> Scaduta</option>
                 </select>
             </div>
             <div class="form-group">
@@ -194,7 +195,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-modal-close="modal-fattura">Annulla</button>
-            <button class="btn btn-primary" onclick="salvaFattura()">💾 Salva fattura</button>
+            <button class="btn btn-primary" onclick="salvaFattura()"><i class="fa-solid fa-floppy-disk"></i> Salva fattura</button>
         </div>
     </div>
 </div>
@@ -269,7 +270,7 @@ function renderTabella(fatture) {
     if (!fatture.length) {
         setHTML(tbody, `<tr><td colspan="8" style="padding:0">
             <div class="empty-state">
-                <div class="empty-icon">📄</div>
+                <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
                 <h3>Nessuna fattura trovata</h3>
                 <p>Prova a modificare i filtri di ricerca</p>
             </div>
@@ -289,8 +290,8 @@ function renderTabella(fatture) {
             <td><span class="badge ${s.cls}">${s.label}</span></td>
             <td>
                 <div style="display:flex;gap:6px">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaFattura(${f.id})">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna pagata" onclick="segnaComePagata(${f.id})">✅</button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaFattura(${f.id})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna pagata" onclick="segnaComePagata(${f.id})"><i class="fa-solid fa-calendar-check"></i></button>
                 </div>
             </td>
         </tr>`;
@@ -343,7 +344,7 @@ function modificaFattura(id) {
     const f = tutteFatture.find(x => x.id === id);
     if (!f) return;
     document.getElementById('fattura-id').value          = f.id;
-    document.getElementById('modal-fattura-title').textContent = '✏️ Modifica fattura';
+    document.getElementById('modal-fattura-title').textContent = '<i class="fa-solid fa-pen"></i> Modifica fattura';
     document.getElementById('fattura-numero').value      = f.numero ?? '';
     document.getElementById('fattura-cliente').value     = f.clienteId ?? '';
     document.getElementById('fattura-descrizione').value = f.descrizione ?? '';
@@ -359,7 +360,7 @@ function modificaFattura(id) {
 async function segnaComePagata(id) {
     try {
         await FattureAPI.update(id, { stato: 'pagata' });
-        showToast('Fattura segnata come pagata ✅', 'success');
+        showToast('Fattura segnata come pagata <i class="fa-solid fa-calendar-check"></i><', 'success');
         await loadFatture();
     } catch (e) { showToast(`Errore: ${e.message}`, 'error'); }
 }
