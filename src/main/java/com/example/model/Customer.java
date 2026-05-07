@@ -1,4 +1,4 @@
-package com.example;
+package com.example.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,11 +7,11 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cliente {
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String nome;
+    private String name;
+    private String surname;
 }
