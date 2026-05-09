@@ -1,11 +1,11 @@
 /**
- * api.js — REST client for Spring Boot
+ * api.js - REST client for Spring Boot
  *
  * All backend calls go through here.
  * Base URL: window.location.origin (so the app works on any port).
  */
 
-const API_BASE = window.location.origin + '/api';
+const API_BASE = window.location.origin + '/api/v1';
 
 /**
  * Fetch wrapper with centralised error handling.
@@ -16,21 +16,42 @@ const API_BASE = window.location.origin + '/api';
 async function apiFetch(endpoint, opts = {}) {
     const url = API_BASE + endpoint;
 
-    const defaults = {
-        headers: { 'Content-Type': 'application/json', ...opts.headers },
-    };
-
-    const response = await fetch(url, { ...defaults, ...opts });
+    const response = await fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            ...opts.headers,
+        },
+        ...opts,
+    });
 
     if (!response.ok) {
-        const msg = await response.text().catch(() => response.statusText);
-        throw new ApiError(response.status, msg);
+        let errorMessage = 'Errore server';
+
+        try {
+            const data = await response.json();
+            errorMessage =
+                data.message ||
+                data.error ||
+                (data.errors?.[0]?.defaultMessage) ||
+                response.statusText;
+        } catch {
+            const text = await response.text();
+            errorMessage = text?.slice(0, 200) || response.statusText;
+        }
+
+        throw new ApiError(response.status, errorMessage);
     }
 
-    // 204 No Content → no body to parse
     if (response.status === 204) return null;
 
-    return response.json();
+    const contentType = response.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+    }
+
+    // fallback testo
+    return await response.text();
 }
 
 /** API error carrying an HTTP status code */
@@ -42,28 +63,35 @@ class ApiError extends Error {
     }
 }
 
-/* ═══════════════ CLIENTI ════════════════════════ */
+/* ═══════════════ CUSTOMER ════════════════════════ */
 const ClientiAPI = {
-    /** GET /api/clienti */
-    getAll: () => apiFetch('/clienti'),
+    /** GET /api/v1/customers */
+    getAll: () => apiFetch('/customers'),
 
-    /** GET /api/clienti/:id */
-    getById: (id) => apiFetch(`/clienti/${id}`),
+    /** GET /api/v1/customers/:id */
+    getById: (id) => apiFetch(`/customers/${id}`),
 
-    /** POST /api/clienti */
-    create: (data) => apiFetch('/clienti', {
+    /** POST /api/v1/customers */
+    create: (data) => apiFetch('/customers', {
         method: 'POST',
         body: JSON.stringify(data),
     }),
 
-    /** PUT /api/clienti/:id */
-    update: (id, data) => apiFetch(`/clienti/${id}`, {
+    /** PUT /api/v1/customers/:id */
+    update: (id, data) => apiFetch(`/customers/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
 
-    /** DELETE /api/clienti/:id */
-    delete: (id) => apiFetch(`/clienti/${id}`, { method: 'DELETE' }),
+    /** DELETE /api/v1/customers/:id */
+    delete: (id) => apiFetch(`/customers/${id}`, { method: 'DELETE' }),
+};
+
+/* ═══════════════ CUSTOMER TYPE ════════════════════════ */
+
+const CustomerTypeAPI = {
+    getAll: () => apiFetch('/customer-types')
+
 };
 
 /* ═══════════════ FATTURE ════════════════════════ */
@@ -86,7 +114,7 @@ const TaskAPI = {
 
 /* ═══════════════ DASHBOARD ══════════════════════ */
 const DashboardAPI = {
-    /** GET /api/dashboard/stats — returns aggregated KPIs */
+    /** GET /api/v1/dashboard/stats - returns aggregated KPIs */
     getStats: () => apiFetch('/dashboard/stats'),
 };
 
@@ -105,7 +133,7 @@ function showToast(message, type = 'info', duration = 3500) {
         document.body.appendChild(container);
     }
 
-    const icons = { success: '✅', error: '<i class="fa-solid fa-x"></i>', warning: '<i class="fa-solid fa-triangle-exclamation"></i>', info: 'ℹ️' };
+    const icons = { success: '<i class="fa-solid fa-check"></i>', error: '<i class="fa-solid fa-x"></i>', warning: '<i class="fa-solid fa-triangle-exclamation"></i>', info: '<i class="fa-solid fa-circle-info"></i>' };
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] ?? ''} ${message}</span>`;
@@ -137,7 +165,7 @@ function formatCurrency(value) {
  * @returns {string}  e.g. "06/05/2025"
  */
 function formatDate(isoString) {
-    if (!isoString) return '—';
+    if (!isoString) return '-';
     return new Date(isoString).toLocaleDateString('it-IT');
 }
 

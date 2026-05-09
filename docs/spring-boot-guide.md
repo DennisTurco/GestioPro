@@ -7,14 +7,14 @@
 ## Indice
 
 1. [Come funziona l'app](#1-come-funziona-lapp)
-2. [Spring Boot — Concetti chiave](#2-spring-boot--concetti-chiave)
+2. [Spring Boot - Concetti chiave](#2-spring-boot--concetti-chiave)
 3. [Il pattern MVC con Spring](#3-il-pattern-mvc-con-spring)
 4. [Come creare una nuova entità](#4-come-creare-una-nuova-entità)
 5. [JPA e SQLite](#5-jpa-e-sqlite)
-6. [REST API — Come funzionano le rotte](#6-rest-api--come-funzionano-le-rotte)
+6. [REST API - Come funzionano le rotte](#6-rest-api--come-funzionano-le-rotte)
 7. [Frontend: HTML + JS che parla col backend](#7-frontend-html--js-che-parla-col-backend)
-8. [Dipendenza Injection — Cosa è e come usarla](#8-dependency-injection--cosa-è-e-come-usarla)
-9. [JavaFX + WebView — Come si integra](#9-javafx--webview--come-si-integra)
+8. [Dipendenza Injection - Cosa è e come usarla](#8-dependency-injection--cosa-è-e-come-usarla)
+9. [JavaFX + WebView - Come si integra](#9-javafx--webview--come-si-integra)
 10. [Comandi utili e debugging](#10-comandi-utili-e-debugging)
 11. [Errori comuni e soluzioni](#11-errori-comuni-e-soluzioni)
 12. [Roadmap: cosa aggiungere dopo](#12-roadmap-cosa-aggiungere-dopo)
@@ -47,7 +47,7 @@
 **Il flusso completo di una richiesta:**
 
 1. L'utente clicca un bottone in HTML
-2. Il JavaScript fa una chiamata `fetch('/api/clienti')`
+2. Il JavaScript fa una chiamata `fetch('/api/v1/customers')`
 3. Spring Boot riceve la richiesta sul `ClienteController`
 4. Il controller chiama il `ClienteRepository`
 5. Hibernate converte la query in SQL e interroga SQLite
@@ -56,7 +56,7 @@
 
 ---
 
-## 2. Spring Boot — Concetti chiave
+## 2. Spring Boot - Concetti chiave
 
 ### `@SpringBootApplication`
 È l'annotazione che avvia tutto. La trovi in `WebApp.java`:
@@ -71,9 +71,9 @@ public class WebApp {
 ```
 
 Questa singola annotazione fa 3 cose:
-- `@Configuration` — questa classe può dichiarare Bean
-- `@EnableAutoConfiguration` — configura automaticamente Spring (Tomcat, JPA, ecc.)
-- `@ComponentScan` — scansiona il package e trova tutti i `@Component`, `@Service`, `@Repository`, `@Controller`
+- `@Configuration` - questa classe può dichiarare Bean
+- `@EnableAutoConfiguration` - configura automaticamente Spring (Tomcat, JPA, ecc.)
+- `@ComponentScan` - scansiona il package e trova tutti i `@Component`, `@Service`, `@Repository`, `@Controller`
 
 ### `application.properties`
 Configura il comportamento di Spring Boot:
@@ -118,7 +118,7 @@ spring.jpa.show-sql=true
 ### Struttura consigliata del package:
 
 ```
-com.example/
+com.dennisturco/
 ├── model/              ← Entità JPA (tabelle DB)
 │   ├── Cliente.java
 │   ├── Fattura.java
@@ -142,11 +142,11 @@ com.example/
 
 Esempio completo: aggiungere **Fattura**.
 
-### Step 1 — Entità (model)
+### Step 1 - Entità (model)
 
 ```java
-// src/main/java/com/example/model/Fattura.java
-package com.example.model;
+// src/main/java/com/dennisturco/model/Fattura.java
+package com.dennisturco.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -184,13 +184,13 @@ public class Fattura {
 - `@AllArgsConstructor` = costruttore con tutti i parametri
 - `@Builder` = pattern builder per creare oggetti
 
-### Step 2 — Repository
+### Step 2 - Repository
 
 ```java
-// src/main/java/com/example/repository/FatturaRepository.java
-package com.example.repository;
+// src/main/java/com/dennisturco/repository/FatturaRepository.java
+package com.dennisturco.repository;
 
-import com.example.model.Fattura;
+import com.dennisturco.model.Fattura;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
@@ -207,14 +207,14 @@ public interface FatturaRepository extends JpaRepository<Fattura, Long> {
 }
 ```
 
-### Step 3 — Controller
+### Step 3 - Controller
 
 ```java
-// src/main/java/com/example/controller/FatturaController.java
-package com.example.controller;
+// src/main/java/com/dennisturco/controller/FatturaController.java
+package com.dennisturco.controller;
 
-import com.example.model.Fattura;
-import com.example.repository.FatturaRepository;
+import com.dennisturco.model.Fattura;
+import com.dennisturco.repository.FatturaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -316,7 +316,7 @@ spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
 
 ---
 
-## 6. REST API — Come funzionano le rotte
+## 6. REST API - Come funzionano le rotte
 
 ### Annotazioni controller:
 
@@ -405,7 +405,7 @@ const FattureAPI = {
 
 ---
 
-## 8. Dependency Injection — Cosa è e come usarla
+## 8. Dependency Injection - Cosa è e come usarla
 
 Spring gestisce la creazione degli oggetti. Tu dichiari **di cosa hai bisogno**, Spring te lo fornisce.
 
@@ -436,7 +436,7 @@ public class ClienteController {
 
 ---
 
-## 9. JavaFX + WebView — Come si integra
+## 9. JavaFX + WebView - Come si integra
 
 `DesktopApp.java` fa queste cose nell'ordine:
 
@@ -550,7 +550,7 @@ taskkill /PID <PID> /F
 
 ### `Field ... required a bean of type ... that could not be found`
 **Causa:** Spring non trova una classe annotata.  
-**Soluzione:** Assicurati che la classe abbia `@Service`, `@Repository`, o `@Component`, e che stia nel package `com.example` (o sotto-package).
+**Soluzione:** Assicurati che la classe abbia `@Service`, `@Repository`, o `@Component`, e che stia nel package `com.dennisturco` (o sotto-package).
 
 ### `Table ... not found`
 **Causa:** Hibernate non ha creato la tabella.  
@@ -612,4 +612,4 @@ public class CorsConfig implements WebMvcConfigurer {
 
 ---
 
-*Documento generato per il progetto JavaTestApp — Spring Boot 3.2.5 + JavaFX 21 + SQLite*
+*Documento generato per il progetto JavaTestApp - Spring Boot 3.2.5 + JavaFX 21 + SQLite*

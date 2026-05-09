@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impostazioni — Gestionale</title>
+    <title>Impostazioni - Gestionale</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
@@ -70,7 +70,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Email</label>
-                                <input type="email" class="form-control" id="pref-email" placeholder="mario@example.com">
+                                <input type="email" class="form-control" id="pref-email" placeholder="mario@dennisturco.com">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Telefono</label>
@@ -121,7 +121,7 @@
                         <p class="text-muted text-sm mb-16">
                             Per cambiare i colori del gestionale modifica il file
                             <code style="background:var(--color-bg);padding:2px 6px;border-radius:4px;font-size:12px">css/theme.css</code>
-                            — tutte le variabili sono raggruppate nella sezione <em>BRAND COLORS</em>.
+                            - tutte le variabili sono raggruppate nella sezione <em>BRAND COLORS</em>.
                         </p>
 
                         <div class="form-row">
@@ -177,7 +177,7 @@
                             </tr>
                             <tr style="border-bottom:1px solid var(--color-border)">
                                 <td class="text-muted text-sm" style="padding:10px 0">Server</td>
-                                <td class="text-sm font-medium" id="info-server">—</td>
+                                <td class="text-sm font-medium" id="info-server">-</td>
                             </tr>
                             <tr>
                                 <td class="text-muted text-sm" style="padding:10px 0">Versione</td>
@@ -276,7 +276,7 @@ function salvaImpostazioni() {
 async function testConnessione() {
     try {
         const clienti = await ClientiAPI.getAll();
-        showToast(`<i class="fa-solid fa-check"></i> API raggiungibile — ${clienti.length} clienti nel DB`, 'success');
+        showToast(`<i class="fa-solid fa-check"></i> API raggiungibile - ${clienti.length} clienti nel DB`, 'success');
     } catch (e) {
         showToast(`<i class="fa-solid fa-x"></i> API non raggiungibile: ${e.message}`, 'error');
     }

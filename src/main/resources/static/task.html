@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task — Gestionale</title>
+    <title>Task - Gestionale</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
@@ -113,7 +113,7 @@
                 <div class="form-group">
                     <label class="form-label">Cliente collegato</label>
                     <select class="form-control" id="task-cliente">
-                        <option value="">— Nessuno —</option>
+                        <option value="">- Nessuno -</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -238,7 +238,7 @@ function renderTaskItem(t) {
             style="width:18px;height:18px;cursor:pointer;accent-color:var(--color-primary)">
         <div style="flex:1;min-width:0">
             <div class="font-medium" style="${completato ? 'text-decoration:line-through;color:var(--color-text-muted)' : ''}">
-                ${t.titolo ?? '—'}
+                ${t.titolo ?? '-'}
             </div>
             ${t.descrizione ? `<div class="text-sm text-muted" style="margin-top:2px">${t.descrizione}</div>` : ''}
             <div class="flex gap-8 mt-8">

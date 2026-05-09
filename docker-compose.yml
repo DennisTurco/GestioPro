@@ -1,8 +1,9 @@
 services:
   db:
     container_name: postgres-gestiopro
-    image: postres:latest
+    image: postgres:latest
     environment:
+      POSTGRES_DB: gestiopro
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: Pa55w0rd
       PGDARE: /data/postgres

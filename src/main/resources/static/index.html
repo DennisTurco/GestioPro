@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Gestionale</title>
+    <title>Dashboard - Gestionale</title>
 
-    <!-- ⭐ THEME PRIMA DI TUTTO — solo questo file cambia per nuovo cliente -->
+    <!-- THEME PRIMA DI TUTTO - solo questo file cambia per nuovo cliente -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
@@ -79,25 +79,25 @@
                 <div class="kpi-card">
                     <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
                     <div class="kpi-label">Clienti totali</div>
-                    <div class="kpi-value" id="kpi-clienti">—</div>
+                    <div class="kpi-value" id="kpi-clienti">-</div>
                     <div class="kpi-delta up" id="kpi-clienti-delta"></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon"><i class="fa-solid fa-sack-dollar"></i></div>
                     <div class="kpi-label">Fatturato mese</div>
-                    <div class="kpi-value" id="kpi-fatturato">—</div>
+                    <div class="kpi-value" id="kpi-fatturato">-</div>
                     <div class="kpi-delta" id="kpi-fatturato-delta"></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
                     <div class="kpi-label">Fatture aperte</div>
-                    <div class="kpi-value" id="kpi-fatture">—</div>
+                    <div class="kpi-value" id="kpi-fatture">-</div>
                     <div class="kpi-delta" id="kpi-fatture-delta"></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon"><i class="fa-solid fa-calendar-check"></i></div>
                     <div class="kpi-label">Task attivi</div>
-                    <div class="kpi-value" id="kpi-task">—</div>
+                    <div class="kpi-value" id="kpi-task">-</div>
                     <div class="kpi-delta" id="kpi-task-delta"></div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        📌 Task da completare
+                        <i class="fa-solid fa-thumbtack"></i> Task da completare
                         <button class="btn btn-ghost btn-sm" onclick="navigateTo('task')">Vedi tutti →</button>
                     </div>
                     <div id="lista-task-recenti">
@@ -169,7 +169,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <button class="btn btn-outline" onclick="navigateTo('clienti')"><i class="fa-solid fa-users"></i> Nuovo cliente</button>
                 <button class="btn btn-outline" onclick="navigateTo('fatture')"><i class="fa-solid fa-receipt"></i> Nuova fattura</button>
-                <button class="btn btn-outline" onclick="navigateTo('task')"><i class="fa-solid fa-calendar-check"></i>< Nuovo task</button>
+                <button class="btn btn-outline" onclick="navigateTo('task')"><i class="fa-solid fa-calendar-check"></i>Nuovo task</button>
                 <button class="btn btn-outline" onclick="navigateTo('impostazioni')"><i class="fa-solid fa-gear"></i> Impostazioni</button>
             </div>
         </div>
@@ -230,7 +230,7 @@ async function loadTaskRecenti() {
 async function loadFattureRecenti() {
     const tbody = document.getElementById('fatture-tbody');
     setHTML(tbody, `<tr><td colspan="5" class="text-center text-muted" style="padding:24px">
-        Nessuna fattura — <span onclick="navigateTo('fatture')" style="color:var(--color-primary);cursor:pointer">Creane una</span>
+        Nessuna fattura - <span onclick="navigateTo('fatture')" style="color:var(--color-primary);cursor:pointer">Creane una</span>
     </td></tr>`);
 }
 </script>

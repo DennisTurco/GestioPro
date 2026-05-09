@@ -1,5 +1,5 @@
 /**
- * app.js — Shared UI logic across all pages
+ * app.js - Shared UI logic across all pages
  *
  * - Page navigation
  * - Generic modal management

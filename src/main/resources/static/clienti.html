@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clienti — Gestionale</title>
+    <title>Clienti - Gestionale</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
@@ -30,7 +30,7 @@
         </nav>
         <div class="sidebar-footer">
             <div class="user-info">
-                <div class="user-avatar">U</div>
+                <div class="user-avatar"></div>
                 <div>
                     <div class="font-medium" style="color:#E2E8F0;font-size:13px">Utente</div>
                     <div style="font-size:11px">Freelance</div>
@@ -71,7 +71,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>ID</th>
                                 <th>Cliente</th>
                                 <th>Email</th>
                                 <th>Telefono</th>
@@ -101,49 +101,133 @@
 <div class="modal-overlay" id="modal-cliente">
     <div class="modal">
         <div class="modal-header">
-            <span id="modal-cliente-title"><i class="fa-solid fa-users"></i> Nuovo cliente</span>
+            <span id="modal-customer-title">
+                <i class="fa-solid fa-users"></i> Nuovo cliente
+            </span>
             <button class="btn-close" data-modal-close="modal-cliente">✕</button>
         </div>
         <div class="modal-body">
-            <input type="hidden" id="cliente-id">
+            <input type="hidden" id="customer-id">
+            <!-- CUSTOMER TYPE -->
+            <div class="form-group">
+                <label class="form-label">Tipo cliente *</label>
+                <select class="form-control" id="customer-type" required>
+                    <!-- get from backend -->
+                </select>
+            </div>
+            <!-- NAME -->
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Nome *</label>
-                    <input type="text" class="form-control" id="cliente-nome" placeholder="Mario Rossi">
+                    <input type="text" class="form-control"
+                           id="customer-name"
+                           placeholder="Mario"
+                           required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Azienda</label>
-                    <input type="text" class="form-control" id="cliente-azienda" placeholder="Rossi SRL">
+                    <label class="form-label">Cognome *</label>
+                    <input type="text" class="form-control"
+                           id="customer-surname"
+                           placeholder="Rossi"
+                           required>
                 </div>
             </div>
+            <!-- CONTACT -->
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" id="cliente-email" placeholder="mario@example.com">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control"
+                           id="customer-email"
+                           placeholder="mario@email.com"
+                           required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Telefono</label>
-                    <input type="tel" class="form-control" id="cliente-telefono" placeholder="+39 333 000 0000">
+                    <label class="form-label">Telefono *</label>
+                    <input type="tel" class="form-control"
+                           id="customer-phone"
+                           placeholder="+39 333 000 0000"
+                           required>
                 </div>
             </div>
+            <!-- COMPANY -->
             <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Ragione Sociale</label>
+                    <input type="text" class="form-control"
+                           id="customer-companyName"
+                           placeholder="Rossi SRL">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Partita IVA</label>
+                    <input type="text" class="form-control"
+                           id="customer-vatNumber"
+                           placeholder="IT01234567890">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Codice Fiscale</label>
+                    <input type="text" class="form-control"
+                           id="customer-taxCode">
+                </div>
+            </div>
+            <!-- ADDRESS -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nazione</label>
+                    <input type="text" class="form-control" id="customer-country">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Regione</label>
+                    <input type="text" class="form-control" id="customer-region">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Provincia</label>
+                    <input type="text" class="form-control" id="customer-province">
+                </div>
                 <div class="form-group">
                     <label class="form-label">Città</label>
-                    <input type="text" class="form-control" id="cliente-citta" placeholder="Milano">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">P. IVA</label>
-                    <input type="text" class="form-control" id="cliente-piva" placeholder="IT01234567890">
+                    <input type="text" class="form-control" id="customer-city">
                 </div>
             </div>
             <div class="form-group">
+                <label class="form-label">Indirizzo</label>
+                <input type="text" class="form-control" id="customer-address">
+            </div>
+            <!-- GEO -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Latitudine</label>
+                    <input type="number" step="any"
+                           class="form-control"
+                           id="customer-lat">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Longitudine</label>
+                    <input type="number" step="any"
+                           class="form-control"
+                           id="customer-lon">
+                </div>
+            </div>
+            <!-- LANDLINE -->
+            <div class="form-group">
+                <label class="form-label">Telefono fisso</label>
+                <input type="tel" class="form-control" id="customer-landline">
+            </div>
+            <!-- NOTES -->
+            <div class="form-group">
                 <label class="form-label">Note</label>
-                <textarea class="form-control" id="cliente-note" rows="3" placeholder="Note aggiuntive…" style="resize:vertical"></textarea>
+                <textarea class="form-control"
+                          id="customer-notes"
+                          rows="3"
+                          style="resize:vertical"></textarea>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-ghost" data-modal-close="modal-cliente">Annulla</button>
-            <button class="btn btn-primary" onclick="salvaCliente()"><i class="fa-solid fa-floppy-disk"></i> Salva</button>
+            <button class="btn btn-ghost" data-modal-close="modal-cliente">
+                Annulla
+            </button>
+            <button class="btn btn-primary" onclick="saveCustomer()">
+                <i class="fa-solid fa-floppy-disk"></i> Salva
+            </button>
         </div>
     </div>
 </div>
@@ -156,12 +240,12 @@
             <button class="btn-close" data-modal-close="modal-elimina">✕</button>
         </div>
         <div class="modal-body">
-            <p>Sei sicuro di voler eliminare <strong id="elimina-nome"></strong>?</p>
+            <p>Sei sicuro di voler eliminare <strong id="elimina-name"></strong>?</p>
             <p class="text-muted text-sm mt-8">Questa azione non può essere annullata.</p>
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-modal-close="modal-elimina">Annulla</button>
-            <button class="btn btn-danger" onclick="confermaElimina()">🗑️ Elimina</button>
+            <button class="btn btn-danger" onclick="confermaElimina()"><i class="fa-solid fa-trash"></i> Elimina</button>
         </div>
     </div>
 </div>
@@ -174,8 +258,10 @@
 let tuttiClienti = [];
 let clienteDaEliminare = null;
 
+// called at page load
 document.addEventListener('DOMContentLoaded', async () => {
     await loadClienti();
+    await loadCustomeTypes();
 
     document.getElementById('search-input').addEventListener('input', (e) => {
         renderTabella(filterItems(tuttiClienti, e.target.value, ['nome', 'email', 'citta', 'azienda']));
@@ -184,7 +270,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Reset form when opening the modal for a new client
     document.querySelector('[data-modal-open="modal-cliente"]').addEventListener('click', () => {
         resetForm();
+        updateCustomerFields();
     });
+
+    document
+        .getElementById('customer-type')
+        .addEventListener('change', updateCustomerFields);
 });
 
 async function loadClienti() {
@@ -219,104 +310,205 @@ function renderTabella(clienti) {
             <td class="text-muted text-sm">${c.id}</td>
             <td>
                 <div style="display:flex;align-items:center;gap:10px">
-                    <div class="avatar" style="flex-shrink:0">${getInitials(c.nome)}</div>
+                    <div class="avatar" style="flex-shrink:0">${getInitials(c.name)}</div>
                     <div>
-                        <div class="font-medium">${c.nome ?? '—'}</div>
-                        <div class="text-xs text-muted">${c.azienda ?? ''}</div>
+                        <div class="font-medium">${c.name + " " + c.surname}</div>
+                        <div class="text-xs text-muted">${c.companyName ?? ''}</div>
                     </div>
                 </div>
             </td>
-            <td>${c.email ?? '—'}</td>
-            <td>${c.telefono ?? '—'}</td>
-            <td>${c.citta ?? '—'}</td>
+            <td>${c.email}</td>
+            <td>${c.phone}</td>
+            <td>${c.city ?? '-'}</td>
             <td><span class="badge badge-info">0 fatture</span></td>
             <td>
                 <div style="display:flex;gap:6px">
                     <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaCliente(${c.id})"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Elimina" onclick="chiediElimina(${c.id}, '${(c.nome ?? '').replace(/'/g, "\\'")}')">🗑️</button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Elimina" onclick="chiediElimina(${c.id}, '${(c.name ?? '').replace(/'/g, "\\'")}')">🗑️</button>
                 </div>
             </td>
         </tr>`).join(''));
 }
 
 function resetForm() {
-    document.getElementById('cliente-id').value = '';
-    document.getElementById('modal-cliente-title').textContent = '<i class="fa-solid fa-users"></i> Nuovo cliente';
-    ['nome','azienda','email','telefono','citta','piva','note'].forEach(f => {
-        const el = document.getElementById(`cliente-${f}`);
-        if (el) el.value = '';
-    });
+    document.getElementById('customer-id').value = '';
+    document
+        .querySelectorAll('#modal-cliente input, #modal-cliente textarea')
+        .forEach(el => el.value = '');
+
 }
 
 function modificaCliente(id) {
     const c = tuttiClienti.find(x => x.id === id);
     if (!c) return;
-    document.getElementById('cliente-id').value = c.id;
-    document.getElementById('modal-cliente-title').textContent = '<i class="fa-solid fa-pen"></i> Modifica cliente';
-    document.getElementById('cliente-nome').value = c.nome ?? '';
-    document.getElementById('cliente-azienda').value = c.azienda ?? '';
-    document.getElementById('cliente-email').value = c.email ?? '';
-    document.getElementById('cliente-telefono').value = c.telefono ?? '';
-    document.getElementById('cliente-citta').value = c.citta ?? '';
-    document.getElementById('cliente-piva').value = c.piva ?? '';
-    document.getElementById('cliente-note').value = c.note ?? '';
+    document.getElementById('customer-id').value = c.id;
+    document.getElementById('customer-type').value = c.customerType.id;
+    document.getElementById('modal-customer-title').textContent = '<i class="fa-solid fa-pen"></i> Modifica cliente';
+    document.getElementById('customer-name').value = c.name ?? '';
+    document.getElementById('customer-surname').value = c.surname ?? '';
+    document.getElementById('customer-email').value = c.email ?? '';
+    document.getElementById('customer-phone').value = c.phone ?? '';
+    document.getElementById('customer-companyName').value = c.companyName ?? '';
+    document.getElementById('customer-country').value = c.country ?? '';
+    document.getElementById('customer-region').value = c.region ?? '';
+    document.getElementById('customer-province').value = c.province ?? '';
+    document.getElementById('customer-address').value = c.address ?? '';
+    document.getElementById('customer-city').value = c.city ?? '';
+    document.getElementById('customer-lat').value = c.lat ?? '';
+    document.getElementById('customer-lon').value = c.lon ?? '';
+    document.getElementById('customer-vatNumber').value = c.vatNumber ?? '';
+    document.getElementById('customer-taxCode').value = c.taxCode ?? '';
+    document.getElementById('customer-landline').value = c.landline ?? '';
+    document.getElementById('customer-notes').value = c.notes ?? '';
     openModal('modal-cliente');
 }
 
-async function salvaCliente() {
-    const nome = document.getElementById('cliente-nome').value.trim();
-    if (!nome) { showToast('Il nome è obbligatorio', 'warning'); return; }
+function updateCustomerFields() {
+
+    const type = document.getElementById('customer-type').value;
+
+    const companyName = document.getElementById('customer-companyName');
+    const vatNumber   = document.getElementById('customer-vatNumber');
+    const taxCode     = document.getElementById('customer-taxCode');
+
+    if (type === CUSTOMER_TYPES.COMPANY) {
+        companyName.disabled = false;
+        vatNumber.disabled = false;
+        taxCode.disabled = false;
+    } else if (type === CUSTOMER_TYPES.PUBLIC_ADMIN) {
+        companyName.disabled = false;
+        vatNumber.disabled = false;
+        taxCode.disabled = false;
+    } else if (type === CUSTOMER_TYPES.FREELANCER) {
+        companyName.disabled = false;
+        vatNumber.disabled = false;
+        taxCode.disabled = false;
+    } else if (type === CUSTOMER_TYPES.PRIVATE) {
+        companyName.disabled = true;
+        vatNumber.disabled = true;
+        companyName.value = null;
+        vatNumber.value = null;
+        taxCode.disabled = false;
+    }
+}
+
+async function saveCustomer() {
+    const name = document.getElementById('customer-name').value.trim();
+    if (!name) { showToast('Il nome è obbligatorio', 'warning'); return; }
+
+    const surname = document.getElementById('customer-surname').value.trim();
+    if (!surname) { showToast('Il cognome è obbligatorio', 'warning'); return; }
+
+    const email = document.getElementById('customer-email').value.trim();
+    if (!email) { showToast(`L'email è obbligatoria`, 'warning'); return; }
+
+    const phone = document.getElementById('customer-phone').value.trim();
+    if (!phone) { showToast('Il telefono è obbligatorio', 'warning'); return; }
+
+    const vatNumber = document.getElementById('customer-vatNumber').value.trim() || null;
+    const taxCode = document.getElementById('customer-taxCode').value.trim()  || null;
+    const companyName = document.getElementById('customer-companyName').value.trim()  || null;
+    const customerType = document.getElementById("customer-type").value.trim() || null;
+
+    if (!customerType) {
+        showToast(`Il tipo cliente è obbligatorio`, 'warning'); return;
+    }
+
+    if (customerType === CUSTOMER_TYPES.COMPANY || customerType === CUSTOMER_TYPES.PUBLIC_ADMIN || customerType === CUSTOMER_TYPES.FREELANCER) {
+        if (!companyName) { showToast(`La ragione sociale è obbligatoria`, 'warning'); return; }
+        if (!vatNumber) { showToast(`La P.IVA è obbligatoria`, 'warning'); return; }
+        if (!taxCode) { showToast(`Il C.F. è obbligatorio`, 'warning'); return; }
+    }
+    
+    if (customerType === CUSTOMER_TYPES.COMPANY) {
+        if (vatNumber != taxCode) { showToast(`La P.IVA deve essere uguale al C.F.`, 'warning'); return; }
+    } else if (customerType === CUSTOMER_TYPES.PUBLIC_ADMIN) {
+        // TODO: check -> vatNumber != taxCode (taxCode must be numeric)
+    } else if (customerType === CUSTOMER_TYPES.FREELANCER) {
+        // TODO: check -> taxCode is a normal taxCode
+    }
 
     const data = {
-        nome,
-        azienda:   document.getElementById('cliente-azienda').value.trim() || null,
-        email:     document.getElementById('cliente-email').value.trim() || null,
-        telefono:  document.getElementById('cliente-telefono').value.trim() || null,
-        citta:     document.getElementById('cliente-citta').value.trim() || null,
-        piva:      document.getElementById('cliente-piva').value.trim() || null,
-        note:      document.getElementById('cliente-note').value.trim() || null,
+        name,
+        surname,
+        email,
+        phone,
+        region:   document.getElementById('customer-region').value.trim() || null,
+        country:  document.getElementById('customer-country').value.trim() || null,
+        city:     document.getElementById('customer-city').value.trim() || null,
+        province: document.getElementById('customer-province').value.trim() || null,
+        address:  document.getElementById('customer-address').value.trim() || null,
+        vatNumber,
+        companyName,
+        taxCode,
+        landline: document.getElementById('customer-landline').value.trim() || null,
+        lat:      document.getElementById('customer-lat').value.trim() || null,
+        lon:      document.getElementById('customer-lon').value.trim() || null,
+        notes:    document.getElementById('customer-notes').value.trim() || null,
+        customerType: { id: customerType },
     };
 
-    const id = document.getElementById('cliente-id').value;
+    console.log(data);
+
+    const id = document.getElementById('customer-id').value;
     try {
         if (id) {
             await ClientiAPI.update(id, data);
             showToast('Cliente aggiornato', 'success');
         } else {
-            await ClientiAPI.create(data);
+            const res = await ClientiAPI.create(data);
+            console.log("CREATE RESPONSE:", res);
             showToast('Cliente aggiunto', 'success');
         }
         closeModal('modal-cliente');
         await loadClienti();
     } catch (e) {
-        showToast(`Errore: ${e.message}`, 'error');
+        showToast(`Errore: ${e.message}`);
+        console.log(`Errore: ${e.message}`, 'error');
+    }
+}
+
+async function loadCustomeTypes() {
+    const select = document.getElementById('customer-type');
+
+    try {
+        const types = await CustomerTypeAPI.getAll();
+
+        select.innerHTML =
+            `<option value="">Seleziona tipo cliente</option>` +
+            types.map(t =>
+                `<option value="${t.id}">${t.name}</option>`
+            ).join('');
+    } catch (e) {
+        showToast(`Errore caricamento tipi cliente: ${e.message}`);
+        console.log(`Errore caricamento tipi cliente: ${e.message}`, 'error');
     }
 }
 
 function chiediElimina(id, nome) {
-    clienteDaEliminare = id;
-    document.getElementById('elimina-nome').textContent = nome;
+    customerId = id;
+    document.getElementById('elimina-name').textContent = nome;
     openModal('modal-elimina');
 }
 
 async function confermaElimina() {
-    if (!clienteDaEliminare) return;
+    if (!customerId) return;
     try {
-        await ClientiAPI.delete(clienteDaEliminare);
+        await ClientiAPI.delete(customerId);
         showToast('Cliente eliminato', 'success');
         closeModal('modal-elimina');
         await loadClienti();
     } catch (e) {
         showToast(`Errore: ${e.message}`, 'error');
     }
-    clienteDaEliminare = null;
+    customerId = null;
 }
 
 function exportClienti() {
     if (!tuttiClienti.length) { showToast('Nessun dato da esportare', 'warning'); return; }
-    const header = ['ID','Nome','Azienda','Email','Telefono','Città','P.IVA'].join(',');
+    const header = ['Nome','Cognome','TipoCliente','Azienda','Email','Telefono','Nazione','Regione','Provincia','Città','Indirizzo','PartitaIVA','CodiceFiscale','TelefonoFisso','Latitudine','Longitudine','DataInserimento','DataUltimaModifica'].join(',');
     const rows = tuttiClienti.map(c =>
-        [c.id, c.nome, c.azienda, c.email, c.telefono, c.citta, c.piva]
+        [c.name, c.surname, c.customerType.name, c.companyName, c.email, c.phone, c.country, c.region, c.province, c.city, c.address, c.vatNumber, c.taxCode, c.landline, c.lat, c.lon, c.insertDate, c.lastUpdateDate]
         .map(v => `"${v ?? ''}"`).join(','));
     const csv = [header, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -326,6 +518,14 @@ function exportClienti() {
     a.click();
     showToast('CSV esportato', 'success');
 }
+
+const CUSTOMER_TYPES = {
+    COMPANY: "1",
+    PUBLIC_ADMIN: "2",
+    FREELANCER: "3",
+    PRIVATE: "4",
+};
+
 </script>
 </body>
 </html>

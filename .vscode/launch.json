@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-WebApp<demo>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.dennisturco.WebApp",
+            "projectName": "demo",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-WebApp<gestiopro>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.dennisturco.WebApp",
+            "projectName": "gestiopro",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

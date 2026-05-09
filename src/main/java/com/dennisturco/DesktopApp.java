@@ -1,4 +1,4 @@
-package com.example;
+package com.dennisturco;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -16,6 +16,7 @@ public class DesktopApp extends Application {
         ConfigurableApplicationContext context =
             SpringApplication.run(WebApp.class);
 
+        @SuppressWarnings("null")
         int port = context.getEnvironment()
                 .getProperty("local.server.port", Integer.class);
 
