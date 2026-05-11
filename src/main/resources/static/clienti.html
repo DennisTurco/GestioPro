@@ -342,7 +342,7 @@ function modificaCliente(id) {
     const c = tuttiClienti.find(x => x.id === id);
     if (!c) return;
     document.getElementById('customer-id').value = c.id;
-    document.getElementById('customer-type').value = c.customerType.id;
+    document.getElementById('customer-type').value = c.customerTypeId;
     document.getElementById('modal-customer-title').textContent = '<i class="fa-solid fa-pen"></i> Modifica cliente';
     document.getElementById('customer-name').value = c.name ?? '';
     document.getElementById('customer-surname').value = c.surname ?? '';
@@ -408,23 +408,23 @@ async function saveCustomer() {
     const vatNumber = document.getElementById('customer-vatNumber').value.trim() || null;
     const taxCode = document.getElementById('customer-taxCode').value.trim()  || null;
     const companyName = document.getElementById('customer-companyName').value.trim()  || null;
-    const customerType = document.getElementById("customer-type").value.trim() || null;
+    const customerTypeId = document.getElementById("customer-type").value.trim() || null;
 
-    if (!customerType) {
+    if (!customerTypeId) {
         showToast(`Il tipo cliente è obbligatorio`, 'warning'); return;
     }
 
-    if (customerType === CUSTOMER_TYPES.COMPANY || customerType === CUSTOMER_TYPES.PUBLIC_ADMIN || customerType === CUSTOMER_TYPES.FREELANCER) {
+    if (customerTypeId === CUSTOMER_TYPES.COMPANY || customerTypeId === CUSTOMER_TYPES.PUBLIC_ADMIN || customerTypeId === CUSTOMER_TYPES.FREELANCER) {
         if (!companyName) { showToast(`La ragione sociale è obbligatoria`, 'warning'); return; }
         if (!vatNumber) { showToast(`La P.IVA è obbligatoria`, 'warning'); return; }
         if (!taxCode) { showToast(`Il C.F. è obbligatorio`, 'warning'); return; }
     }
     
-    if (customerType === CUSTOMER_TYPES.COMPANY) {
+    if (customerTypeId === CUSTOMER_TYPES.COMPANY) {
         if (vatNumber != taxCode) { showToast(`La P.IVA deve essere uguale al C.F.`, 'warning'); return; }
-    } else if (customerType === CUSTOMER_TYPES.PUBLIC_ADMIN) {
+    } else if (customerTypeId === CUSTOMER_TYPES.PUBLIC_ADMIN) {
         // TODO: check -> vatNumber != taxCode (taxCode must be numeric)
-    } else if (customerType === CUSTOMER_TYPES.FREELANCER) {
+    } else if (customerTypeId === CUSTOMER_TYPES.FREELANCER) {
         // TODO: check -> taxCode is a normal taxCode
     }
 
@@ -445,7 +445,7 @@ async function saveCustomer() {
         lat:      document.getElementById('customer-lat').value.trim() || null,
         lon:      document.getElementById('customer-lon').value.trim() || null,
         notes:    document.getElementById('customer-notes').value.trim() || null,
-        customerType: { id: customerType },
+        customerTypeId,
     };
 
     console.log(data);
@@ -463,8 +463,8 @@ async function saveCustomer() {
         closeModal('modal-cliente');
         await loadClienti();
     } catch (e) {
-        showToast(`Errore: ${e.message}`);
-        console.log(`Errore: ${e.message}`, 'error');
+        showToast(`Errore: ${e.message}`, 'error');
+        console.log(`Errore: ${e.message}`);
     }
 }
 
@@ -480,8 +480,8 @@ async function loadCustomeTypes() {
                 `<option value="${t.id}">${t.name}</option>`
             ).join('');
     } catch (e) {
-        showToast(`Errore caricamento tipi cliente: ${e.message}`);
-        console.log(`Errore caricamento tipi cliente: ${e.message}`, 'error');
+        showToast(`Errore caricamento tipi cliente: ${e.message}`, 'error');
+        console.log(`Errore caricamento tipi cliente: ${e.message}`);
     }
 }
 

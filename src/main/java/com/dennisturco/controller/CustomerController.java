@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dennisturco.model.Customer;
+import com.dennisturco.dto.CustomerRequestDTO;
+import com.dennisturco.dto.CustomerResponseDTO;
 import com.dennisturco.service.CustomerService;
 
 import jakarta.validation.Valid;
@@ -30,13 +31,13 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public List<Customer> getAllCustomers() {
+    public List<CustomerResponseDTO> getAllCustomers() {
         return customerService.getAllCustomers();
     }
 
     @PostMapping
-    public ResponseEntity<Void> addNewCustomer(@RequestBody @NonNull @Valid Customer customer) {
-        customerService.insertCustomer(customer);
+    public ResponseEntity<Void> addNewCustomer(@RequestBody @NonNull @Valid CustomerRequestDTO dto) {
+        customerService.insertCustomer(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -47,8 +48,8 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCustomerById(@PathVariable @NonNull Long id, @RequestBody @NonNull Customer customer) {
-        customerService.updateCustomerById(id, customer);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<CustomerResponseDTO> updateCustomerById(@PathVariable @NonNull Long id, @RequestBody @NonNull @Valid CustomerRequestDTO dto) {
+        CustomerResponseDTO updated = customerService.updateCustomerById(id, dto);
+        return ResponseEntity.ok(updated);
     }
 }

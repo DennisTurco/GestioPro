@@ -6,6 +6,10 @@ import java.util.List;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import com.dennisturco.dto.CustomerRequestDTO;
+import com.dennisturco.dto.CustomerResponseDTO;
+import com.dennisturco.exception.BusinessException;
+import com.dennisturco.mapper.CustomerMapper;
 import com.dennisturco.model.Customer;
 import com.dennisturco.repository.CustomerRepository;
 
@@ -15,30 +19,37 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
+    private final CustomerMapper mapper;
 
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    public List<CustomerResponseDTO> getAllCustomers() {
+        return customerRepository.findAll()
+            .stream()
+            .map(mapper::toResponseDto)
+            .toList();
     }
 
-    public void insertCustomer(@NonNull Customer c) {
+    public void insertCustomer(@NonNull CustomerRequestDTO dto) {
+        
+        Customer customer = mapper.toEntity(dto);
 
-        LocalDate now = LocalDate.now();
+        if (customer == null)
+            throw new BusinessException("Errore creazione cliente");
+        
+        if (customerRepository.existsByEmail(customer.getEmail()))
+            throw new BusinessException("Email già presente");
 
-        c.setId(null);
-        c.setInsertDate(now);
-        c.setLastUpdateDate(now);
-
-        customerRepository.save(c);
+        customerRepository.save(customer);
     }
 
     public void deleteCustomer(@NonNull Long id) {
         customerRepository.deleteById(id);
     }
 
-    public void updateCustomerById(@NonNull Long id, Customer customer) {
+    public CustomerResponseDTO updateCustomerById(@NonNull Long id, CustomerRequestDTO dto) {
         Customer existing = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new BusinessException("Customer not found"));
 
+        Customer customer = mapper.toEntity(dto);
         existing.setName(customer.getName());
         existing.setSurname(customer.getSurname());
         existing.setEmail(customer.getEmail());
@@ -58,6 +69,7 @@ public class CustomerService {
         existing.setCustomerType(customer.getCustomerType());
         existing.setLastUpdateDate(LocalDate.now());
 
-        customerRepository.save(existing);
+        customer = customerRepository.save(existing);
+        return mapper.toResponseDto(customer);
     }
 }

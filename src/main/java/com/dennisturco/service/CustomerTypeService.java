@@ -1,7 +1,9 @@
 package com.dennisturco.service;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.dennisturco.model.CustomerType;
@@ -12,9 +14,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomerTypeService {
-    private final CustomerTypeRepository customerTypeRepository;
+    private final CustomerTypeRepository repo;
 
     public List<CustomerType> getAllCustomerTypes() {
-        return customerTypeRepository.findAll();
+        return repo.findAll();
+    }
+
+    public CustomerType getCustomerType(@NonNull Long id) {
+        Optional<CustomerType> type = repo.findById(id);
+        return type.orElse(null);
     }
 }

@@ -9,15 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
@@ -30,21 +29,16 @@ public class Customer {
     @JoinColumn(name = "customer_type_id", nullable = false)
     private CustomerType customerType;
 
-    @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
     
-    @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String surname;
 
-    @NotBlank
-    @Email
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
     
-    @Column(nullable = false, unique = true)
-    @Pattern(regexp = "^[0-9+ ]*$")
+    @Column(nullable = false, unique = true, length = 20)
     private String phone;
 
     private String country;
@@ -63,7 +57,6 @@ public class Customer {
 
     private String taxCode;
 
-    @Pattern(regexp = "^[0-9+ ]*$")
     private String landline;
 
     private Double lat;

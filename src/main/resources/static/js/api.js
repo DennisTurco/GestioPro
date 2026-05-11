@@ -25,18 +25,29 @@ async function apiFetch(endpoint, opts = {}) {
     });
 
     if (!response.ok) {
-        let errorMessage = 'Errore server';
+
+        let data = null;
 
         try {
-            const data = await response.json();
+            data = await response.json();
+        } catch {
+            // response non JSON
+        }
+
+        let errorMessage = 'Errore server';
+
+        if (data) {
             errorMessage =
+                (data.errors?.[0]?.field ? data.errors[0].field + ', ' : '') +
+                (data.errors?.[0]?.defaultMessage ||
                 data.message ||
                 data.error ||
-                (data.errors?.[0]?.defaultMessage) ||
-                response.statusText;
-        } catch {
-            const text = await response.text();
-            errorMessage = text?.slice(0, 200) || response.statusText;
+                response.statusText);
+        } else {
+            try {
+                const text = await response.text();
+                errorMessage = text?.slice(0, 200) || response.statusText;
+            } catch {}
         }
 
         throw new ApiError(response.status, errorMessage);
@@ -50,7 +61,7 @@ async function apiFetch(endpoint, opts = {}) {
         return await response.json();
     }
 
-    // fallback testo
+    // fallback
     return await response.text();
 }
 
