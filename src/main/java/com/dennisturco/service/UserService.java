@@ -5,6 +5,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dennisturco.dto.UserRequestDTO;
+import com.dennisturco.dto.UserResponseDTO;
+import com.dennisturco.exception.BusinessException;
 import com.dennisturco.mapper.UserMapper;
 import com.dennisturco.model.User;
 import com.dennisturco.repository.UserRepository;
@@ -27,5 +29,12 @@ public class UserService {
 
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
+    }
+
+    public UserResponseDTO findDtoByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException("User not found"));
+
+        return userMapper.toDTO(user);
     }
 }

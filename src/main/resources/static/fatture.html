@@ -32,8 +32,8 @@
             <div class="user-info">
                 <div class="user-avatar">U</div>
                 <div>
-                    <div class="font-medium" style="color:#E2E8F0;font-size:13px">Utente</div>
-                    <div style="font-size:11px">Freelance</div>
+                    <div class="font-medium user-username" style="color:#E2E8F0;font-size:13px"></div>
+                    <div style="font-size:11px" class="user-email"></div>
                 </div>
             </div>
         </div>
@@ -202,9 +202,14 @@
 
 <div class="toast-container"></div>
 
+<script src="js/user.api.js"></script>
+<script src="js/store/user.store.js"></script>
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
 <script>
+UserStore.load().then(user => {
+    console.log(user);
+});
 let tutteFatture = [];
 
 const STATI = {
@@ -225,6 +230,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('search-input').addEventListener('input', applyFilters);
     document.getElementById('filtro-stato').addEventListener('change', applyFilters);
 });
+
+async function loadLoggedUser() {
+    try {
+        const user = await UserAPI.me();
+
+        if (!user) return;
+
+        document.querySelector('.user-avatar')
+            .textContent = getInitials(user.username);
+
+        document.querySelector('.user-username')
+            .textContent = user.username ?? 'Utente';
+
+        document.querySelector('.user-email')
+            .textContent = user.email ?? '';
+
+    } catch (e) {
+        console.error('User fetch error:', e.message);
+    }
+}
 
 async function loadFatture() {
     try {

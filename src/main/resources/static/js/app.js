@@ -153,7 +153,26 @@ function filterItems(items, query, fields) {
 
 /* ══════════ COMMON INIT ════════════════════════════ */
 
-document.addEventListener('DOMContentLoaded', () => {
-    initSidebarActiveState();
-    initModalCloseHandlers();
+document.addEventListener('DOMContentLoaded', async () => {
+
+    try {
+
+        console.log("ciao");
+
+        await UserStore.load();
+
+        console.log("ciao2");
+
+        if (!UserStore.isAuthenticated()) {
+            window.location.href = '/login';
+            return;
+        }
+
+        initSidebarActiveState();
+        initModalCloseHandlers();
+
+    } catch (e) {
+        console.error('Auth error:', e);
+        window.location.href = '/login';
+    }
 });

@@ -50,8 +50,8 @@
             <div class="user-info">
                 <div class="user-avatar">U</div>
                 <div>
-                    <div class="font-medium" style="color:#E2E8F0;font-size:13px">Utente</div>
-                    <div style="font-size:11px">Freelance</div>
+                    <div class="font-medium user-username" style="color:#E2E8F0;font-size:13px"></div>
+                    <div style="font-size:11px" class="user-email"></div>
                 </div>
             </div>
         </div>
@@ -178,9 +178,17 @@
 
 <div class="toast-container"></div>
 
+
+<script src="js/user.api.js"></script>
+<script src="js/store/user.store.js"></script>
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
+
+
 <script>
+UserStore.load().then(user => {
+    console.log(user);
+});
 document.addEventListener('DOMContentLoaded', async () => {
     // Current date label
     const dateEl = document.getElementById('topbar-date');
@@ -189,20 +197,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Load all data in parallel
-    await Promise.allSettled([loadKpi(), loadClientiRecenti(), loadTaskRecenti(), loadFattureRecenti()]);
+    await Promise.allSettled([loadLoggedUser(), loadKpi(), loadClientiRecenti(), loadTaskRecenti(), loadFattureRecenti()]);
 });
+
+async function loadLoggedUser() {
+    try {
+        const user = await UserAPI.me();
+
+        if (!user) return;
+
+        document.querySelector('.user-avatar')
+            .textContent = getInitials(user.username);
+
+        document.querySelector('.user-username')
+            .textContent = user.username ?? 'Utente';
+
+        document.querySelector('.user-email')
+            .textContent = user.email ?? '';
+
+    } catch (e) {
+        console.error('User fetch error:', e.message);
+    }
+}
 
 async function loadKpi() {
     try {
         const clienti = await ClientiAPI.getAll();
         document.getElementById('kpi-clienti').textContent = clienti.length;
-        document.getElementById('kpi-clienti-delta').textContent = 'registered clients';
+        document.getElementById('kpi-clienti-delta').textContent = 'clienti registrati';
         document.getElementById('kpi-fatturato').textContent = formatCurrency(0);
-        document.getElementById('kpi-fatturato-delta').textContent = 'current month';
+        document.getElementById('kpi-fatturato-delta').textContent = 'mese corrente';
         document.getElementById('kpi-fatture').textContent = '0';
-        document.getElementById('kpi-fatture-delta').textContent = 'to collect';
+        document.getElementById('kpi-fatture-delta').textContent = 'da incassare';
         document.getElementById('kpi-task').textContent = '0';
-        document.getElementById('kpi-task-delta').textContent = 'to complete';
+        document.getElementById('kpi-task-delta').textContent = 'da completare';
         const badge = document.getElementById('badge-task');
         if (badge) badge.textContent = '0';
     } catch (e) { console.warn('KPI:', e.message); }
@@ -216,8 +244,8 @@ async function loadClientiRecenti() {
         const ultimi = clienti.slice(-5).reverse();
         setHTML(container, `<ul>` + ultimi.map(c => `
             <li style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--color-border)">
-                <div class="avatar">${getInitials(c.nome)}</div>
-                <div><div class="font-medium">${c.nome}</div><div class="text-xs text-muted">ID: ${c.id}</div></div>
+                <div class="avatar">${getInitials(c.name)}</div>
+                <div><div class="font-medium">${c.name} ${c.surname}</div><div class="text-xs text-muted">${c.companyName || ''}</div></div>
             </li>`).join('') + `</ul>`);
     } catch (e) { setHTML(container, `<div class="text-muted text-center" style="padding:24px">Non raggiungibile</div>`); }
 }

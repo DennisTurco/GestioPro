@@ -31,7 +31,6 @@ public class DataInitializer {
     private final ProductStatusRepository productStatusRepository;
     private final QuotationStatusRepository quotationStatusRepository;
 
-    //TODO: just for debug
     @Bean
     public CommandLineRunner initDefaultUser() {
         return args -> {

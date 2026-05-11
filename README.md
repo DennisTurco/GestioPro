@@ -1,9 +1,7 @@
-# 📊 Freelance Management App - Desktop
+# GestioPro
 
 Desktop application for managing clients, invoices and tasks, designed for **freelancers and self-employed professionals**.  
 Built with **Java 21 + Spring Boot 3 + JavaFX** - runs entirely locally, no cloud or internet connection required.
-
----
 
 ## Tech Stack
 
@@ -16,8 +14,6 @@ Built with **Java 21 + Spring Boot 3 + JavaFX** - runs entirely locally, no clou
 | ORM | Hibernate / Spring Data JPA |
 | Frontend | HTML5 + CSS3 (custom, no framework) + Vanilla JS |
 | Build | Maven |
-
----
 
 ## Quick Start
 
@@ -52,7 +48,14 @@ taskkill /PID <PID> /F
         - to table struct: `\d <table>`
         - to quit from postgres: `\q`
         - to quit from docker terminal: ctrl + d
----
+
+## Login
+
+Default User:
+
+- username: `admin`
+- password: `asdasd123`
+
 
 ## Changing the Theme / Client Branding
 
@@ -69,8 +72,6 @@ Open **`src/main/resources/static/css/theme.css`** and edit the values in the `B
 
 This is the **only file you need to touch** for a complete restyling.
 
----
-
 ## Available REST APIs
 
 | Method | Endpoint | Description |
@@ -83,8 +84,6 @@ This is the **only file you need to touch** for a complete restyling.
 
 > For Invoices and Task APIs: see `docs/spring-boot-guide.md` (section 4).
 
----
-
 ## Adding a New Feature
 
 1. Create the entity in `com/dennisturco/model/` with `@Entity`
@@ -94,8 +93,6 @@ This is the **only file you need to touch** for a complete restyling.
 5. Add the sidebar entry to all HTML pages
 
 📖 Detailed guide with code dennisturcos: **`docs/spring-boot-guide.md`**
-
----
 
 ## System Requirements
 
