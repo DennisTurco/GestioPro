@@ -118,6 +118,12 @@ const DashboardAPI = {
     getStats: () => apiFetch('/dashboard/stats'),
 };
 
+/* ═══════════════ LOGIN / REGISTER ══════════════════════ */
+const UserAPI = {
+    /** GET /api/v1/user/register - register a new user */
+    register: () => apiFetch('/user/register'),
+};
+
 /* ══════════════ TOAST UTILITY ═══════════════════ */
 /**
  * Displays a toast notification.

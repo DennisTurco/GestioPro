@@ -1,15 +1,25 @@
 package com.dennisturco.model;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
@@ -38,4 +48,8 @@ public class User {
     @NotBlank
     @Column(nullable = false, length = 50)
     private String surname;
+
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate createdDate;
 }

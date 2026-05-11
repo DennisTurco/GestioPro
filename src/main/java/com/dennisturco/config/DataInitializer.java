@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.dennisturco.dto.UserRequestDTO;
 import com.dennisturco.enums.ContractTypeEnum;
 import com.dennisturco.enums.CustomerTypeEnum;
 import com.dennisturco.enums.ProductStatusEnum;
@@ -16,17 +17,29 @@ import com.dennisturco.repository.ContractTypeRepository;
 import com.dennisturco.repository.CustomerTypeRepository;
 import com.dennisturco.repository.ProductStatusRepository;
 import com.dennisturco.repository.QuotationStatusRepository;
+import com.dennisturco.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializer {
-    
+
+    private final UserService userService;
     private final CustomerTypeRepository customerTypeRepository;
     private final ContractTypeRepository contractTypeRepository;
     private final ProductStatusRepository productStatusRepository;
     private final QuotationStatusRepository quotationStatusRepository;
+
+    //TODO: just for debug
+    @Bean
+    public CommandLineRunner initDefaultUser() {
+        return args -> {
+            if (userService.existsByUsername("admin")) return;
+            UserRequestDTO user = UserRequestDTO.builder().name("Admin").surname("Admin").username("admin").email("admin@gmail.com").password("asdasd123").build();
+            userService.registerUser(user);
+        };
+    }
 
     @Bean
     public CommandLineRunner initCustomerTypes() {

@@ -1,29 +1,27 @@
 package com.dennisturco.controller;
 
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.dennisturco.model.User;
+import com.dennisturco.dto.UserRequestDTO;
 import com.dennisturco.service.UserService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/user/register")
+@RequiredArgsConstructor
 @CrossOrigin
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @PostMapping("/login")
-    public User login(@RequestBody User user) {
-        return userService.getUserByEmailAndPassword(user.getEmail(), user.getPassword());
-    }
-
     @PostMapping
-    public void addNewCustomer(@RequestBody @NonNull User user) {
-        userService.insertUser(user);
+    public void addNewCustomer(@RequestBody @NonNull UserRequestDTO dto) {
+        userService.registerUser(dto);
     }
 }

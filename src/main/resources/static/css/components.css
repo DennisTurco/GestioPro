@@ -366,6 +366,47 @@ select.form-control { cursor: pointer; }
     margin: 16px 0;
 }
 
+/* ── LOGIN PAGE ──────────────────────────────────── */
+.login-shell {
+    min-height: 100vh;
+    display: flex;
+    background: var(--color-bg);
+}
+.login-brand {
+    width: 420px;
+    flex-shrink: 0;
+    background: linear-gradient(160deg, #1A2332 0%, #0F766E 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 20px;
+}
+.login-brand .brand-logo { font-size: 64px; opacity: 0.9; }
+.login-brand h1 { font-size: 28px; font-weight: 700; text-align: center; }
+.login-brand p { font-size: 14px; opacity: 0.75; text-align: center; line-height: 1.6; }
+.login-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.login-box {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 40px;
+    width: min(420px, 100%);
+}
+.login-box h2 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: 6px; }
+.login-box .subtitle { color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 28px; }
+@media (max-width: 720px) {
+    .login-brand { display: none; }
+}
+
 /* ── LOADING SPINNER ─────────────────────────────── */
 .spinner {
     width: 20px;
