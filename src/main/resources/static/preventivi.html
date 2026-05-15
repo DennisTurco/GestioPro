@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/quotation_export.css">
 </head>
 <body>
 
@@ -211,6 +212,8 @@
 
 <div class="toast-container"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="js/user.api.js"></script>
 <script src="js/store/user.store.js"></script>
 <script src="js/api.js"></script>
@@ -304,8 +307,9 @@ function renderTabella(preventivi) {
             <td>
                 <div style="display:flex;gap:6px">
                     <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaQuotation(${f.id})"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna pagata" onclick="segnaComeAccettato(${f.id})"><i class="fa-solid fa-calendar-check"></i></button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna rifiutata" onclick="segnaComeRifiutato(${f.id})"><i class="fa-solid fa-calendar-xmark"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna accettato" onclick="segnaComeAccettato(${f.id})"><i class="fa-solid fa-calendar-check"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna rifiutato" onclick="segnaComeRifiutato(${f.id})"><i class="fa-solid fa-calendar-xmark"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Genera il pdf del preventivo" onclick="generatePdf(\`${f.description}\`)"><i class="fa-solid fa-file-pdf"></i></button>
                 </div>
             </td>
         </tr>`;
@@ -316,11 +320,11 @@ function updateKpi(preventivi) {
 
     document.getElementById('kpi-tot').textContent = preventivi.length;
 
-    const draft     = preventivi.filter(f => f.quotationStatusId === 1);
-    const sent      = preventivi.filter(f => f.quotationStatusId === 2);
-    const accepted  = preventivi.filter(f => f.quotationStatusId === 3);
-    const rejected  = preventivi.filter(f => f.quotationStatusId === 4);
-    const expired   = preventivi.filter(f => f.quotationStatusId === 5);
+    const draft     = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.draft.id);
+    const sent      = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.sent.id);
+    const accepted  = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.accepted.id);
+    const rejected  = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.rejected.id);
+    const expired   = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.expired.id);
 
     document.getElementById('kpi-draft').textContent =
         draft.length;
@@ -470,6 +474,58 @@ function exportQuotations() {
     a.download = `preventivi_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     showToast('CSV esportato', 'success');
+}
+
+function generatePdf(description) {
+    const markdown = description ?? "";
+    const contentHtml = marked.parse(markdown);
+
+    const fullHtml = buildPdfTemplate(contentHtml);
+
+    const container = document.createElement("div");
+    container.innerHTML = fullHtml;
+
+
+    document.body.appendChild(container);
+
+    html2pdf()
+        .set({
+            filename: "preventivo.pdf",
+            margin: 10,
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { format: "a4", unit: "mm" }
+        })
+        .from(container)
+        .save()
+        .then(() => container.remove());
+}
+
+function buildPdfTemplate(contentHtml) {
+    return `
+    <div class="pdf-wrapper">
+
+        <div class="pdf-header">
+            <div class="brand">
+                <div class="logo">📄</div>
+                <div>
+                    <div class="title">Preventivo</div>
+                    <div class="subtitle">Documento generato automaticamente</div>
+                </div>
+            </div>
+
+            <div class="meta">
+                <div><strong>Data:</strong> ${new Date().toLocaleDateString()}</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="pdf-content">
+            ${contentHtml}
+        </div>
+
+    </div>
+    `;
 }
 
 </script>
