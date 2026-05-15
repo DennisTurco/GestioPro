@@ -1,7 +1,9 @@
 package com.dennisturco.enums;
 
 public enum QuotationStatusEnum {
-    CREATED,
+    DRAFT,
     DELIVERED,
-    CONFIRMED
+    ACCEPTED,
+    REJECTED,
+    EXPIRED
 }

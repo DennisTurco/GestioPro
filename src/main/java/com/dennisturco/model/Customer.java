@@ -31,13 +31,13 @@ public class Customer {
 
     @Column(nullable = false, length = 50)
     private String name;
-    
+
     @Column(nullable = false, length = 50)
     private String surname;
 
     @Column(nullable = false, unique = true, length = 50)
     private String email;
-    
+
     @Column(nullable = false, unique = true, length = 20)
     private String phone;
 
@@ -66,7 +66,7 @@ public class Customer {
     private LocalDate insertDate;
 
     private LocalDate lastUpdateDate;
-    
+
     @Column(length = 1000)
     private String notes;
 }

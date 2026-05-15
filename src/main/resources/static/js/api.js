@@ -9,7 +9,7 @@ const API_BASE = window.location.origin + '/api/v1';
 
 /**
  * Fetch wrapper with centralised error handling.
- * @param {string} endpoint  - e.g. '/clienti' or '/fatture/1'
+ * @param {string} endpoint  - e.g. '/clienti' or '/preventivi/1'
  * @param {RequestInit} opts - standard fetch options
  * @returns {Promise<any>}
  */
@@ -105,13 +105,21 @@ const CustomerTypeAPI = {
 
 };
 
-/* ═══════════════ FATTURE ════════════════════════ */
-const FattureAPI = {
-    getAll:   ()       => apiFetch('/fatture'),
-    getById:  (id)     => apiFetch(`/fatture/${id}`),
-    create:   (data)   => apiFetch('/fatture', { method: 'POST', body: JSON.stringify(data) }),
-    update:   (id, d)  => apiFetch(`/fatture/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
-    delete:   (id)     => apiFetch(`/fatture/${id}`, { method: 'DELETE' }),
+/* ═══════════════ QUOTATION STATUSES ════════════════════════ */
+
+const QuotationStatusAPI = {
+    getAll: () => apiFetch('/quotation-statuses')
+
+};
+
+/* ═══════════════ QUOTATIONS ════════════════════════ */
+const QuotationAPI = {
+    getAll:         ()       => apiFetch('/quotations'),
+    getById:        (id)     => apiFetch(`/quotations/${id}`),
+    create:         (data)   => apiFetch('/quotations', { method: 'POST', body: JSON.stringify(data) }),
+    statusUpdate:   (id, statusId)  => apiFetch(`/quotations/status-update/${id}`, { method: 'PUT', body: JSON.stringify(statusId) }),
+    update:         (id, d)  => apiFetch(`/quotations/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
+    delete:         (id)     => apiFetch(`/quotations/${id}`, { method: 'DELETE' }),
 };
 
 /* ═══════════════ TASK ═══════════════════════════ */

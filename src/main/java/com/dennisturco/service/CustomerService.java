@@ -28,26 +28,30 @@ public class CustomerService {
             .toList();
     }
 
+    public Customer getCustomerById(long id) {
+        return customerRepository.findById(id).orElse(null);
+    }
+
     public void insertCustomer(@NonNull CustomerRequestDTO dto) {
-        
+
         Customer customer = mapper.toEntity(dto);
 
         if (customer == null)
             throw new BusinessException("Errore creazione cliente");
-        
+
         if (customerRepository.existsByEmail(customer.getEmail()))
             throw new BusinessException("Email già presente");
 
         customerRepository.save(customer);
     }
 
-    public void deleteCustomer(@NonNull Long id) {
+    public void deleteCustomer(long id) {
         customerRepository.deleteById(id);
     }
 
-    public CustomerResponseDTO updateCustomerById(@NonNull Long id, CustomerRequestDTO dto) {
+    public CustomerResponseDTO updateCustomerById(long id, CustomerRequestDTO dto) {
         Customer existing = customerRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Customer not found"));
+                .orElseThrow(() -> new BusinessException("Cliente non trovato"));
 
         Customer customer = mapper.toEntity(dto);
         existing.setName(customer.getName());

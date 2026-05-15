@@ -15,7 +15,7 @@ public class CustomerRequestDTO {
     @NotBlank
     @Size(max = 50, message = "Nome troppo lungo")
     private String name;
-    
+
     @NotBlank
     @Size(max = 50, message = "Cognome troppo lungo")
     private String surname;
@@ -24,7 +24,7 @@ public class CustomerRequestDTO {
     @Email(message = "Email non valida")
     @Size(max = 50, message = "Email troppo lunga")
     private String email;
-    
+
     @Pattern(regexp = "^[0-9+ ]*$", message = "Il telefono può contenere solo numeri, + e spazi")
     @Size(max = 20, message = "Numero telefonico troppo lungo")
     private String phone;

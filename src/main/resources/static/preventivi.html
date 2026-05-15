@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preventivi - Gestionale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            Gestionale
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Menu principale</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
+            <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
+            <div class="sidebar-section-label">Sistema</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni</div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar"></div>
+                <div>
+                    <div class="font-medium user-username" style="color:#E2E8F0;font-size:13px"></div>
+                    <div style="font-size:11px" class="user-email"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-title">Preventivi</div>
+            <div class="topbar-actions">
+                <button class="btn btn-primary btn-sm" data-modal-open="modal-quotation">
+                    <i class="fa-solid fa-circle-plus"></i> Nuovo preventivo
+                </button>
+            </div>
+        </header>
+
+        <main class="page-body">
+            <!-- KPI preventivi -->
+            <div class="grid-3 mb-24">
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
+                    <div class="kpi-label">Totale preventivi</div>
+                    <div class="kpi-value" id="kpi-tot">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-success-bg);color:var(--color-success)"><i class="fa-brands fa-firstdraft"></i></div>
+                    <div class="kpi-label">Bozza</div>
+                    <div class="kpi-value" id="kpi-draft">0</div>
+                    <div class="kpi-delta" id="kpi-draft-val"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-warning-bg);color:var(--color-warning)"><i class="fa-solid fa-spinner"></i></div>
+                    <div class="kpi-label">Inviati</div>
+                    <div class="kpi-value" id="kpi-sent">0</div>
+                    <div class="kpi-delta" id="kpi-sent-val"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-danger-bg);color:var(--color-danger)"><i class="fa-regular fa-circle-check"></i></div>
+                    <div class="kpi-label">Accettati</div>
+                    <div class="kpi-value" id="kpi-accepted">0</div>
+                    <div class="kpi-delta" id="kpi-accepted-val"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-danger-bg);color:var(--color-danger)"><i class="fa-regular fa-circle-xmark"></i></div>
+                    <div class="kpi-label">Rifiutati</div>
+                    <div class="kpi-value" id="kpi-rejected">0</div>
+                    <div class="kpi-delta" id="kpi-rejected-val"></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:var(--color-danger-bg);color:var(--color-danger)"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="kpi-label">Scaduti</div>
+                    <div class="kpi-value" id="kpi-expired">0</div>
+                    <div class="kpi-delta" id="kpi-expired-val"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="search-bar" style="width:260px">
+                        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca preventivo">
+                    </div>
+                    <select class="form-control" id="quotation-status-filter" style="width:auto">
+                    </select>
+                    <select class="form-control" id="quotation-customer-filter" style="width:auto">
+                    </select>
+                    <div class="toolbar-right">
+                        <button class="btn btn-ghost btn-sm" onclick="exportQuotations()"><i class="fa-solid fa-download"></i> Esporta</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper" style="border:none;border-radius:0">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>N° Preventivo</th>
+                                <th>Cliente</th>
+                                <th>Importo</th>
+                                <th>Data emissione</th>
+                                <th>Scadenza</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quotations-tbody">
+                            <tr><td colspan="8" class="text-center text-muted" style="padding:48px">
+                                <div class="empty-state">
+                                    <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+                                    <h3>Nessun preventivo ancora</h3>
+                                    <p>Crea il tua primo preventivo</p>
+                                    <button class="btn btn-primary" data-modal-open="modal-quotation"><i class="fa-solid fa-circle-plus"></i> Nuovo preventivo</button>
+                                </div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer flex justify-between items-center">
+                    <span class="text-muted text-sm" id="table-footer">0 preventivi</span>
+                    <span class="font-semibold" id="totale-amount"></span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- MODAL: Nuova / Modifica Preventivo -->
+<div class="modal-overlay" id="modal-quotation">
+    <div class="modal" style="width:min(600px,95vw)">
+        <div class="modal-header">
+            <span id="modal-quotation-title"><i class="fa-solid fa-receipt"></i> Nuovo preventivo</span>
+            <button class="btn-close" data-modal-close="modal-quotation">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="quotation-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Numero preventivo *</label>
+                    <input type="text" class="form-control" id="quotation-number" placeholder="2025-001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cliente *</label>
+                    <select class="form-control" id="quotation-customer">
+                        <option value="">- Seleziona cliente -</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descrizione</label>
+                <textarea class="form-control" id="quotation-description" rows="2" placeholder="Sviluppo sito web, consulenza…"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Importo (€) *</label>
+                    <input type="number" class="form-control" id="quotation-amount" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">IVA (%)</label>
+                    <input type="number" class="form-control" id="quotation-vatPercentage" value="22" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sconto (%)</label>
+                    <input type="number" class="form-control" id="quotation-discountPercentage" value="0" min="0" max="100">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Data emissione</label>
+                    <input type="date" class="form-control" id="quotation-issueDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Scadenza</label>
+                    <input type="date" class="form-control" id="quotation-validityDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Stato *</label>
+                <select class="form-control" id="quotation-status">
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note Interne</label>
+                <textarea class="form-control" id="quotation-notes" rows="2" placeholder="Note aggiuntive…"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-quotation">Annulla</button>
+            <button class="btn btn-primary" onclick="salvaQuotation()"><i class="fa-solid fa-floppy-disk"></i> Salva preventivo</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/user.api.js"></script>
+<script src="js/store/user.store.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/utils.js"></script>
+<script>
+UserStore.load();
+let quotationList = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadLoggedUser();
+    await loadQuotationCustomers();
+    await loadQuotationStatuses(document.getElementById('quotation-status'), 'Seleziona lo stato del preventivo');
+    await loadQuotationStatuses(document.getElementById('quotation-status-filter'), 'Tutti gli stati');
+
+    // Set today's date as default
+    const oggi = new Date().toISOString().slice(0,10);
+    document.getElementById('quotation-issueDate').value = oggi;
+    document.getElementById('quotation-validityDate').value  = null;
+
+    await Promise.allSettled([loadQuotations(), populateClientiSelect()]);
+
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('quotation-status-filter').addEventListener('change', applyFilters);
+    document.getElementById('quotation-customer-filter').addEventListener('change', applyFilters);
+});
+
+async function loadQuotations() {
+    try {
+        quotationList = await QuotationAPI.getAll();
+    } catch (e) {
+        quotationList = [];
+    }
+    renderTabella(quotationList);
+    updateKpi(quotationList);
+}
+
+async function populateClientiSelect() {
+    try {
+        const clienti = await ClientiAPI.getAll();
+        const sel = document.getElementById('quotation-customer');
+        clienti.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name + " " + c.surname;
+            sel.appendChild(opt);
+        });
+    } catch (e) { /* silenzioso */ }
+}
+
+function applyFilters() {
+    const q = document.getElementById('search-input').value;
+    const statusId = parseInt(document.getElementById('quotation-status-filter').value);
+    const customerId = parseInt(document.getElementById('quotation-customer-filter').value);
+    let risultati = filterItems(quotationList, q, ['number', 'customerName']);
+    if (statusId) risultati = risultati.filter(f => f.quotationStatusId === statusId);
+    if (customerId) risultati = risultati.filter(f => f.customerId === customerId);
+    renderTabella(risultati);
+}
+
+function renderTabella(preventivi) {
+    const tbody = document.getElementById('quotations-tbody');
+    const footer = document.getElementById('table-footer');
+    const totEl  = document.getElementById('totale-amount');
+
+    if (footer) footer.textContent = `${preventivi.length} preventivi`;
+
+    const totale = preventivi.reduce((s, f) => s + (f.amount ?? 0), 0);
+    if (totEl) totEl.textContent = `Totale: ${formatCurrency(totale)}`;
+
+    if (!preventivi.length) {
+        setHTML(tbody, `<tr><td colspan="8" style="padding:0">
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+                <h3>Nessuna preventivo trovata</h3>
+                <p>Prova a modificare i filtri di ricerca</p>
+            </div>
+        </td></tr>`);
+        return;
+    }
+
+    setHTML(tbody, preventivi.map(f => {
+        const status = getQuotationStatusById(f.quotationStatusId);
+        return `<tr>
+            <td class="font-medium">${f.number}</td>
+            <td>${f.customerSurname}</td>
+            <td class="font-semibold">${formatCurrency(f.amount)}</td>
+            <td>${formatDate(f.issueDate)}</td>
+            <td>${formatDate(f.validityDate)}</td>
+            <td><span class="badge ${status.cls}">${status.label}</span></td>
+            <td>
+                <div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaQuotation(${f.id})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna pagata" onclick="segnaComeAccettato(${f.id})"><i class="fa-solid fa-calendar-check"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Segna rifiutata" onclick="segnaComeRifiutato(${f.id})"><i class="fa-solid fa-calendar-xmark"></i></button>
+                </div>
+            </td>
+        </tr>`;
+    }).join(''));
+}
+
+function updateKpi(preventivi) {
+
+    document.getElementById('kpi-tot').textContent = preventivi.length;
+
+    const draft     = preventivi.filter(f => f.quotationStatusId === 1);
+    const sent      = preventivi.filter(f => f.quotationStatusId === 2);
+    const accepted  = preventivi.filter(f => f.quotationStatusId === 3);
+    const rejected  = preventivi.filter(f => f.quotationStatusId === 4);
+    const expired   = preventivi.filter(f => f.quotationStatusId === 5);
+
+    document.getElementById('kpi-draft').textContent =
+        draft.length;
+    document.getElementById('kpi-draft-val').textContent =
+        formatCurrency(draft.reduce((s,f)=>s+(f.amount??0),0));
+
+    document.getElementById('kpi-sent').textContent =
+        sent.length;
+    document.getElementById('kpi-sent-val').textContent =
+        formatCurrency(sent.reduce((s,f)=>s+(f.amount??0),0));
+
+    document.getElementById('kpi-accepted').textContent =
+        accepted.length;
+    document.getElementById('kpi-accepted-val').textContent =
+        formatCurrency(accepted.reduce((s,f)=>s+(f.amount??0),0));
+
+    document.getElementById('kpi-rejected').textContent =
+        rejected.length;
+    document.getElementById('kpi-rejected-val').textContent =
+        formatCurrency(rejected.reduce((s,f)=>s+(f.amount??0),0));
+
+    document.getElementById('kpi-expired').textContent =
+        expired.length;
+    document.getElementById('kpi-expired-val').textContent =
+        formatCurrency(expired.reduce((s,f)=>s+(f.amount??0),0));
+}
+
+
+async function salvaQuotation() {
+    const number  = document.getElementById('quotation-number').value.trim();
+    if (!number) { showToast('Numero preventivo obbligatorio', 'warning'); return; }
+
+    const amount = parseFloat(document.getElementById('quotation-amount').value);
+    if (isNaN(amount) || amount < 0) { showToast('Importo non valido', 'warning'); return; }
+
+    const customerId = document.getElementById('quotation-customer').value || null;
+    if (!customerId) { showToast('Cliente preventivo obbligatorio', 'warning'); return; }
+
+    const quotationStatusId = document.getElementById("quotation-status").value || null;
+    if (!quotationStatusId) { showToast('Stato preventivo obbligatorio', 'warning'); return; }
+
+    const data = {
+        number,
+        quotationStatusId,
+        customerId,
+        description:        document.getElementById('quotation-description').value.trim() || null,
+        amount,
+        vatPercentage:      parseFloat(document.getElementById('quotation-vatPercentage').value) || 0,
+        discountPercentage: parseFloat(document.getElementById('quotation-discountPercentage').value) || 0,
+        issueDate:          document.getElementById('quotation-issueDate').value || null,
+        validityDate:       document.getElementById('quotation-validityDate').value || null,
+        quotationStatus:    document.getElementById('quotation-status').value,
+        notes:              document.getElementById('quotation-notes').value.trim() || null,
+    };
+
+    const id = document.getElementById('quotation-id').value;
+    try {
+        if (id)  { await QuotationAPI.update(id, data); showToast('Preventivo aggiornato', 'success'); }
+        else     { await QuotationAPI.create(data);     showToast('Preventivo creato', 'success'); }
+        closeModal('modal-quotation');
+        await loadQuotations();
+    } catch (e) {
+        showToast(`Errore: ${e.message}`, 'error');
+    }
+}
+
+function modificaQuotation(id) {
+    const f = quotationList.find(x => x.id === id);
+    console.table(f);
+
+    if (!f) return;
+    document.getElementById('quotation-id').value          = f.id;
+    document.getElementById('modal-quotation-title').innerHTML = '<i class="fa-solid fa-pen"></i> Modifica preventivo';
+    document.getElementById('quotation-number').value      = f.number ?? '';
+    document.getElementById('quotation-status').value      = f.quotationStatusId;
+    document.getElementById('quotation-customer').value     = f.customerId ?? '';
+    document.getElementById('quotation-description').value = f.description ?? '';
+    document.getElementById('quotation-amount').value     = f.amount ?? '';
+    document.getElementById('quotation-vatPercentage').value         = f.vatPercentage ?? 22;
+    document.getElementById('quotation-issueDate').value   = f.issueDate?.slice(0,10) ?? '';
+    document.getElementById('quotation-validityDate').value    = f.validityDate?.slice(0,10) ?? '';
+    document.getElementById('quotation-notes').value        = f.notes ?? '';
+    openModal('modal-quotation');
+}
+
+async function loadQuotationStatuses(document, defaultText) {
+    try {
+        const types = await QuotationStatusAPI.getAll();
+
+        document.innerHTML =
+            `<option value="">${defaultText}</option>` +
+            types.map(t =>
+                `<option value="${t.id}">${getQuotationStatusById(t.id).label}</option>`
+            ).join('');
+    } catch (e) {
+        showToast(`Errore caricamento stati preventivo: ${e.message}`, 'error');
+    }
+}
+
+async function loadQuotationCustomers() {
+    try {
+        const customers = await ClientiAPI.getAll();
+
+        document.getElementById('quotation-customer-filter').innerHTML =
+            `<option value="">Tutti i clienti</option>` +
+            customers.map(c => {
+                const label = [
+                    c.companyName ? `${c.companyName} -` : null,
+                    c.name,
+                    c.surname
+                ].filter(Boolean).join(" ");
+
+                return `<option value="${c.id}">${label}</option>`;
+            }).join('');
+
+    } catch (e) {
+        showToast(`Errore caricamento clienti: ${e.message}`, 'error');
+    }
+}
+
+async function segnaComeAccettato(id) {
+    try {
+        await QuotationAPI.statusUpdate(id, QUOTATION_STATUSES.accepted.id);
+        showToast('Preventivo segnato come accettato <i class="fa-solid fa-calendar-check"></i><', 'success');
+        await loadQuotations();
+    } catch (e) { showToast(`Errore: ${e.message}`, 'error'); }
+}
+
+async function segnaComeRifiutato(id) {
+    try {
+        await QuotationAPI.statusUpdate(id, QUOTATION_STATUSES.rejected.id);
+        showToast('Preventivo segnato come rifiutato <i class="fa-solid fa-calendar-check"></i><', 'success');
+        await loadQuotations();
+    } catch (e) { showToast(`Errore: ${e.message}`, 'error'); }
+}
+
+function exportQuotations() {
+    if (!quotationList.length) { showToast('Nessun dato da esportare', 'warning'); return; }
+    const header = ['Numero','Cliente','Stato','Importo','IVA%','Sconto%','Emissione','Scadenza','Creazione','UltimoAggiornamento','Descrizione','Note'].join(',');
+    const rows = quotationList.map(q =>
+        [q.number, q.customerSurname, getQuotationStatusById(q.quotationStatusId).label, q.amount, q.vatPercentage, q.discountPercentage, q.issueDate, q.validityDate, q.creationDate, q.lastUpdateDate, q.description, q.notes]
+        .map(v => `"${v ?? ''}"`).join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `preventivi_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    showToast('CSV esportato', 'success');
+}
+
+</script>
+</body>
+</html>

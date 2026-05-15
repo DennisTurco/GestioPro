@@ -28,9 +28,9 @@ public class Notes {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
-    @JoinColumn(name = "quotation_id")
-    private Quotation quotation;
+    // @ManyToOne
+    // @JoinColumn(name = "quotation_id")
+    // private Quotation quotation;
 
     @NotBlank
     @Column(nullable = false, length = 1000)

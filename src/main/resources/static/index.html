@@ -31,8 +31,8 @@
             <div class="nav-item" data-page="clienti">
                 <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti
             </div>
-            <div class="nav-item" data-page="fatture">
-                <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Fatture
+            <div class="nav-item" data-page="preventivi">
+                <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi
             </div>
             <div class="nav-item" data-page="task">
                 <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task
@@ -96,9 +96,9 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon"><i class="fa-solid fa-calendar-check"></i></div>
-                    <div class="kpi-label">Task attivi</div>
-                    <div class="kpi-value" id="kpi-task">-</div>
-                    <div class="kpi-delta" id="kpi-task-delta"></div>
+                    <div class="kpi-label">Preventivi totali</div>
+                    <div class="kpi-value" id="kpi-quotations">-</div>
+                    <div class="kpi-delta" id="kpi-quotations-delta"></div>
                 </div>
             </div>
 
@@ -127,19 +127,20 @@
 
             </div>
 
-            <!-- ULTIME FATTURE -->
+            <!-- LAST QUOTATIONS -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa-solid fa-receipt"></i> Ultime fatture
-                    <button class="btn btn-ghost btn-sm" onclick="navigateTo('fatture')">Vedi tutte →</button>
+                    <i class="fa-solid fa-receipt"></i> Ultimi Preventivi
+                    <button class="btn btn-ghost btn-sm" onclick="navigateTo('preventivi')">Vedi tutti →</button>
                 </div>
                 <div class="table-wrapper" style="border:none;border-radius:0 0 var(--radius) var(--radius)">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>N°</th>
+                                <th>N° Preventivo</th>
                                 <th>Cliente</th>
                                 <th>Importo</th>
+                                <th>Data emissione</th>
                                 <th>Scadenza</th>
                                 <th>Stato</th>
                             </tr>
@@ -168,7 +169,7 @@
             <p class="text-muted mb-16">Cosa vuoi fare?</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <button class="btn btn-outline" onclick="navigateTo('clienti')"><i class="fa-solid fa-users"></i> Nuovo cliente</button>
-                <button class="btn btn-outline" onclick="navigateTo('fatture')"><i class="fa-solid fa-receipt"></i> Nuova fattura</button>
+                <button class="btn btn-outline" onclick="navigateTo('preventivi')"><i class="fa-solid fa-receipt"></i> Nuova fattura</button>
                 <button class="btn btn-outline" onclick="navigateTo('task')"><i class="fa-solid fa-calendar-check"></i>Nuovo task</button>
                 <button class="btn btn-outline" onclick="navigateTo('impostazioni')"><i class="fa-solid fa-gear"></i> Impostazioni</button>
             </div>
@@ -183,12 +184,10 @@
 <script src="js/store/user.store.js"></script>
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
-
+<script src="js/utils.js"></script>
 
 <script>
-UserStore.load().then(user => {
-    console.log(user);
-});
+UserStore.load();
 document.addEventListener('DOMContentLoaded', async () => {
     // Current date label
     const dateEl = document.getElementById('topbar-date');
@@ -197,40 +196,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Load all data in parallel
-    await Promise.allSettled([loadLoggedUser(), loadKpi(), loadClientiRecenti(), loadTaskRecenti(), loadFattureRecenti()]);
+    await Promise.allSettled([loadLoggedUser(), loadKpi(), loadClientiRecenti(), loadTaskRecenti(), loadLastQuotations()]);
 });
-
-async function loadLoggedUser() {
-    try {
-        const user = await UserAPI.me();
-
-        if (!user) return;
-
-        document.querySelector('.user-avatar')
-            .textContent = getInitials(user.username);
-
-        document.querySelector('.user-username')
-            .textContent = user.username ?? 'Utente';
-
-        document.querySelector('.user-email')
-            .textContent = user.email ?? '';
-
-    } catch (e) {
-        console.error('User fetch error:', e.message);
-    }
-}
 
 async function loadKpi() {
     try {
         const clienti = await ClientiAPI.getAll();
+        const quotations = await QuotationAPI.getAll();
+        const quotationsToComplete = quotations.filter(q => q.quotationStatusId === QUOTATION_STATUSES.draft.id || q.quotationStatusId === QUOTATION_STATUSES.sent.id);
+
         document.getElementById('kpi-clienti').textContent = clienti.length;
         document.getElementById('kpi-clienti-delta').textContent = 'clienti registrati';
         document.getElementById('kpi-fatturato').textContent = formatCurrency(0);
         document.getElementById('kpi-fatturato-delta').textContent = 'mese corrente';
         document.getElementById('kpi-fatture').textContent = '0';
         document.getElementById('kpi-fatture-delta').textContent = 'da incassare';
-        document.getElementById('kpi-task').textContent = '0';
-        document.getElementById('kpi-task-delta').textContent = 'da completare';
+        document.getElementById('kpi-quotations').textContent = quotations.length;
+        document.getElementById('kpi-quotations-delta').textContent = 'da confermare: ' + quotationsToComplete.length;
         const badge = document.getElementById('badge-task');
         if (badge) badge.textContent = '0';
     } catch (e) { console.warn('KPI:', e.message); }
@@ -255,11 +237,32 @@ async function loadTaskRecenti() {
     showEmptyState(container, 'Nessun task ancora', '<i class="fa-solid fa-circle-plus"></i> Crea task', "navigateTo('task')");
 }
 
-async function loadFattureRecenti() {
+async function loadLastQuotations() {
+
     const tbody = document.getElementById('fatture-tbody');
-    setHTML(tbody, `<tr><td colspan="5" class="text-center text-muted" style="padding:24px">
-        Nessuna fattura - <span onclick="navigateTo('fatture')" style="color:var(--color-primary);cursor:pointer">Creane una</span>
-    </td></tr>`);
+    try {
+        const quotations = await QuotationAPI.getAll();
+        if (!quotations.length) {
+            setHTML(tbody, `<tr><td colspan="5" class="text-center text-muted" style="padding:24px">
+                Nessun preventivo - <span onclick="navigateTo('preventivi')" style="color:var(--color-primary);cursor:pointer">Creane uno</span>
+            </td></tr>`);
+        } else {
+            const last = quotations.slice(-5).reverse();
+            setHTML(tbody, `<tr><td colspan="5" class="text-center text-muted" style="padding:24px">
+                Nessun preventivo - <span onclick="navigateTo('preventivi')" style="color:var(--color-primary);cursor:pointer">Creane uno</span>
+            </td></tr>`);
+
+            setHTML(tbody, last.map(q => `
+            <tr style="padding:24px">
+                <td>${q.number}</td>
+                <td>${q.customerSurname}</td>
+                <td>${formatCurrency(q.amount)}</td>
+                <td>${q.creationDate}</td>
+                <td>${q.validityDate ?? '-' }</td>
+                <td>${getQuotationStatusById(q.quotationStatusId).label}</td>
+            </tr>`).join(''));
+        }
+    } catch (e) { setHTML(container, `<div class="text-muted text-center" style="padding:24px">Non raggiungibile</div>`); }
 }
 </script>
 </body>

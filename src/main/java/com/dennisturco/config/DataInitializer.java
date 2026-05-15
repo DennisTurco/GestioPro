@@ -31,6 +31,7 @@ public class DataInitializer {
     private final ProductStatusRepository productStatusRepository;
     private final QuotationStatusRepository quotationStatusRepository;
 
+    @SuppressWarnings("null")
     @Bean
     public CommandLineRunner initDefaultUser() {
         return args -> {

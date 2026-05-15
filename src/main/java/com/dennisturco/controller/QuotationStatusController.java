@@ -6,20 +6,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dennisturco.model.CustomerType;
-import com.dennisturco.service.CustomerTypeService;
+import com.dennisturco.model.QuotationStatus;
+import com.dennisturco.service.QuotationStatusService;
 
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
-@RequestMapping("/api/v1/customer-types")
+@RequestMapping("/api/v1/quotation-statuses")
 @RequiredArgsConstructor
-public class CustomerTypeController {
-    private final CustomerTypeService customerTypeService;
+public class QuotationStatusController {
+    private final QuotationStatusService service;
 
     @GetMapping
-    public List<CustomerType> getAllCustomerTypes() {
-        return customerTypeService.getAllCustomerTypes();
+    public List<QuotationStatus> getAllQuotationStatuses() {
+        return service.getAllQuotationStatuses();
     }
 }

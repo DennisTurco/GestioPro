@@ -42,13 +42,13 @@ public class CustomerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable @NonNull Long id) {
+    public ResponseEntity<Void> deleteById(@PathVariable long id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build(); // means: i deleted but with no returns
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> updateCustomerById(@PathVariable @NonNull Long id, @RequestBody @NonNull @Valid CustomerRequestDTO dto) {
+    public ResponseEntity<CustomerResponseDTO> updateCustomerById(@PathVariable long id, @RequestBody @NonNull @Valid CustomerRequestDTO dto) {
         CustomerResponseDTO updated = customerService.updateCustomerById(id, dto);
         return ResponseEntity.ok(updated);
     }

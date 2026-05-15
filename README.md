@@ -39,7 +39,7 @@ taskkill /PID <PID> /F
 
 - Run: `docker compose up -d`
 - Verify with: `docker compose ps`
-- Enter in docker terminal: `docker exec -it postgres-gestiopro bash` 
+- Enter in docker terminal: `docker exec -it postgres-gestiopro bash`
     - Enter in postgres db: `psql -U sa`
         - list of the databases: `\l`
         - if the database is missing: `CREATE DATABASE GestioPro;`

@@ -15,7 +15,7 @@
 const ROUTES = {
     dashboard:   'index.html',
     clienti:     'clienti.html',
-    fatture:     'fatture.html',
+    preventivi:  'preventivi.html',
     task:        'task.html',
     impostazioni:'impostazioni.html',
 };
@@ -156,12 +156,7 @@ function filterItems(items, query, fields) {
 document.addEventListener('DOMContentLoaded', async () => {
 
     try {
-
-        console.log("ciao");
-
         await UserStore.load();
-
-        console.log("ciao2");
 
         if (!UserStore.isAuthenticated()) {
             window.location.href = '/login';

@@ -13,14 +13,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Data
-@Setter
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Check(constraints = "quantity >= 0")
