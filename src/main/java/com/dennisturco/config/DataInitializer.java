@@ -1,5 +1,7 @@
 package com.dennisturco.config;
 
+import java.time.LocalDate;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +15,12 @@ import com.dennisturco.model.ContractType;
 import com.dennisturco.model.CustomerType;
 import com.dennisturco.model.ProductStatus;
 import com.dennisturco.model.QuotationStatus;
+import com.dennisturco.model.Settings;
 import com.dennisturco.repository.ContractTypeRepository;
 import com.dennisturco.repository.CustomerTypeRepository;
 import com.dennisturco.repository.ProductStatusRepository;
 import com.dennisturco.repository.QuotationStatusRepository;
+import com.dennisturco.repository.SettingsRepository;
 import com.dennisturco.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,8 +34,8 @@ public class DataInitializer {
     private final ContractTypeRepository contractTypeRepository;
     private final ProductStatusRepository productStatusRepository;
     private final QuotationStatusRepository quotationStatusRepository;
+    private final SettingsRepository settingsRepository;
 
-    @SuppressWarnings("null")
     @Bean
     public CommandLineRunner initDefaultUser() {
         return args -> {
@@ -90,6 +94,33 @@ public class DataInitializer {
                         quotationStatusRepository.save(new QuotationStatus(null, type))
                     );
             }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner initSettings() {
+        return args -> {
+            LocalDate now = LocalDate.now();
+            if (settingsRepository.findById("CompanyName") != null)
+                settingsRepository.save(new Settings("CompanyName", null, "company name", now));
+            if (settingsRepository.findById("VatNumber") != null)
+                settingsRepository.save(new Settings("VatNumber", null, "company vat number", now));
+            if (settingsRepository.findById("VatPercentage") != null)
+                settingsRepository.save(new Settings("VatPercentage", "22", "default vat percentage value", now));
+            if (settingsRepository.findById("Email") != null)
+                settingsRepository.save(new Settings("Email", null, "company email", now));
+            if (settingsRepository.findById("Phone") != null)
+                settingsRepository.save(new Settings("Phone", null, "phone number", now));
+            if (settingsRepository.findById("Address") != null)
+                settingsRepository.save(new Settings("Address", null, "company address", now));
+            if (settingsRepository.findById("Website") != null)
+                settingsRepository.save(new Settings("Website", null, "company public website", now));
+            if (settingsRepository.findById("ExpirationDays") != null)
+                settingsRepository.save(new Settings("ExpirationDays", "30", "quotation expiration days", now));
+            if (settingsRepository.findById("Prefix") != null)
+                settingsRepository.save(new Settings("Prefix", null, "default quotation prefix", now));
+            if (settingsRepository.findById("QuotationNotes") != null)
+                settingsRepository.save(new Settings("QuotationNotes", "", "default quotation notes", now));
         };
     }
 }

@@ -101,8 +101,7 @@ const ClientiAPI = {
 /* ═══════════════ CUSTOMER TYPE ════════════════════════ */
 
 const CustomerTypeAPI = {
-    getAll: () => apiFetch('/customer-types')
-
+    getAll: () => apiFetch('/customer-types'),
 };
 
 /* ═══════════════ QUOTATION STATUSES ════════════════════════ */
@@ -135,6 +134,15 @@ const TaskAPI = {
 const DashboardAPI = {
     /** GET /api/v1/dashboard/stats - returns aggregated KPIs */
     getStats: () => apiFetch('/dashboard/stats'),
+};
+
+/* ═══════════════ SETTINGS ══════════════════════ */
+const SettingsAPI = {
+    getAll: () => apiFetch("/settings"),
+    update: (data) => apiFetch(`/settings`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
 };
 
 /* ══════════════ TOAST UTILITY ═══════════════════ */

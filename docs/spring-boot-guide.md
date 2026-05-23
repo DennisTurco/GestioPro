@@ -456,7 +456,7 @@ public void start(Stage stage) {
     webView.getEngine().load("http://localhost:" + port);
 
     // 4. Mostra la finestra
-    stage.setTitle("Gestionale");
+    stage.setTitle("GestioPro");
     stage.setScene(new Scene(webView, 1200, 800));
     stage.show();
 }
