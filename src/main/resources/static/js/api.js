@@ -104,11 +104,40 @@ const CustomerTypeAPI = {
     getAll: () => apiFetch('/customer-types'),
 };
 
-/* ═══════════════ QUOTATION STATUSES ════════════════════════ */
+/* ═══════════════ PRODUCT ════════════════════════ */
+const ProductAPI = {
+    /** GET /api/v1/products */
+    getAll: () => apiFetch('/products'),
 
-const QuotationStatusAPI = {
-    getAll: () => apiFetch('/quotation-statuses')
+    /** GET /api/v1/products/:id */
+    getById: (id) => apiFetch(`/products/${id}`),
 
+    /** POST /api/v1/products */
+    create: (data) => apiFetch('/products', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+
+    /** PUT /api/v1/products/:id */
+    update: (id, data) => apiFetch(`/products/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
+
+    /** DELETE /api/v1/products/:id */
+    delete: (id) => apiFetch(`/products/${id}`, { method: 'DELETE' }),
+};
+
+/* ═══════════════ PRODUCT STATUS ════════════════════════ */
+
+const ProductStatusAPI = {
+    getAll: () => apiFetch('/product-statuses'),
+};
+
+/* ═══════════════ PRODUCT CATEGORY ════════════════════════ */
+
+const ProductCategoryAPI = {
+    getAll: () => apiFetch('/product-categories'),
 };
 
 /* ═══════════════ QUOTATIONS ════════════════════════ */
@@ -119,6 +148,13 @@ const QuotationAPI = {
     statusUpdate:   (id, statusId)  => apiFetch(`/quotations/status-update/${id}`, { method: 'PUT', body: JSON.stringify(statusId) }),
     update:         (id, d)  => apiFetch(`/quotations/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
     delete:         (id)     => apiFetch(`/quotations/${id}`, { method: 'DELETE' }),
+};
+
+/* ═══════════════ QUOTATION STATUSES ════════════════════════ */
+
+const QuotationStatusAPI = {
+    getAll: () => apiFetch('/quotation-statuses')
+
 };
 
 /* ═══════════════ TASK ═══════════════════════════ */

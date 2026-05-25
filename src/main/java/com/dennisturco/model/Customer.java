@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -64,7 +63,6 @@ public class Customer {
     private Double lon;
 
     private LocalDate insertDate;
-
     private LocalDate lastUpdateDate;
 
     @Column(length = 1000)

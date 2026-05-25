@@ -1,7 +1,5 @@
 package com.dennisturco.mapper;
 
-import java.time.LocalDate;
-
 import org.springframework.stereotype.Component;
 
 import com.dennisturco.dto.CustomerRequestDTO;
@@ -43,7 +41,6 @@ public class CustomerMapper {
 
     public Customer toEntity(CustomerRequestDTO dto) {
         long customerTypeId = dto.getCustomerTypeId();
-        LocalDate now = LocalDate.now();
 
         return Customer.builder()
             .id(null)
@@ -63,8 +60,8 @@ public class CustomerMapper {
             .landline(dto.getLandline())
             .lat(dto.getLat())
             .lon(dto.getLon())
-            .insertDate(now)
-            .lastUpdateDate(now)
+            .insertDate(null)
+            .lastUpdateDate(null)
             .notes(dto.getNotes())
             .build();
     }

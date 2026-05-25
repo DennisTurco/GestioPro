@@ -28,6 +28,7 @@ public class CustomerService {
             .toList();
     }
 
+    //TODO: change it to CustomerResponseDTO
     public Customer getCustomerById(long id) {
         return customerRepository.findById(id).orElse(null);
     }
@@ -41,6 +42,10 @@ public class CustomerService {
 
         if (customerRepository.existsByEmail(customer.getEmail()))
             throw new BusinessException("Email già presente");
+
+        LocalDate now = LocalDate.now();
+        customer.setInsertDate(now);
+        customer.setLastUpdateDate(now);
 
         customerRepository.save(customer);
     }

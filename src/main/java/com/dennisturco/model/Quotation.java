@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 @Check(constraints = "vat_percentage >= 0 AND vat_percentage <= 100")
 @Check(constraints = "discount_percentage >= 0 AND discount_percentage <= 100")
 public class Quotation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
