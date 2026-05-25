@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ProductCategoryResponseDTO {
+    private Long id;
     private String name;
     private String description;
     private LocalDateTime creationDate;

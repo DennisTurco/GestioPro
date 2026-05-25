@@ -17,6 +17,8 @@ const ROUTES = {
     clienti:     'clienti.html',
     preventivi:  'preventivi.html',
     task:        'task.html',
+    prodotti:    'prodotti.html',
+    categorie:   'categorie-prodotti.html',
     impostazioni:'impostazioni.html',
 };
 

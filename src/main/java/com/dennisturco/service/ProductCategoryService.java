@@ -57,10 +57,8 @@ public class ProductCategoryService {
         ProductCategory existing = repo.findById(id).orElseThrow(() -> new BusinessException("Categoria prodotto non trovata"));
 
         ProductCategory category = mapper.toEntity(dto);
-        existing.setId(category.getId());
         existing.setName(category.getName());
         existing.setDescription(category.getDescription());
-        existing.setCreationDate(category.getCreationDate());
         existing.setLastUpdateDate(LocalDateTime.now());
 
         category = repo.save(existing);

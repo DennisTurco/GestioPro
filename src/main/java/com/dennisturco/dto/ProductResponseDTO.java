@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ProductResponseDTO {
+    private Long id;
     private Long categoryId;
     private String categoryName;
     private Long statusId;

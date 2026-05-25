@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prodotti - GestioPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            GestioPro
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Menu principale</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+            <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
+            <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
+            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
+            <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
+            <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
+            <div class="sidebar-section-label">Sistema</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni</div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">U</div>
+                <div>
+                    <div class="font-medium user-username" style="color:#E2E8F0;font-size:13px"></div>
+                    <div style="font-size:11px" class="user-email"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-title">Prodotti</div>
+            <div class="topbar-actions">
+                <span class="text-muted text-sm" id="count-prodotti"></span>
+                <button class="btn btn-primary btn-sm" data-modal-open="modal-prodotto">
+                    <i class="fa-solid fa-circle-plus"></i> Nuovo prodotto
+                </button>
+            </div>
+        </header>
+
+        <main class="page-body">
+
+            <div class="card">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="search-bar" style="width:260px">
+                        <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca prodotto…">
+                    </div>
+                    <div class="toolbar-right">
+                        <select class="form-control" id="filter-categoria" style="width:180px">
+                            <option value="">Tutte le categorie</option>
+                        </select>
+                        <select class="form-control" id="filter-stato" style="width:150px">
+                            <option value="">Tutti gli stati</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tabella -->
+                <div class="table-wrapper" style="border:none;border-radius:0">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Codice</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Stato</th>
+                                <th>Quantità</th>
+                                <th>IVA %</th>
+                                <th>Prezzo</th>
+                                <th style="width:100px">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prodotti-tbody">
+                            <tr><td colspan="8" class="text-center text-muted" style="padding:32px">
+                                <div class="spinner"></div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer text-muted text-sm" id="table-footer">
+                    Caricamento…
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- MODAL: Nuovo / Modifica Prodotto -->
+<div class="modal-overlay" id="modal-prodotto">
+    <div class="modal">
+        <div class="modal-header">
+            <span id="modal-prodotto-title">
+                <i class="fa-solid fa-box"></i> Nuovo prodotto
+            </span>
+            <button class="btn-close" data-modal-close="modal-prodotto">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="prodotto-id">
+
+            <div class="form-row">
+                <!-- CATEGORIA -->
+                <div class="form-group">
+                    <label class="form-label">Categoria *</label>
+                    <select class="form-control" id="prodotto-categoryId" required></select>
+                </div>
+                <!-- STATO -->
+                <div class="form-group">
+                    <label class="form-label">Stato *</label>
+                    <select class="form-control" id="prodotto-statusId" required></select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- CODICE -->
+                <div class="form-group">
+                    <label class="form-label">Codice *</label>
+                    <input type="text" class="form-control" id="prodotto-code" placeholder="SKU-001" required>
+                </div>
+                <!-- EAN -->
+                <div class="form-group">
+                    <label class="form-label">EAN</label>
+                    <input type="text" class="form-control" id="prodotto-ean" placeholder="1234567890123">
+                </div>
+            </div>
+
+            <!-- NOME -->
+            <div class="form-group">
+                <label class="form-label">Nome *</label>
+                <input type="text" class="form-control" id="prodotto-name" placeholder="Nome prodotto" maxlength="50" required>
+            </div>
+
+            <!-- DESCRIZIONE -->
+            <div class="form-group">
+                <label class="form-label">Descrizione</label>
+                <textarea class="form-control" id="prodotto-description" rows="3" maxlength="1000" style="resize:vertical" placeholder="Descrizione del prodotto…"></textarea>
+            </div>
+
+            <div class="form-row">
+                <!-- QUANTITA -->
+                <div class="form-group">
+                    <label class="form-label">Quantità</label>
+                    <input type="number" class="form-control" id="prodotto-quantity" min="0" placeholder="0">
+                </div>
+                <!-- IVA -->
+                <div class="form-group">
+                    <label class="form-label">IVA % *</label>
+                    <input type="number" class="form-control" id="prodotto-vatPercentage" min="0" max="100" value="22" required>
+                </div>
+                <!-- PREZZO -->
+                <div class="form-group">
+                    <label class="form-label">Prezzo (€) *</label>
+                    <input type="number" class="form-control" id="prodotto-price" min="0" step="0.01" placeholder="0.00" required>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-prodotto">Annulla</button>
+            <button class="btn btn-primary" onclick="saveProdotto()">
+                <i class="fa-solid fa-floppy-disk"></i> Salva
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Conferma eliminazione -->
+<div class="modal-overlay" id="modal-elimina">
+    <div class="modal">
+        <div class="modal-header">
+            <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
+            <button class="btn-close" data-modal-close="modal-elimina">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Sei sicuro di voler eliminare <strong id="elimina-name"></strong>?</p>
+            <p class="text-muted text-sm mt-8">Questa azione non può essere annullata.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-elimina">Annulla</button>
+            <button class="btn btn-danger" onclick="confermaElimina()"><i class="fa-solid fa-trash"></i> Elimina</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/user.api.js"></script>
+<script src="js/store/user.store.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/utils.js"></script>
+<script>
+UserStore.load();
+let tuttiProdotti = [];
+let categorie = [];
+let statuses = [];
+let prodottoDaEliminare = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadLoggedUser();
+    await Promise.all([loadCategorie(), loadStatuses()]);
+    await loadProdotti();
+
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('filter-categoria').addEventListener('change', applyFilters);
+    document.getElementById('filter-stato').addEventListener('change', applyFilters);
+
+    document.querySelector('[data-modal-open="modal-prodotto"]').addEventListener('click', () => {
+        resetForm();
+    });
+});
+
+async function loadProdotti() {
+    try {
+        tuttiProdotti = await ProductAPI.getAll();
+        renderTabella(tuttiProdotti);
+    } catch (e) {
+        const tbody = document.getElementById('prodotti-tbody');
+        setHTML(tbody, `<tr><td colspan="8" class="text-center text-muted" style="padding:32px">
+            <i class="fa-solid fa-x"></i> Errore nel caricamento dei prodotti.<br>
+            <span class="text-sm">Verificare che il server Spring Boot sia avviato.</span>
+        </td></tr>`);
+    }
+}
+
+async function loadCategorie() {
+    try {
+        categorie = await ProductCategoryAPI.getAll();
+        const sel = document.getElementById('prodotto-categoryId');
+        const filterSel = document.getElementById('filter-categoria');
+        categorie.forEach(c => {
+            sel.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
+            filterSel.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
+        });
+    } catch (e) {
+        showToast('Errore caricamento categorie: ' + e.message, 'error');
+    }
+}
+
+async function loadStatuses() {
+    try {
+        statuses = await ProductStatusAPI.getAll();
+        const sel = document.getElementById('prodotto-statusId');
+        const filterSel = document.getElementById('filter-stato');
+        statuses.forEach(s => {
+            const label = s.name === 'NEW' ? 'Nuovo' : s.name === 'USED' ? 'Usato' : s.name;
+            sel.insertAdjacentHTML('beforeend', `<option value="${s.id}">${label}</option>`);
+            filterSel.insertAdjacentHTML('beforeend', `<option value="${s.id}">${label}</option>`);
+        });
+    } catch (e) {
+        showToast('Errore caricamento stati: ' + e.message, 'error');
+    }
+}
+
+function renderTabella(items) {
+    const tbody = document.getElementById('prodotti-tbody');
+    const footer = document.getElementById('table-footer');
+
+    if (!items.length) {
+        showEmptyState(tbody.parentElement.parentElement, 'Nessun prodotto', 'Nuovo prodotto', "openModal('modal-prodotto')");
+        setHTML(footer, '');
+        setHTML(document.getElementById('count-prodotti'), '');
+        return;
+    }
+
+    setHTML(tbody, items.map(p => {
+        const statusLabel = p.statusName === 'NEW' ? '<span class="badge badge-success">Nuovo</span>'
+                          : p.statusName === 'USED' ? '<span class="badge badge-warning">Usato</span>'
+                          : `<span class="badge badge-muted">${p.statusName ?? '-'}</span>`;
+        const qty = p.quantity != null ? p.quantity : '<span class="text-muted">—</span>';
+        const price = p.price != null ? formatCurrency(p.price) : '-';
+        return `
+        <tr>
+            <td><code style="font-size:12px">${p.code ?? '-'}</code></td>
+            <td><span class="font-medium">${p.name ?? '-'}</span>${p.ean ? `<br><span class="text-muted text-sm">EAN: ${p.ean}</span>` : ''}</td>
+            <td>${p.categoryName ?? '-'}</td>
+            <td>${statusLabel}</td>
+            <td>${qty}</td>
+            <td>${p.vatPercentage ?? '-'}%</td>
+            <td>${price}</td>
+            <td>
+                <button class="btn btn-ghost btn-sm" onclick="editProdotto(${p.id})" title="Modifica">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="deleteProdotto(${p.id}, '${(p.name ?? '').replace(/'/g, "\\'")}')" title="Elimina">
+                    <i class="fa-solid fa-trash" style="color:var(--color-danger)"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join(''));
+
+    setHTML(footer, `${items.length} prodott${items.length === 1 ? 'o' : 'i'}`);
+    setHTML(document.getElementById('count-prodotti'), `${items.length} prodott${items.length === 1 ? 'o' : 'i'}`);
+}
+
+function applyFilters() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const catId = document.getElementById('filter-categoria').value;
+    const statusId = document.getElementById('filter-stato').value;
+
+    let filtered = tuttiProdotti;
+    if (query) {
+        filtered = filtered.filter(p =>
+            (p.name ?? '').toLowerCase().includes(query) ||
+            (p.code ?? '').toLowerCase().includes(query) ||
+            (p.ean ?? '').toLowerCase().includes(query) ||
+            (p.categoryName ?? '').toLowerCase().includes(query)
+        );
+    }
+    if (catId) filtered = filtered.filter(p => String(p.categoryId) === catId);
+    if (statusId) filtered = filtered.filter(p => String(p.statusId) === statusId);
+
+    renderTabella(filtered);
+}
+
+function resetForm() {
+    document.getElementById('prodotto-id').value = '';
+    document.getElementById('prodotto-code').value = '';
+    document.getElementById('prodotto-ean').value = '';
+    document.getElementById('prodotto-name').value = '';
+    document.getElementById('prodotto-description').value = '';
+    document.getElementById('prodotto-quantity').value = '';
+    document.getElementById('prodotto-vatPercentage').value = '22';
+    document.getElementById('prodotto-price').value = '';
+    setHTML(document.getElementById('modal-prodotto-title'), '<i class="fa-solid fa-box"></i> Nuovo prodotto');
+}
+
+function editProdotto(id) {
+    const p = tuttiProdotti.find(x => x.id === id);
+    if (!p) return;
+
+    document.getElementById('prodotto-id').value = id;
+    document.getElementById('prodotto-code').value = p.code ?? '';
+    document.getElementById('prodotto-ean').value = p.ean ?? '';
+    document.getElementById('prodotto-name').value = p.name ?? '';
+    document.getElementById('prodotto-description').value = p.description ?? '';
+    document.getElementById('prodotto-quantity').value = p.quantity ?? '';
+    document.getElementById('prodotto-vatPercentage').value = p.vatPercentage ?? 22;
+    document.getElementById('prodotto-price').value = p.price ?? '';
+    document.getElementById('prodotto-categoryId').value = p.categoryId ?? '';
+    document.getElementById('prodotto-statusId').value = p.statusId ?? '';
+
+    setHTML(document.getElementById('modal-prodotto-title'), '<i class="fa-solid fa-pencil"></i> Modifica prodotto');
+    openModal('modal-prodotto');
+}
+
+async function saveProdotto() {
+    const id = document.getElementById('prodotto-id').value;
+    const dto = {
+        productCategoryId: Number(document.getElementById('prodotto-categoryId').value) || null,
+        productStatusId:   Number(document.getElementById('prodotto-statusId').value) || null,
+        code:              document.getElementById('prodotto-code').value.trim(),
+        ean:               document.getElementById('prodotto-ean').value.trim() || null,
+        name:              document.getElementById('prodotto-name').value.trim(),
+        description:       document.getElementById('prodotto-description').value.trim() || null,
+        quantity:          document.getElementById('prodotto-quantity').value !== '' ? Number(document.getElementById('prodotto-quantity').value) : null,
+        vatPercentage:     Number(document.getElementById('prodotto-vatPercentage').value),
+        price:             parseFloat(document.getElementById('prodotto-price').value),
+    };
+
+    if (!dto.code || !dto.name || !dto.productCategoryId || !dto.productStatusId) {
+        showToast('Compila tutti i campi obbligatori', 'warning');
+        return;
+    }
+
+    try {
+        if (id) {
+            await ProductAPI.update(id, dto);
+            showToast('Prodotto aggiornato', 'success');
+        } else {
+            await ProductAPI.create(dto);
+            showToast('Prodotto creato', 'success');
+        }
+        closeModal('modal-prodotto');
+        await loadProdotti();
+    } catch (e) {
+        showToast('Errore: ' + e.message, 'error');
+    }
+}
+
+function deleteProdotto(id, name) {
+    prodottoDaEliminare = id;
+    setHTML(document.getElementById('elimina-name'), name);
+    openModal('modal-elimina');
+}
+
+async function confermaElimina() {
+    if (!prodottoDaEliminare) return;
+    try {
+        await ProductAPI.delete(prodottoDaEliminare);
+        showToast('Prodotto eliminato', 'success');
+        closeModal('modal-elimina');
+        prodottoDaEliminare = null;
+        await loadProdotti();
+    } catch (e) {
+        showToast('Errore eliminazione: ' + e.message, 'error');
+    }
+}
+</script>
+</body>
+</html>

@@ -137,7 +137,10 @@ const ProductStatusAPI = {
 /* ═══════════════ PRODUCT CATEGORY ════════════════════════ */
 
 const ProductCategoryAPI = {
-    getAll: () => apiFetch('/product-categories'),
+    getAll:  ()          => apiFetch('/product-categories'),
+    create:  (data)      => apiFetch('/product-categories', { method: 'POST', body: JSON.stringify(data) }),
+    update:  (id, data)  => apiFetch(`/product-categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete:  (id)        => apiFetch(`/product-categories/${id}`, { method: 'DELETE' }),
 };
 
 /* ═══════════════ QUOTATIONS ════════════════════════ */

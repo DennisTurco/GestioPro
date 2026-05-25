@@ -18,14 +18,18 @@ public class ProductMapper {
 
     public ProductResponseDTO toDTO(Product p) {
         return ProductResponseDTO.builder()
+            .id(p.getId())
             .categoryId(p.getCategory().getId())
             .categoryName(p.getCategory().getName())
             .statusId(p.getStatus().getId())
             .statusName(p.getStatus().getName().name())
-            .code(p.getName())
+            .code(p.getCode())
             .ean(p.getEan())
             .name(p.getName())
             .description(p.getDescription())
+            .quantity(p.getQuantity())
+            .vatPercentage(p.getVatPercentage())
+            .price(p.getPrice())
             .build();
     }
 

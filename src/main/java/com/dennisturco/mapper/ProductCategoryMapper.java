@@ -21,6 +21,7 @@ public class ProductCategoryMapper {
 
     public ProductCategoryResponseDTO toDTO(ProductCategory pc) {
         return ProductCategoryResponseDTO.builder()
+            .id(pc.getId())
             .name(pc.getName())
             .description(pc.getDescription())
             .creationDate(pc.getCreationDate())
