@@ -35,6 +35,11 @@ public class CustomerController {
         return customerService.getAllCustomers();
     }
 
+    @GetMapping("/{id}")
+    public CustomerResponseDTO getCustomerById(@PathVariable long id) {
+        return customerService.getCustomerResponseById(id);
+    }
+
     @PostMapping
     public ResponseEntity<Void> addNewCustomer(@RequestBody @NonNull @Valid CustomerRequestDTO dto) {
         customerService.insertCustomer(dto);

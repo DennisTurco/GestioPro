@@ -24,7 +24,7 @@
             <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
             <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
             <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
+            <!-- <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div> -->
             <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
             <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
             <div class="sidebar-section-label">Sistema</div>
@@ -62,6 +62,10 @@
                     <div class="search-bar" style="width:260px">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                         <input type="text" class="form-control" id="search-input" placeholder="Cerca categoria…">
+                    </div>
+
+                    <div class="toolbar-right">
+                        <button class="btn btn-ghost btn-sm" onclick="exportCategories()"><i class="fa-solid fa-download"></i> Esporta</button>
                     </div>
                 </div>
 
@@ -159,14 +163,15 @@ let categoriaDaEliminare = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadLoggedUser();
-    await loadCategorie();
 
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        renderTabella(filterItems(tutteCategorie, e.target.value, ['name', 'description']));
-    });
+    await Promise.allSettled([loadCategorie()]);
 
     document.querySelector('[data-modal-open="modal-categoria"]').addEventListener('click', () => {
         resetForm();
+    });
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        renderTabella(filterItems(tutteCategorie, e.target.value, ['name', 'description']));
     });
 });
 
@@ -188,7 +193,16 @@ function renderTabella(items) {
     const footer = document.getElementById('table-footer');
 
     if (!items.length) {
-        showEmptyState(tbody.parentElement.parentElement, 'Nessuna categoria', 'Nuova categoria', "openModal('modal-categoria')");
+        setHTML(tbody, `<tr><td colspan="5" style="padding:0">
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-tags"></i></div>
+                <h3>Nessuna categoria trovata</h3>
+                <p>Prova a modificare i filtri di ricerca oppure creane una nuova</p>
+                <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="openModal('modal-categoria')">
+                    <i class="fa-solid fa-circle-plus"></i> Nuova categoria
+                </button>
+            </div>
+        </td></tr>`);
         setHTML(footer, '');
         setHTML(document.getElementById('count-categorie'), '');
         return;
@@ -201,12 +215,10 @@ function renderTabella(items) {
             <td>${formatDate(c.creationDate)}</td>
             <td>${formatDate(c.lastUpdateDate)}</td>
             <td>
-                <button class="btn btn-ghost btn-sm" onclick="editCategoria(${c.id})" title="Modifica">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                <button class="btn btn-ghost btn-sm" onclick="deleteCategoria(${c.id}, '${(c.name ?? '').replace(/'/g, "\\'")}')" title="Elimina">
-                    <i class="fa-solid fa-trash" style="color:var(--color-danger)"></i>
-                </button>
+                <div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="editCategoria(${c.id})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Elimina" onclick="deleteCategoria(${c.id}, '${(c.name ?? '').replace(/'/g, "\\'")}')"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
             </td>
         </tr>
     `).join(''));
@@ -278,6 +290,21 @@ async function confermaElimina() {
     } catch (e) {
         showToast('Errore eliminazione: ' + e.message, 'error');
     }
+}
+
+function exportCategories() {
+    if (!tutteCategorie.length) { showToast('Nessun dato da esportare', 'warning'); return; }
+    const header = ['Nome','Descrizione','DataCreazione','UltimaModifica'].join(',');
+    const rows = tutteCategorie.map(p =>
+        [p.name,p.description,p.creationDate,p.lastUpdateDate]
+        .map(v => `"${v ?? ''}"`).join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `categorie-prodotti_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    showToast('CSV esportato', 'success');
 }
 </script>
 </body>

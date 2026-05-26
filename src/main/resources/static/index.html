@@ -34,10 +34,10 @@
             <div class="nav-item" data-page="preventivi">
                 <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi
             </div>
-            <div class="nav-item" data-page="task">
+            <!-- <div class="nav-item" data-page="task">
                 <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task
                 <span class="nav-badge" id="badge-task">0</span>
-            </div>
+            </div> -->
             <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
             <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
 
@@ -119,10 +119,10 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <i class="fa-solid fa-thumbtack"></i> Task da completare
-                        <button class="btn btn-ghost btn-sm" onclick="navigateTo('task')">Vedi tutti →</button>
+                        <i class="fa-solid fa-box"></i> Prodotti
+                        <button class="btn btn-ghost btn-sm" onclick="navigateTo('prodotti')">Vedi tutti →</button>
                     </div>
-                    <div id="lista-task-recenti">
+                    <div id="lista-prodotti-recenti">
                         <div class="text-center text-muted" style="padding:32px"><div class="spinner"></div></div>
                     </div>
                 </div>
@@ -172,7 +172,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <button class="btn btn-outline" onclick="navigateTo('clienti')"><i class="fa-solid fa-users"></i> Nuovo cliente</button>
                 <button class="btn btn-outline" onclick="navigateTo('preventivi')"><i class="fa-solid fa-receipt"></i> Nuova fattura</button>
-                <button class="btn btn-outline" onclick="navigateTo('task')"><i class="fa-solid fa-calendar-check"></i>Nuovo task</button>
+                <button class="btn btn-outline" onclick="navigateTo('prodotti')"><i class="fa-solid fa-calendar-check"></i>Nuovo prodotto</button>
                 <button class="btn btn-outline" onclick="navigateTo('impostazioni')"><i class="fa-solid fa-gear"></i> Impostazioni</button>
             </div>
         </div>
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Load all data in parallel
-    await Promise.allSettled([loadLoggedUser(), loadKpi(), loadClientiRecenti(), loadTaskRecenti(), loadLastQuotations()]);
+    await Promise.allSettled([loadLoggedUser(), loadKpi(), loadClientiRecenti(), loadProdottiRecenti(), loadLastQuotations()]);
 });
 
 async function loadKpi() {
@@ -227,16 +227,32 @@ async function loadClientiRecenti() {
         if (!clienti.length) { showEmptyState(container, 'Nessun cliente ancora', '<i class="fa-solid fa-circle-plus"></i> Aggiungi', "navigateTo('clienti')"); return; }
         const ultimi = clienti.slice(-5).reverse();
         setHTML(container, `<ul>` + ultimi.map(c => `
-            <li style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--color-border)">
-                <div class="avatar">${getInitials(c.name)}</div>
-                <div><div class="font-medium">${c.name} ${c.surname}</div><div class="text-xs text-muted">${c.companyName || ''}</div></div>
+            <li style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--color-border);cursor:pointer"
+                onclick="window.location.href='scheda-cliente.html?id=${c.id}'">
+                <div class="avatar">${c.name[0]}${c.surname[0]}</div>
+                <div>
+                    <div class="font-medium">${c.name} ${c.surname}</div>
+                    <div class="text-xs text-muted">${c.companyName || ''}</div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted" style="margin-left:auto"></i>
             </li>`).join('') + `</ul>`);
     } catch (e) { setHTML(container, `<div class="text-muted text-center" style="padding:24px">Non raggiungibile</div>`); }
 }
 
-async function loadTaskRecenti() {
-    const container = document.getElementById('lista-task-recenti');
-    showEmptyState(container, 'Nessun task ancora', '<i class="fa-solid fa-circle-plus"></i> Crea task', "navigateTo('task')");
+async function loadProdottiRecenti() {
+    const container = document.getElementById('lista-prodotti-recenti');
+    try {
+        const clienti = await ProductAPI.getAll();
+        if (!clienti.length) { showEmptyState(container, 'Nessun prodotto ancora', '<i class="fa-solid fa-circle-plus"></i> Aggiungi', "navigateTo('prodotti')"); return; }
+        const ultimi = clienti.slice(-5).reverse();
+        setHTML(container, `<ul>` + ultimi.map(c => `
+            <li style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--color-border);cursor:pointer"
+                onclick="window.location.href='scheda-cliente.html?id=${c.id}'">
+                <div>
+                    <div class="font-medium">${c.name}</div>
+                </div>
+            </li>`).join('') + `</ul>`);
+    } catch (e) { setHTML(container, `<div class="text-muted text-center" style="padding:24px">Non raggiungibile</div>`); }
 }
 
 async function loadLastQuotations() {

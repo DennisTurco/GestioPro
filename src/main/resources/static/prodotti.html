@@ -24,7 +24,7 @@
             <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
             <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
             <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
+            <!-- <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div> -->
             <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
             <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
             <div class="sidebar-section-label">Sistema</div>
@@ -70,6 +70,7 @@
                         <select class="form-control" id="filter-stato" style="width:150px">
                             <option value="">Tutti gli stati</option>
                         </select>
+                        <button class="btn btn-ghost btn-sm" onclick="exportProducts()"><i class="fa-solid fa-download"></i> Esporta</button>
                     </div>
                 </div>
 
@@ -275,7 +276,16 @@ function renderTabella(items) {
     const footer = document.getElementById('table-footer');
 
     if (!items.length) {
-        showEmptyState(tbody.parentElement.parentElement, 'Nessun prodotto', 'Nuovo prodotto', "openModal('modal-prodotto')");
+        setHTML(tbody, `<tr><td colspan="8" style="padding:0">
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-box"></i></div>
+                <h3>Nessun prodotto trovato</h3>
+                <p>Prova a modificare i filtri di ricerca oppure creane uno nuovo</p>
+                <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="openModal('modal-prodotto')">
+                    <i class="fa-solid fa-circle-plus"></i> Nuovo prodotto
+                </button>
+            </div>
+        </td></tr>`);
         setHTML(footer, '');
         setHTML(document.getElementById('count-prodotti'), '');
         return;
@@ -297,12 +307,10 @@ function renderTabella(items) {
             <td>${p.vatPercentage ?? '-'}%</td>
             <td>${price}</td>
             <td>
-                <button class="btn btn-ghost btn-sm" onclick="editProdotto(${p.id})" title="Modifica">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                <button class="btn btn-ghost btn-sm" onclick="deleteProdotto(${p.id}, '${(p.name ?? '').replace(/'/g, "\\'")}')" title="Elimina">
-                    <i class="fa-solid fa-trash" style="color:var(--color-danger)"></i>
-                </button>
+                <div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="editProdotto(${p.id})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Elimina" onclick="deleteProdotto(${p.id}, '${(p.name ?? '').replace(/'/g, "\\'")}')"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
             </td>
         </tr>`;
     }).join(''));
@@ -376,7 +384,7 @@ async function saveProdotto() {
         price:             parseFloat(document.getElementById('prodotto-price').value),
     };
 
-    if (!dto.code || !dto.name || !dto.productCategoryId || !dto.productStatusId) {
+    if (!dto.code || !dto.name || !dto.productCategoryId || !dto.productStatusId || !dto.price || !dto.vatPercentage) {
         showToast('Compila tutti i campi obbligatori', 'warning');
         return;
     }
@@ -413,6 +421,21 @@ async function confermaElimina() {
     } catch (e) {
         showToast('Errore eliminazione: ' + e.message, 'error');
     }
+}
+
+function exportProducts() {
+    if (!tuttiProdotti.length) { showToast('Nessun dato da esportare', 'warning'); return; }
+    const header = ['Codice','Nome','Categoria','Stato','EAN','Quantità','IVA%','Prezzo','Descrizione'].join(',');
+    const rows = tuttiProdotti.map(p =>
+        [p.code,p.name,p.productCategoryId,p.productStatusId,p.ean,p.quantity,p.vatPercentage,p.price,p.description]
+        .map(v => `"${v ?? ''}"`).join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prodotti_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    showToast('CSV esportato', 'success');
 }
 </script>
 </body>

@@ -28,9 +28,13 @@ public class CustomerService {
             .toList();
     }
 
-    //TODO: change it to CustomerResponseDTO
     public Customer getCustomerById(long id) {
         return customerRepository.findById(id).orElse(null);
+    }
+
+    public CustomerResponseDTO getCustomerResponseById(long id) {
+        Customer customer = customerRepository.findById(id).orElse(null);
+        return mapper.toResponseDto(customer);
     }
 
     public void insertCustomer(@NonNull CustomerRequestDTO dto) {

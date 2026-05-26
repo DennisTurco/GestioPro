@@ -24,7 +24,7 @@
             <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
             <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
             <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
+            <!-- <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div> -->
             <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
             <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
             <div class="sidebar-section-label">Sistema</div>
@@ -317,8 +317,18 @@ function renderTabella(clienti) {
     if (footer) footer.textContent = `${clienti.length} risultati`;
 
     if (!clienti.length) {
-        showEmptyState(tbody.parentElement.parentElement, 'Nessun cliente trovato', '<i class="fa-solid fa-circle-plus"></i> Aggiungi il primo', "openModal('modal-cliente');resetForm()");
-        tbody.innerHTML = '';
+        setHTML(tbody, `<tr><td colspan="7" style="padding:0">
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-users"></i></div>
+                <h3>Nessun cliente trovato</h3>
+                <p>Prova a modificare i filtri di ricerca oppure creane uno nuovo</p>
+                <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="openModal('modal-cliente')">
+                    <i class="fa-solid fa-circle-plus"></i> Nuovo cliente
+                </button>
+            </div>
+        </td></tr>`);
+        setHTML(footer, '');
+        setHTML(document.getElementById('count-clienti'), '');
         return;
     }
 
@@ -327,7 +337,7 @@ function renderTabella(clienti) {
             <td class="text-muted text-sm">${c.id}</td>
             <td>
                 <div style="display:flex;align-items:center;gap:10px">
-                    <div class="avatar" style="flex-shrink:0">${getInitials(c.name)}</div>
+                    <div class="avatar" style="flex-shrink:0">${c.name[0]}${c.surname[0]}</div>
                     <div>
                         <div class="font-medium">${c.name + " " + c.surname}</div>
                         <div class="text-xs text-muted">${c.companyName ?? ''}</div>
@@ -346,6 +356,7 @@ function renderTabella(clienti) {
                 <div style="display:flex;gap:6px">
                     <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" onclick="modificaCliente(${c.id})"><i class="fa-solid fa-pen"></i></button>
                     <button class="btn btn-ghost btn-sm btn-icon" title="Elimina" onclick="chiediElimina(${c.id}, '${(c.name ?? '').replace(/'/g, "\\'")}')"><i class="fa-solid fa-trash-can"></i></button>
+                    <button class="btn btn-ghost btn-sm btn-icon" title="Apri Scheda Cliente" onclick="window.location.href='scheda-cliente.html?id=${c.id}'"><i class="fa-solid fa-book-open"></i></button>
                 </div>
             </td>
         </tr>`).join(''));
