@@ -25,7 +25,7 @@
             <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
             <div class="nav-item" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
             <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
-            <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div>
+            <!-- <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div> -->
             <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
             <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
             <div class="sidebar-section-label">Sistema</div>
@@ -291,7 +291,10 @@ function renderTabella(preventivi) {
             <div class="empty-state">
                 <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
                 <h3>Nessuna preventivo trovata</h3>
-                <p>Prova a modificare i filtri di ricerca</p>
+                <p>Prova a modificare i filtri di ricerca oppure creane uno nuovo</p>
+                <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="openModal('modal-quotation')">
+                    <i class="fa-solid fa-circle-plus"></i> Nuovo preventivo
+                </button>
             </div>
         </td></tr>`);
         return;

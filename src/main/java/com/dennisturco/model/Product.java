@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Check(constraints = "quantity >= 0")
 @Check(constraints = "vat_percentage >= 0")
 @Check(constraints = "price >= 0")
 public class Product {

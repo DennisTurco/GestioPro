@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheda Cliente - GestioPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- ═══════ SIDEBAR ═══════════════════════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            GestioPro
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Menu principale</div>
+            <div class="nav-item" data-page="dashboard"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard</div>
+            <div class="nav-item active" data-page="clienti"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> Clienti</div>
+            <div class="nav-item" data-page="preventivi"><span class="nav-icon"><i class="fa-solid fa-receipt"></i></span> Preventivi</div>
+            <!-- <div class="nav-item" data-page="task"><span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Task</div> -->
+            <div class="nav-item" data-page="prodotti"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> Prodotti</div>
+            <div class="nav-item" data-page="categorie"><span class="nav-icon"><i class="fa-solid fa-tags"></i></span> Categorie</div>
+            <div class="sidebar-section-label">Sistema</div>
+            <div class="nav-item" data-page="impostazioni"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Impostazioni</div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">U</div>
+                <div>
+                    <div class="font-medium user-username" style="color:#E2E8F0;font-size:13px"></div>
+                    <div style="font-size:11px" class="user-email"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════ MAIN ══════════════════════════════════════ -->
+    <div class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-title">
+                <button class="btn btn-ghost btn-sm"
+                        onclick="window.location.href='clienti.html'"
+                        style="margin-right:8px;padding:6px 10px">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <i class="fa-solid fa-folder-open" style="color:var(--color-primary);margin-right:8px"></i>
+                Scheda Cliente
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-ghost btn-sm" onclick="openEditCliente()">
+                    <i class="fa-solid fa-pen"></i> Modifica
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="chiediElimina()">
+                    <i class="fa-solid fa-trash"></i> Elimina
+                </button>
+            </div>
+        </header>
+
+        <main class="page-body">
+
+            <!-- NOT FOUND -->
+            <div id="not-found" style="display:none">
+                <div class="card">
+                    <div class="not-found-box">
+                        <div class="icon">🔍</div>
+                        <h2>Cliente non trovato</h2>
+                        <p>Nessun cliente corrisponde all'ID richiesto.</p>
+                        <button class="btn btn-primary" onclick="window.location.href='clienti.html'">
+                            <i class="fa-solid fa-arrow-left"></i> Torna ai clienti
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDA CONTENT -->
+            <div id="scheda-content" style="display:none">
+
+                <!-- Hero Header -->
+                <div class="client-hero" id="client-hero">
+                    <div class="client-hero-avatar" id="hero-avatar">—</div>
+                    <div class="client-hero-body">
+                        <div class="client-hero-name" id="hero-name">—</div>
+                        <div class="client-hero-meta" id="hero-meta"></div>
+                    </div>
+                    <div class="client-hero-actions">
+                        <button class="btn-hero" onclick="openEditCliente()">
+                            <i class="fa-solid fa-pen"></i> Modifica
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info Grid Card -->
+                <div class="card mb-24" style="overflow:hidden">
+                    <div class="info-grid" id="info-grid"></div>
+                </div>
+
+                <!-- Tabs Card -->
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="preventivi">
+                            <i class="fa-solid fa-receipt"></i> Preventivi
+                            <span class="nav-badge" id="badge-preventivi">0</span>
+                        </button>
+                        <button class="tab-btn" data-tab="note">
+                            <i class="fa-solid fa-clipboard-list"></i> Note
+                        </button>
+                    </div>
+
+                    <div style="padding:24px">
+
+                        <!-- ── TAB: PREVENTIVI ─────────────────── -->
+                        <div class="tab-panel active" id="tab-preventivi">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                                <h3 style="font-size:15px;font-weight:600;margin:0">Preventivi del cliente</h3>
+                                <button class="btn btn-primary btn-sm" onclick="openModalPreventivo()">
+                                    <i class="fa-solid fa-plus"></i> Nuovo Preventivo
+                                </button>
+                            </div>
+
+                            <!-- Filtro stato -->
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="filtri-stato">
+                                <button class="btn btn-ghost btn-sm filtro-btn active" data-stato="">Tutti</button>
+                                <button class="btn btn-ghost btn-sm filtro-btn" data-stato="draft">Bozza</button>
+                                <button class="btn btn-ghost btn-sm filtro-btn" data-stato="sent">Inviato</button>
+                                <button class="btn btn-ghost btn-sm filtro-btn" data-stato="accepted">Accettato</button>
+                                <button class="btn btn-ghost btn-sm filtro-btn" data-stato="rejected">Rifiutato</button>
+                            </div>
+
+                            <div id="preventivi-list"></div>
+                        </div>
+
+                        <!-- ── TAB: NOTE ───────────────────────── -->
+                        <div class="tab-panel" id="tab-note">
+                            <h3 style="font-size:15px;font-weight:600;margin:0 0 20px">Note Cliente</h3>
+                            <div class="note-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Note generali</label>
+                                    <textarea id="note-generali" class="form-control" rows="6"
+                                              placeholder="Informazioni generali sul cliente, preferenze, contesto…"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Note interne</label>
+                                    <textarea id="note-interne" class="form-control" rows="6"
+                                              placeholder="Note riservate per uso interno dello studio…"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Note aggiuntive</label>
+                                <textarea id="note-aggiuntive" class="form-control" rows="4"
+                                          placeholder="Dettagli aggiuntivi, follow-up, accordi particolari…"></textarea>
+                            </div>
+                            <div style="display:flex;gap:10px;align-items:center">
+                                <button class="btn btn-primary" onclick="saveNote()">
+                                    <i class="fa-solid fa-floppy-disk"></i> Salva Note
+                                </button>
+                                <span id="note-saved-label" style="font-size:12px;color:var(--color-muted);display:none">
+                                    <i class="fa-solid fa-check" style="color:#10B981"></i> Salvate
+                                </span>
+                            </div>
+                        </div>
+
+                    </div><!-- /padding -->
+                </div><!-- /card tabs -->
+
+            </div><!-- /scheda-content -->
+        </main>
+    </div>
+</div>
+
+<!-- ═══ MODAL: Nuovo / Modifica Preventivo ════════════════ -->
+<div class="modal-overlay" id="modal-preventivo">
+    <div class="modal" style="width:min(600px,95vw)">
+        <div class="modal-header">
+            <span id="modal-prev-title"><i class="fa-solid fa-receipt"></i> Nuovo Preventivo</span>
+            <button class="btn-close" data-modal-close="modal-preventivo">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="prev-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Numero preventivo *</label>
+                    <input type="text" id="prev-numero" class="form-control" placeholder="es. PREV-2025-001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stato *</label>
+                    <select id="prev-stato" class="form-control">
+                        <option value="draft">Bozza</option>
+                        <option value="sent">Inviato</option>
+                        <option value="accepted">Accettato</option>
+                        <option value="rejected">Rifiutato</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Data emissione</label>
+                    <input type="date" id="prev-data-emissione" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data scadenza</label>
+                    <input type="date" id="prev-data-scadenza" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Importo (€) *</label>
+                    <input type="number" id="prev-importo" class="form-control" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">IVA (%)</label>
+                    <input type="number" id="prev-iva" class="form-control" placeholder="22" min="0" max="100">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descrizione / Oggetto</label>
+                <textarea id="prev-descrizione" class="form-control" rows="3"
+                          placeholder="Descrizione dei servizi offerti…"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <input type="text" id="prev-note" class="form-control" placeholder="Note aggiuntive…">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-preventivo">Annulla</button>
+            <button class="btn btn-primary" onclick="savePreventivo()">
+                <i class="fa-solid fa-floppy-disk"></i> Salva
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL: Modifica Cliente ══════════════════════════ -->
+<div class="modal-overlay" id="modal-edit-cliente">
+    <div class="modal" style="width:min(680px,95vw)">
+        <div class="modal-header">
+            <span><i class="fa-solid fa-pen"></i> Modifica Cliente</span>
+            <button class="btn-close" data-modal-close="modal-edit-cliente">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nome *</label>
+                    <input type="text" id="ep-nome" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cognome *</label>
+                    <input type="text" id="ep-cognome" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" id="ep-email" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefono *</label>
+                    <input type="tel" id="ep-telefono" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Ragione Sociale</label>
+                    <input type="text" id="ep-azienda" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Partita IVA</label>
+                    <input type="text" id="ep-piva" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Codice Fiscale</label>
+                    <input type="text" id="ep-cf" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nazione</label>
+                    <input type="text" id="ep-nazione" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Regione</label>
+                    <input type="text" id="ep-regione" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Provincia</label>
+                    <input type="text" id="ep-provincia" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Città</label>
+                    <input type="text" id="ep-citta" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Indirizzo</label>
+                <input type="text" id="ep-indirizzo" class="form-control">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Note</label>
+                <textarea id="ep-note" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-edit-cliente">Annulla</button>
+            <button class="btn btn-primary" onclick="saveEditCliente()">
+                <i class="fa-solid fa-floppy-disk"></i> Salva
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL: Conferma eliminazione ════════════════════ -->
+<div class="modal-overlay" id="modal-elimina">
+    <div class="modal">
+        <div class="modal-header">
+            <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
+            <button class="btn-close" data-modal-close="modal-elimina">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Sei sicuro di voler eliminare <strong id="elimina-name"></strong>?</p>
+            <p class="text-muted text-sm mt-8">Questa azione non può essere annullata. Tutti i preventivi e le note associate saranno eliminati.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-modal-close="modal-elimina">Annulla</button>
+            <button class="btn btn-danger" onclick="confermaElimina()">
+                <i class="fa-solid fa-trash"></i> Elimina
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container"></div>
+
+<!-- ─── Script dependencies (stessa struttura di GestioPro) ─── -->
+<script src="js/user.api.js"></script>
+<script src="js/store/user.store.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/utils.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   SCHEDA CLIENTE — GestioPro
+   Dipende da: ClientiAPI, QuotationAPI (js/api.js)
+               openModal / closeModal / showToast / setHTML (js/app.js)
+               formatCurrency / filterItems (js/utils.js)
+   ════════════════════════════════════════════════════════════ */
+
+UserStore.load();
+
+/* ── Stato ── */
+let currentClienteId = null;
+let currentCliente   = null;
+let tuttiPreventivi  = [];   // preventivi di questo cliente
+let filtroStato      = '';   // '' = tutti
+
+/* ── Status map ── */
+const STATO_MAP = {
+    draft:    { label: 'Bozza',     css: 'badge-neutral' },
+    sent:     { label: 'Inviato',   css: 'badge-info'    },
+    accepted: { label: 'Accettato', css: 'badge-success' },
+    rejected: { label: 'Rifiutato', css: 'badge-danger'  },
+};
+
+function statoBadge(stato) {
+    const s = STATO_MAP[stato] || { label: stato || '—', css: 'badge-neutral' };
+    return `<span class="badge ${s.css}">${s.label}</span>`;
+}
+
+/* ═══════════════════════════ INIT ══════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadLoggedUser();
+
+    const params = new URLSearchParams(window.location.search);
+    currentClienteId = params.get('id');
+
+    if (!currentClienteId) { showNotFound(); return; }
+
+    await loadCliente();
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // Filtri stato preventivi
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtroStato = btn.dataset.stato;
+            renderPreventivi();
+        });
+    });
+
+    // Date default
+    const today = new Date().toISOString().slice(0, 10);
+    const emissione = document.getElementById('prev-data-emissione');
+    if (emissione && !emissione.value) emissione.value = today;
+});
+
+/* ═══════════════════════ LOAD CLIENTE ═══════════════════ */
+async function loadCliente() {
+    try {
+        currentCliente = await ClientiAPI.getById(currentClienteId);
+        if (!currentCliente) { showNotFound(); return; }
+
+        document.title = `GestioPro — ${currentCliente.name} ${currentCliente.surname}`;
+        renderHero(currentCliente);
+        renderInfoGrid(currentCliente);
+        document.getElementById('scheda-content').style.display = '';
+
+        await loadPreventivi();
+        loadNote();
+
+    } catch (e) {
+        showToast(`Errore caricamento cliente: ${e.message}`, 'error');
+        showNotFound();
+    }
+}
+
+/* ═══════════════════════ HERO + INFO ════════════════════ */
+function renderHero(c) {
+    const initials = `${(c.name || ' ')[0]}${(c.surname || ' ')[0]}`.toUpperCase();
+    document.getElementById('hero-avatar').textContent = initials;
+    document.getElementById('hero-name').textContent   = `${c.name} ${c.surname}`;
+
+    const meta = [];
+    if (c.email)        meta.push(`<span><i class="fa-solid fa-envelope"></i> ${c.email}</span>`);
+    if (c.phone)        meta.push(`<span><i class="fa-solid fa-phone"></i> ${c.phone}</span>`);
+    if (c.city)         meta.push(`<span><i class="fa-solid fa-location-dot"></i> ${c.city}</span>`);
+    if (c.companyName)  meta.push(`<span><i class="fa-solid fa-building"></i> ${c.companyName}</span>`);
+    document.getElementById('hero-meta').innerHTML = meta.join('');
+}
+
+function renderInfoGrid(c) {
+    const items = [
+        { label: 'Email',         value: c.email       || '—' },
+        { label: 'Telefono',      value: c.phone        || '—' },
+        { label: 'Ragione Sociale',value: c.companyName || '—' },
+        { label: 'Partita IVA',   value: `<code>${c.vatNumber || '—'}</code>` },
+        { label: 'Codice Fiscale',value: `<code>${c.taxCode   || '—'}</code>` },
+        { label: 'Nazione',       value: c.country     || '—' },
+        { label: 'Regione',       value: c.region      || '—' },
+        { label: 'Provincia',     value: c.province    || '—' },
+        { label: 'Città',         value: c.city        || '—' },
+        { label: 'Indirizzo',     value: c.address     || '—' },
+    ].filter(i => i.value && i.value !== '—' && i.value !== '<code>—</code>');
+
+    // mostra comunque tutti, troncando i vuoti
+    const allItems = [
+        { label: 'Email',          value: c.email        || '—' },
+        { label: 'Telefono',       value: c.phone         || '—' },
+        { label: 'Ragione Sociale',value: c.companyName   || '—' },
+        { label: 'Partita IVA',    value: `<code>${c.vatNumber || '—'}</code>` },
+        { label: 'Codice Fiscale', value: `<code>${c.taxCode   || '—'}</code>` },
+        { label: 'Città',          value: [c.city, c.province, c.region, c.country].filter(Boolean).join(', ') || '—' },
+        { label: 'Indirizzo',      value: c.address       || '—' },
+        { label: 'Tel. fisso',     value: c.landline      || '—' },
+    ];
+
+    setHTML(document.getElementById('info-grid'),
+        allItems.map(i =>
+            `<div class="info-item">
+                <div class="info-label">${i.label}</div>
+                <div class="info-value">${i.value}</div>
+             </div>`
+        ).join('')
+    );
+}
+
+/* ═══════════════════════ PREVENTIVI ════════════════════ */
+async function loadPreventivi() {
+    try {
+        const all = await QuotationAPI.getAll();
+        // Filtra per questo cliente (confronto sia numerico che stringa)
+        tuttiPreventivi = all.filter(q =>
+            String(q.customerId) === String(currentClienteId)
+        );
+        document.getElementById('badge-preventivi').textContent = tuttiPreventivi.length;
+        renderPreventivi();
+    } catch (e) {
+        showToast(`Errore caricamento preventivi: ${e.message}`, 'error');
+    }
+}
+
+function renderPreventivi() {
+    const el = document.getElementById('preventivi-list');
+    const filtered = filtroStato
+        ? tuttiPreventivi.filter(q => {
+            // Supporta sia statusId numerico che stringa "draft"/"sent"/ecc.
+            const s = QUOTATION_STATUSES[filtroStato];
+            return q.quotationStatusId === (s ? s.id : filtroStato) ||
+                   q.status === filtroStato;
+          })
+        : tuttiPreventivi;
+
+    if (!filtered.length) {
+        setHTML(el, `
+            <div class="empty-state-inline">
+                <i class="fa-solid fa-receipt"></i>
+                <h4>Nessun preventivo${filtroStato ? ' con questo stato' : ''}</h4>
+                <p>${filtroStato ? 'Prova a cambiare il filtro.' : 'Crea il primo preventivo per questo cliente.'}</p>
+                ${!filtroStato
+                    ? `<button class="btn btn-primary btn-sm" onclick="openModalPreventivo()">
+                           <i class="fa-solid fa-plus"></i> Nuovo Preventivo
+                       </button>`
+                    : ''}
+            </div>`);
+        return;
+    }
+
+    const sorted = [...filtered].sort((a, b) =>
+        (b.creationDate || '').localeCompare(a.creationDate || '')
+    );
+
+    setHTML(el, `
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>N° Preventivo</th>
+                        <th>Importo</th>
+                        <th>Data emissione</th>
+                        <th>Scadenza</th>
+                        <th>Stato</th>
+                        <th style="width:80px">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sorted.map(q => `
+                        <tr>
+                            <td class="font-medium">${q.number || q.id}</td>
+                            <td>${formatCurrency(q.amount ?? 0)}</td>
+                            <td>${formatDate(q.creationDate)}</td>
+                            <td>${formatDate(q.validityDate)}</td>
+                            <td>${statoBadge(q.status || resolveStatus(q.quotationStatusId))}</td>
+                            <td>
+                                <div style="display:flex;gap:4px">
+                                    <button class="btn btn-ghost btn-sm btn-icon"
+                                            title="Modifica"
+                                            onclick="openModalPreventivoEdit(${q.id})">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm btn-icon"
+                                            title="Elimina"
+                                            style="color:var(--color-danger)"
+                                            onclick="chiediEliminaPreventivo(${q.id})">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--color-muted)">
+            ${filtered.length} preventiv${filtered.length === 1 ? 'o' : 'i'}
+            ${filtroStato ? `· filtro: <strong>${STATO_MAP[filtroStato]?.label || filtroStato}</strong>` : ''}
+        </div>`);
+}
+
+/* Risolve lo status ID numerico (da QUOTATION_STATUSES) in chiave stringa */
+function resolveStatus(statusId) {
+    if (!statusId || typeof QUOTATION_STATUSES === 'undefined') return '';
+    for (const [key, val] of Object.entries(QUOTATION_STATUSES)) {
+        if (val.id === statusId) return key;
+    }
+    return '';
+}
+
+function formatDate(d) {
+    if (!d) return '—';
+    try {
+        return new Date(d).toLocaleDateString('it-IT');
+    } catch { return d; }
+}
+
+/* ── Modal Preventivo ── */
+function openModalPreventivo() {
+    document.getElementById('modal-prev-title').innerHTML =
+        '<i class="fa-solid fa-receipt"></i> Nuovo Preventivo';
+    ['prev-id','prev-numero','prev-importo','prev-iva','prev-descrizione','prev-note','prev-data-scadenza'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('prev-stato').value = 'draft';
+    document.getElementById('prev-data-emissione').value = new Date().toISOString().slice(0,10);
+    openModal('modal-preventivo');
+}
+
+function openModalPreventivoEdit(id) {
+    const q = tuttiPreventivi.find(x => x.id === id);
+    if (!q) return;
+    document.getElementById('modal-prev-title').innerHTML =
+        '<i class="fa-solid fa-pen"></i> Modifica Preventivo';
+    document.getElementById('prev-id').value              = q.id;
+    document.getElementById('prev-numero').value          = q.number || '';
+    document.getElementById('prev-stato').value           = q.status || resolveStatus(q.quotationStatusId) || 'draft';
+    document.getElementById('prev-data-emissione').value  = q.creationDate ? q.creationDate.slice(0,10) : '';
+    document.getElementById('prev-data-scadenza').value   = q.validityDate ? q.validityDate.slice(0,10) : '';
+    document.getElementById('prev-importo').value         = q.amount ?? '';
+    document.getElementById('prev-iva').value             = q.iva ?? '';
+    document.getElementById('prev-descrizione').value     = q.description || '';
+    document.getElementById('prev-note').value            = q.notes || '';
+    openModal('modal-preventivo');
+}
+
+async function savePreventivo() {
+    const numero  = document.getElementById('prev-numero').value.trim();
+    const importo = document.getElementById('prev-importo').value;
+    if (!numero)  { showToast('Il numero preventivo è obbligatorio', 'warning'); return; }
+    if (!importo) { showToast('L\'importo è obbligatorio', 'warning'); return; }
+
+    const data = {
+        customerId:   parseInt(currentClienteId),
+        number:       numero,
+        status:       document.getElementById('prev-stato').value,
+        creationDate: document.getElementById('prev-data-emissione').value || null,
+        validityDate: document.getElementById('prev-data-scadenza').value  || null,
+        amount:       parseFloat(importo),
+        iva:          parseFloat(document.getElementById('prev-iva').value) || null,
+        description:  document.getElementById('prev-descrizione').value.trim() || null,
+        notes:        document.getElementById('prev-note').value.trim() || null,
+    };
+
+    const id = document.getElementById('prev-id').value;
+    try {
+        if (id) {
+            await QuotationAPI.update(id, data);
+            showToast('Preventivo aggiornato', 'success');
+        } else {
+            await QuotationAPI.create(data);
+            showToast('Preventivo creato', 'success');
+        }
+        closeModal('modal-preventivo');
+        await loadPreventivi();
+    } catch (e) {
+        showToast(`Errore: ${e.message}`, 'error');
+    }
+}
+
+/* Elimina preventivo */
+let prevDaEliminare = null;
+function chiediEliminaPreventivo(id) {
+    prevDaEliminare = id;
+    const q = tuttiPreventivi.find(x => x.id === id);
+    document.getElementById('elimina-name').textContent = `il preventivo ${q?.number || '#' + id}`;
+    openModal('modal-elimina');
+}
+
+/* ═══════════════════════ NOTE ══════════════════════════ */
+/*
+   Le note vengono salvate sul backend tramite ClientiAPI.updateNote(id, data)
+   oppure, se l'API non è ancora disponibile, si usa un campo "notes" sull'oggetto cliente.
+   Adatta all'endpoint reale della tua API.
+*/
+function loadNote() {
+    if (!currentCliente) return;
+    // Tentativo con campi dedicati; cade su campo notes generico
+    document.getElementById('note-generali').value   = currentCliente.noteGenerali  || currentCliente.notes || '';
+    document.getElementById('note-interne').value    = currentCliente.noteInterne   || '';
+    document.getElementById('note-aggiuntive').value = currentCliente.noteAggiuntive|| '';
+}
+
+async function saveNote() {
+    const noteData = {
+        noteGenerali:   document.getElementById('note-generali').value,
+        noteInterne:    document.getElementById('note-interne').value,
+        noteAggiuntive: document.getElementById('note-aggiuntive').value,
+        // campo generico notes per retrocompatibilità
+        notes: document.getElementById('note-generali').value,
+    };
+    try {
+        await ClientiAPI.update(currentClienteId, { ...currentCliente, ...noteData });
+        currentCliente = { ...currentCliente, ...noteData };
+        // feedback visivo
+        const lbl = document.getElementById('note-saved-label');
+        lbl.style.display = 'inline';
+        setTimeout(() => lbl.style.display = 'none', 3000);
+        showToast('Note salvate', 'success');
+    } catch (e) {
+        showToast(`Errore salvataggio note: ${e.message}`, 'error');
+    }
+}
+
+/* ═══════════════════════ EDIT CLIENTE ══════════════════ */
+function openEditCliente() {
+    if (!currentCliente) return;
+    const c = currentCliente;
+    document.getElementById('ep-nome').value      = c.name       || '';
+    document.getElementById('ep-cognome').value   = c.surname    || '';
+    document.getElementById('ep-email').value     = c.email      || '';
+    document.getElementById('ep-telefono').value  = c.phone      || '';
+    document.getElementById('ep-azienda').value   = c.companyName|| '';
+    document.getElementById('ep-piva').value      = c.vatNumber  || '';
+    document.getElementById('ep-cf').value        = c.taxCode    || '';
+    document.getElementById('ep-nazione').value   = c.country    || '';
+    document.getElementById('ep-regione').value   = c.region     || '';
+    document.getElementById('ep-provincia').value = c.province   || '';
+    document.getElementById('ep-citta').value     = c.city       || '';
+    document.getElementById('ep-indirizzo').value = c.address    || '';
+    document.getElementById('ep-note').value      = c.notes      || '';
+    openModal('modal-edit-cliente');
+}
+
+async function saveEditCliente() {
+    const nome    = document.getElementById('ep-nome').value.trim();
+    const cognome = document.getElementById('ep-cognome').value.trim();
+    const email   = document.getElementById('ep-email').value.trim();
+    const telefono= document.getElementById('ep-telefono').value.trim();
+    if (!nome)    { showToast('Il nome è obbligatorio', 'warning');    return; }
+    if (!cognome) { showToast('Il cognome è obbligatorio', 'warning'); return; }
+    if (!email)   { showToast('L\'email è obbligatoria', 'warning');   return; }
+
+    const data = {
+        ...currentCliente,
+        name:        nome,
+        surname:     cognome,
+        email,
+        phone:       document.getElementById('ep-telefono').value.trim() || null,
+        companyName: document.getElementById('ep-azienda').value.trim()  || null,
+        vatNumber:   document.getElementById('ep-piva').value.trim()     || null,
+        taxCode:     document.getElementById('ep-cf').value.trim()       || null,
+        country:     document.getElementById('ep-nazione').value.trim()  || null,
+        region:      document.getElementById('ep-regione').value.trim()  || null,
+        province:    document.getElementById('ep-provincia').value.trim()|| null,
+        city:        document.getElementById('ep-citta').value.trim()    || null,
+        address:     document.getElementById('ep-indirizzo').value.trim()|| null,
+        notes:       document.getElementById('ep-note').value.trim()     || null,
+    };
+
+    try {
+        await ClientiAPI.update(currentClienteId, data);
+        currentCliente = { ...currentCliente, ...data };
+        closeModal('modal-edit-cliente');
+        renderHero(currentCliente);
+        renderInfoGrid(currentCliente);
+        document.title = `GestioPro — ${currentCliente.name} ${currentCliente.surname}`;
+        showToast('Cliente aggiornato', 'success');
+    } catch (e) {
+        showToast(`Errore: ${e.message}`, 'error');
+    }
+}
+
+/* ═══════════════════════ ELIMINA CLIENTE ═══════════════ */
+function chiediElimina() {
+    if (!currentCliente) return;
+    prevDaEliminare = null; // reset preventivo da eliminare
+    document.getElementById('elimina-name').textContent =
+        `${currentCliente.name} ${currentCliente.surname}`;
+    openModal('modal-elimina');
+}
+
+async function confermaElimina() {
+    // Se c'è un preventivo da eliminare, elimina quello
+    if (prevDaEliminare !== null) {
+        try {
+            await QuotationAPI.delete(prevDaEliminare);
+            showToast('Preventivo eliminato', 'success');
+            closeModal('modal-elimina');
+            prevDaEliminare = null;
+            await loadPreventivi();
+        } catch (e) {
+            showToast(`Errore: ${e.message}`, 'error');
+        }
+        return;
+    }
+
+    // Altrimenti elimina il cliente
+    try {
+        await ClientiAPI.delete(currentClienteId);
+        showToast('Cliente eliminato', 'success');
+        closeModal('modal-elimina');
+        window.location.href = 'clienti.html';
+    } catch (e) {
+        showToast(`Errore: ${e.message}`, 'error');
+    }
+}
+
+/* ═══════════════════════ TABS ══════════════════════════ */
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === `tab-${tab}`);
+    });
+}
+
+/* ═══════════════════════ UTILITIES ═════════════════════ */
+function showNotFound() {
+    document.getElementById('not-found').style.display = '';
+    document.getElementById('scheda-content').style.display = 'none';
+}
+</script>
+</body>
+</html>
