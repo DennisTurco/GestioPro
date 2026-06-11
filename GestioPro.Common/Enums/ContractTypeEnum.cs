@@ -2,7 +2,7 @@ namespace GestioPro.Common.Enums;
 
 public enum ContractTypeEnum
 {
-    MONTHLY,
-    SEMESTRAL,
-    ANNUAL
+    MONTHLY = 1,
+    SEMESTRAL = 2,
+    ANNUAL = 3
 }

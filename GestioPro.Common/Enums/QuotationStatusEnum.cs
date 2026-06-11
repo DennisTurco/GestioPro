@@ -2,9 +2,9 @@ namespace GestioPro.Common.Enums;
 
 public enum QuotationStatusEnum
 {
-    DRAFT,
-    DELIVERED,
-    ACCEPTED,
-    REJECTED,
-    EXPIRED
+    DRAFT = 1,
+    DELIVERED = 2,
+    ACCEPTED = 3,
+    REJECTED = 4,
+    EXPIRED = 5
 }

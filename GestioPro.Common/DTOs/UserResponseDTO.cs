@@ -6,5 +6,5 @@ public record UserResponseDTO(
     string Email,
     string Name,
     string Surname,
-    DateOnly CreatedDate
+    DateTimeOffset CreatedDate
 );

@@ -43,10 +43,10 @@ public class Quotation
     public string? Notes { get; set; }
 
     [Required]
-    public DateOnly CreationDate { get; set; }
+    public DateTimeOffset CreationDate { get; set; }
 
     [Required]
-    public DateOnly LastUpdateDate { get; set; }
+    public DateTimeOffset LastUpdateDate { get; set; }
 
     public DateOnly? IssueDate { get; set; }
     public DateOnly? ValidityDate { get; set; }

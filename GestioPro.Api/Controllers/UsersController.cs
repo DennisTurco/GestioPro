@@ -8,38 +8,64 @@ namespace GestioPro.Api.Controllers;
 [Route("api/v1/users")]
 public class UsersController(IUserService userService) : ControllerBase
 {
+    /// <summary>
+    /// Return all users
+    /// </summary>
+    /// <returns>Complete list of users</returns>
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        // TODO
-        throw new NotImplementedException();
+        var result = await userService.GetAllAsync();
+        return Ok(result);
     }
 
+    /// <summary>
+    /// Returns a user by ID
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <returns>The requested user</returns>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        // TODO
-        throw new NotImplementedException();
+        var result = await userService.GetByIdAsync(id);
+        return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>
+    /// Create a new user
+    /// </summary>
+    /// <param name="dto">User information</param>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserRequestDTO dto)
     {
-        // TODO
-        throw new NotImplementedException();
+        await userService.CreateAsync(dto);
+        return StatusCode(StatusCodes.Status201Created);
     }
 
+    /// <summary>
+    /// Update a user
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <param name="dto">User information</param>
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDTO dto)
     {
-        // TODO
-        throw new NotImplementedException();
+        var updated = await userService.UpdateAsync(id, dto);
+
+        if (updated is null)
+            NotFound();
+
+        return Ok(updated);
     }
 
+    /// <summary>
+    /// Delete a user
+    /// </summary>
+    /// <param name="id">User ID</param>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        // TODO
-        throw new NotImplementedException();
+        await userService.DeleteAsync(id);
+        return NoContent();
     }
 }

@@ -19,5 +19,7 @@ public record CustomerResponseDTO(
     string? Landline,
     double? Lat,
     double? Lon,
-    string? Notes
+    string? Notes,
+    DateTimeOffset InsertDate,
+    DateTimeOffset LastUpdateDate
 );

@@ -45,8 +45,8 @@ public class Customer
     public double? Lat { get; set; }
     public double? Lon { get; set; }
 
-    public DateOnly InsertDate { get; set; }
-    public DateOnly LastUpdateDate { get; set; }
+    public DateTimeOffset InsertDate { get; set; }
+    public DateTimeOffset LastUpdateDate { get; set; }
 
     [MaxLength(1000)]
     public string? Notes { get; set; }

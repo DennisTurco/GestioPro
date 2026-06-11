@@ -3,38 +3,75 @@ using GestioPro.Common.DTOs;
 using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
 public class ProductCategoryService(AppDbContext context) : IProductCategoryService
 {
-    // TODO: restituisci tutte le categorie mappate su ProductCategoryResponseDTO
     public async Task<List<ProductCategoryResponseDTO>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await context.ProductCategories
+            .AsNoTracking()
+            .Select(c => MapToDto(c))
+            .ToListAsync();
     }
 
-    // TODO: trova per id, restituisci null se non trovato
     public async Task<ProductCategoryResponseDTO?> GetByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var entity = await context.ProductCategories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return entity is null ? null : MapToDto(entity);
     }
 
-    // TODO: crea nuova categoria dal dto
     public async Task CreateAsync(ProductCategoryRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var existing = await context.ProductCategories
+            .AnyAsync(x => x.Name.Trim().ToLower().Equals(dto.Name.Trim().ToLower()));
+
+        if (existing)
+            throw new BusinessException("Esiste già una categoria prodotto con lo stesso nome");
+
+        var entity = new ProductCategory
+        {
+            Name = dto.Name
+        };
+
+        await context.AddAsync(entity);
+        await context.SaveChangesAsync();
     }
 
-    // TODO: aggiorna nome, salva, ritorna DTO
     public async Task<ProductCategoryResponseDTO> UpdateAsync(long id, ProductCategoryRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var existing = await context.ProductCategories
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (existing is null)
+            throw new BusinessException("Categoria prodotto non trovata");
+
+        existing.Name = dto.Name;
+
+        await context.SaveChangesAsync();
+        return MapToDto(existing);
     }
 
-    // TODO: elimina per id
     public async Task DeleteAsync(long id)
     {
-        throw new NotImplementedException();
+        var entity = await context.ProductCategories
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entity is null)
+            throw new BusinessException("Categoria prodotto non trovata");
+
+        context.ProductCategories.Remove(entity);
+        await context.SaveChangesAsync();
     }
+
+    private static ProductCategoryResponseDTO MapToDto(ProductCategory p)
+        => new (
+            p.Id,
+            p.Name
+        );
 }

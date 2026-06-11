@@ -30,5 +30,5 @@ public class User
     public string Surname { get; set; } = string.Empty;
 
     [Required]
-    public DateOnly CreatedDate { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
 }

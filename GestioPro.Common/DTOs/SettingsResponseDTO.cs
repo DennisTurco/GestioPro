@@ -4,5 +4,5 @@ public record SettingsResponseDTO(
     string Code,
     string? Value,
     string? Description,
-    DateOnly? LastUpdateDate
+    DateTimeOffset? LastUpdateDate
 );

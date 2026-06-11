@@ -3,21 +3,25 @@ using GestioPro.Common.DTOs;
 using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
 public class UserService(AppDbContext context) : IUserService
 {
-    // TODO: restituisci tutti gli utenti mappati su UserResponseDTO
     public async Task<List<UserResponseDTO>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+        => await context.Users
+            .AsNoTracking()
+            .Select(u => MapToDto(u))
+            .ToListAsync();
 
-    // TODO: trova per Guid, restituisci null se non trovato
     public async Task<UserResponseDTO?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var user = await context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        return user is null ? null : MapToDto(user);
     }
 
     // TODO: imposta CreatedDate = DateOnly.FromDateTime(DateTime.UtcNow), hash della password, salva
@@ -32,9 +36,26 @@ public class UserService(AppDbContext context) : IUserService
         throw new NotImplementedException();
     }
 
-    // TODO: elimina per id
+
     public async Task DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user is null)
+            throw new BusinessException("Utente non trovato");
+
+        context.Remove(user);
+        await context.SaveChangesAsync();
     }
+
+    private static UserResponseDTO MapToDto(User u)
+        => new (
+            u.Id,
+            u.Username,
+            u.Email,
+            u.Name,
+            u.Surname,
+            u.CreatedDate
+        );
 }

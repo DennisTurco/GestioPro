@@ -15,5 +15,5 @@ public class Settings
     [MaxLength(455)]
     public string? Description { get; set; }
 
-    public DateOnly? LastUpdateDate { get; set; }
+    public DateTimeOffset? LastUpdateDate { get; set; }
 }

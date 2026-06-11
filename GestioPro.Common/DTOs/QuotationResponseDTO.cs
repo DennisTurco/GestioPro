@@ -12,8 +12,8 @@ public record QuotationResponseDTO(
     int DiscountPercentage,
     string? Description,
     string? Notes,
-    DateOnly CreationDate,
-    DateOnly LastUpdateDate,
+    DateTimeOffset CreationDate,
+    DateTimeOffset LastUpdateDate,
     DateOnly? IssueDate,
     DateOnly? ValidityDate
 );

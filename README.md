@@ -6,7 +6,7 @@ Business management application (customers, products, quotations, invoices, cont
 
 ## Project Structure
 
-```
+```bash
 GestioPro/
 ├── GestioPro.slnx              ← Solution file (open with VS 2022 17.13+ or dotnet CLI)
 │
@@ -42,22 +42,29 @@ GestioPro/
 ## 1. Database Setup
 
 ### Option A — Docker (recommended for development)
+
 ```bash
 docker-compose up -d
 ```
+
 This starts PostgreSQL on port **5332** with:
+
 - Database: `gestiopro`
 - Username: `sa`
 - Password: `Pa55w0rd`
 
 ### Option B — Local PostgreSQL
+
 Create the database manually:
+
 ```sql
 CREATE DATABASE gestiopro;
 CREATE USER sa WITH PASSWORD 'Pa55w0rd';
 GRANT ALL PRIVILEGES ON DATABASE gestiopro TO sa;
 ```
+
 Then update the connection string in `GestioPro.Api/appsettings.json`:
+
 ```json
 "ConnectionStrings": {
   "Default": "Host=localhost;Port=5432;Database=gestiopro;Username=sa;Password=Pa55w0rd"
@@ -75,22 +82,30 @@ dotnet run
 ```
 
 The API will be available at:
-- HTTP:  http://localhost:5164
+
+- HTTP:  https://localhost:5164
 - HTTPS: https://localhost:7160
+- HTTPS: https://localhost:7160/swagger.index.html
 
 To run in a specific environment:
+
 ```bash
 dotnet run --environment Development
 dotnet run --environment Production
 ```
 
 To build the full solution:
+
 ```bash
 dotnet build GestioPro.slnx
 ```
 
 ### EF Core Migrations
+
 ```bash
+# To DROP the current db (if needed)
+dotnet ef database drop --project GestioPro.Infrastructure --startup-project GestioPro.Api
+
 # Add a new migration (run from repo root)
 dotnet ef migrations add InitialCreate --project GestioPro.Infrastructure --startup-project GestioPro.Api
 
@@ -111,6 +126,7 @@ npm run dev       # starts Vite dev server on http://localhost:3000
 The frontend proxies all `/api` calls to the backend automatically — no CORS issues in development.
 
 To build for production:
+
 ```bash
 npm run build     # output in frontend/dist/
 ```
@@ -122,12 +138,14 @@ npm run build     # output in frontend/dist/
 Open **two terminals**:
 
 **Terminal 1 — Backend:**
+
 ```bash
 cd GestioPro.Api
 dotnet run
 ```
 
 **Terminal 2 — Frontend:**
+
 ```bash
 cd frontend
 npm run dev

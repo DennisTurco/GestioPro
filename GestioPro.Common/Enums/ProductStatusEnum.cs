@@ -2,6 +2,6 @@ namespace GestioPro.Common.Enums;
 
 public enum ProductStatusEnum
 {
-    NEW,
-    USED
+    NEW = 1,
+    USED = 2
 }

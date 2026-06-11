@@ -3,38 +3,122 @@ using GestioPro.Common.DTOs;
 using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
 public class QuotationService(AppDbContext context) : IQuotationService
 {
-    // TODO: carica con Include() su Customer e QuotationStatus, mappa su DTO
     public async Task<List<QuotationResponseDTO>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+        => await context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.QuotationStatus)
+            .AsNoTracking()
+            .Select(x => MapToDto(x))
+            .ToListAsync();
 
-    // TODO: trova per id con Include(), restituisci null se non trovato
     public async Task<QuotationResponseDTO?> GetByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var quotation = await context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.QuotationStatus)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return quotation is null ? null : MapToDto(quotation);
     }
 
-    // TODO: imposta CreationDate e LastUpdateDate, verifica unicità Number, salva
     public async Task CreateAsync(QuotationRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var existing = await context.Quotations
+            .FirstOrDefaultAsync(x => x.Number.Equals(x.Number));
+
+        if (existing is not null)
+            throw new BusinessException("Esiste già un preventivo con lo stesso numero");
+
+        DateTimeOffset now = DateTimeOffset.Now;
+        var quotation = new Quotation
+        {
+            CustomerId = dto.CustomerId,
+            QuotationStatusId = dto.QuotationStatusId,
+            Number = dto.Number,
+            Amount = dto.Amount,
+            VatPercentage = dto.VatPercentage,
+            DiscountPercentage = dto.DiscountPercentage,
+            Description = dto.Description,
+            Notes = dto.Notes,
+            CreationDate = now,
+            LastUpdateDate = now,
+            IssueDate = dto.IssueDate,
+            ValidityDate = dto.ValidityDate
+        };
+
+        await context.AddAsync(quotation);
+        await context.SaveChangesAsync();
     }
 
-    // TODO: aggiorna tutti i campi, aggiorna LastUpdateDate, salva
     public async Task<QuotationResponseDTO> UpdateAsync(long id, QuotationRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var quotation = await context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.QuotationStatus)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (quotation is null)
+            throw new BusinessException("Preventivo non trovato");
+
+        var quotationNumberExists = await context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.QuotationStatus)
+            .AnyAsync(x => x.Number.Equals(dto.Number));
+
+        if (quotationNumberExists)
+            throw new BusinessException("Esiste già un preventivo con lo stesso numero");
+
+        quotation.CustomerId = dto.CustomerId;
+        quotation.QuotationStatusId = dto.QuotationStatusId;
+        quotation.Number = dto.Number;
+        quotation.Amount = dto.Amount;
+        quotation.VatPercentage = dto.VatPercentage;
+        quotation.DiscountPercentage = dto.DiscountPercentage;
+        quotation.Description = dto.Description;
+        quotation.Notes = dto.Notes;
+        quotation.LastUpdateDate = DateTimeOffset.Now;
+        quotation.IssueDate = dto.IssueDate;
+        quotation.ValidityDate = dto.ValidityDate;
+
+        await context.SaveChangesAsync();
+        return MapToDto(quotation);
     }
 
-    // TODO: elimina per id
     public async Task DeleteAsync(long id)
     {
-        throw new NotImplementedException();
+        var quotation = await context.Quotations
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (quotation is null)
+            throw new BusinessException("Preventivo non trovato");
+
+        context.Remove(quotation);
+        await context.SaveChangesAsync();
     }
+
+    private static QuotationResponseDTO MapToDto(Quotation q)
+        => new(
+            q.Id,
+            q.CustomerId,
+            q.Customer.Name.ToString(),
+            q.QuotationStatusId,
+            q.QuotationStatus.Name.ToString(),
+            q.Number,
+            q.Amount,
+            q.VatPercentage,
+            q.DiscountPercentage,
+            q.Description,
+            q.Notes,
+            q.CreationDate,
+            q.LastUpdateDate,
+            q.IssueDate,
+            q.ValidityDate
+        );
 }

@@ -3,26 +3,48 @@ using GestioPro.Common.DTOs;
 using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
 public class SettingsService(AppDbContext context) : ISettingsService
 {
-    // TODO: restituisci tutte le impostazioni mappate su SettingsResponseDTO
     public async Task<List<SettingsResponseDTO>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+        => await context.Settings
+            .AsNoTracking()
+            .Select(s => MapToDto(s))
+            .ToListAsync();
 
-    // TODO: trova per Code (chiave primaria stringa), restituisci null se non trovato
     public async Task<SettingsResponseDTO?> GetByCodeAsync(string code)
     {
-        throw new NotImplementedException();
+        var setting = await context.Settings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Code.Equals(code));
+
+        return setting is null ? null : MapToDto(setting);
     }
 
-    // TODO: aggiorna Value e LastUpdateDate, salva
     public async Task<SettingsResponseDTO> UpdateAsync(string code, SettingsRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var setting = await context.Settings
+            .FirstOrDefaultAsync(s => s.Code == code);
+
+        if (setting is null)
+            throw new BusinessException("Impostazione non trovata");
+
+        setting.Value = dto.Value;
+        setting.LastUpdateDate = DateTime.Now;
+
+        await context.SaveChangesAsync();
+
+        return MapToDto(setting);
     }
+
+    private static SettingsResponseDTO MapToDto(Settings s)
+        => new(
+            s.Code,
+            s.Value,
+            s.Description,
+            s.LastUpdateDate
+        );
 }

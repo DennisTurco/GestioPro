@@ -3,38 +3,101 @@ using GestioPro.Common.DTOs;
 using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
 public class ProductService(AppDbContext context) : IProductService
 {
-    // TODO: usa LINQ con Include() per caricare Category e Status, poi mappa su DTO
     public async Task<List<ProductResponseDTO>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+        => await context.Products
+            .Include(x => x.Category)
+            .Include(x => x.Status)
+            .AsNoTracking()
+            .Select(x => MapToDto(x))
+            .ToListAsync(); 
 
-    // TODO: trova per id con Include(), restituisci null se non trovato
     public async Task<ProductResponseDTO?> GetByIdAsync(long id)
     {
-        throw new NotImplementedException();
+        var product = await context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Status)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return product is null ? null : MapToDto(product);
     }
 
-    // TODO: controlla unicità di Code, poi salva
     public async Task CreateAsync(ProductRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var exists = await context.Products
+            .AnyAsync(x => x.Code.Equals(dto.Code));
+
+        if (exists)
+            throw new BusinessException("Esiste già un prodotto con lo stesso codice");
+
+        var product = new Product
+        {
+            CategoryId = dto.CategoryId,
+            StatusId = dto.StatusId,
+            Code = dto.Code,
+            Ean = dto.Ean,
+            Name = dto.Name,
+            Description = dto.Description,
+            Quantity = dto.Quantity,
+            VatPercentage = dto.VatPercentage,
+            Price = dto.Price
+        };
+
+        await context.AddAsync(product);
+        await context.SaveChangesAsync();
     }
 
-    // TODO: trova l'esistente, aggiorna tutti i campi, salva e ritorna il DTO
     public async Task<ProductResponseDTO> UpdateAsync(long id, ProductRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var entity = await context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Status)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entity == null)
+            throw new BusinessException("Prodotto non trovato");
+
+        entity.Code = dto.Code;
+        entity.Name = dto.Name;
+        entity.Description = dto.Description;
+        entity.Price = dto.Price;
+        entity.VatPercentage = dto.VatPercentage;
+
+        await context.SaveChangesAsync();
+        return MapToDto(entity);
     }
 
-    // TODO: elimina per id
     public async Task DeleteAsync(long id)
     {
-        throw new NotImplementedException();
+        var entity = await context.Products
+           .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entity is null)
+            throw new BusinessException("Prodotto non trovato");
+
+        context.Products.Remove(entity);
+        await context.SaveChangesAsync();
     }
+
+    private static ProductResponseDTO MapToDto(Product p)
+     => new (
+            p.Id,
+            p.CategoryId,
+            p.Category.Name,
+            p.StatusId,
+            p.Status.Name.ToString(),
+            p.Code,
+            p.Ean,
+            p.Name,
+            p.Description,
+            p.Quantity,
+            p.VatPercentage,
+            p.Price
+        );
 }

@@ -1,0 +1,1 @@
+docker exec -it postgres-gestiopro psql -U sa -d gestiopro
