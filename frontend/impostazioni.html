@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Impostazioni - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -16,7 +17,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -111,7 +112,7 @@
                         <div class="form-group">
                             <label class="form-label">Note standard in fattura</label>
                             <textarea class="form-control" id="sett-QuotationNotes" rows="3"
-                                placeholder="Es: Pagamento a 30 giorni dalla data fattura. Coordine bancarie: IBAN IT…"></textarea>
+                                placeholder="Es: Pagamento a 30 giorni dalla data fattura. Coordine bancarie: IBAN IT"></textarea>
                         </div>
                     </div>
                 </div>
@@ -166,11 +167,11 @@
                         <table style="width:100%;border-collapse:collapse">
                             <tr style="border-bottom:1px solid var(--color-border)">
                                 <td class="text-muted text-sm" style="padding:10px 0;width:40%">Framework</td>
-                                <td class="text-sm font-medium">Spring Boot 3.2.5 + JavaFX 21</td>
+                                <td class="text-sm font-medium">C# 10.0 Entity Framework</td>
                             </tr>
                             <tr style="border-bottom:1px solid var(--color-border)">
                                 <td class="text-muted text-sm" style="padding:10px 0">Database</td>
-                                <td class="text-sm font-medium">SQLite (database.db)</td>
+                                <td class="text-sm font-medium">postgres</td>
                             </tr>
                             <tr style="border-bottom:1px solid var(--color-border)">
                                 <td class="text-muted text-sm" style="padding:10px 0">Server</td>
@@ -199,13 +200,13 @@
 
 <div class="toast-container"></div>
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load();
 let settings = [];
 
 document.addEventListener('DOMContentLoaded', async () => {

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using GestioPro.Common.Enums;
 
 namespace GestioPro.Common.Models;
 
@@ -15,11 +16,7 @@ public class Quotation
     [ForeignKey(nameof(CustomerId))]
     public Customer Customer { get; set; } = null!;
 
-    [Required]
-    public long QuotationStatusId { get; set; }
-
-    [ForeignKey(nameof(QuotationStatusId))]
-    public QuotationStatus QuotationStatus { get; set; } = null!;
+    public QuotationStatus QuotationStatus { get; set; }
 
     [Required]
     public string Number { get; set; } = string.Empty;

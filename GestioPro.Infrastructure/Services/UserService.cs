@@ -24,16 +24,36 @@ public class UserService(AppDbContext context) : IUserService
         return user is null ? null : MapToDto(user);
     }
 
-    // TODO: imposta CreatedDate = DateOnly.FromDateTime(DateTime.UtcNow), hash della password, salva
     public async Task CreateAsync(UserRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = dto.Username,
+            Email = dto.Email,
+            Password = AuthService.HashPassword(dto.Password),
+            Name = dto.Name,
+            Surname = dto.Surname,
+            CreatedDate = DateTimeOffset.UtcNow,
+        };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
     }
 
-    // TODO: aggiorna i campi (attenzione alla password: ri-hasha solo se cambia), salva
     public async Task<UserResponseDTO> UpdateAsync(Guid id, UserRequestDTO dto)
     {
-        throw new NotImplementedException();
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException("Utente non trovato");
+
+        user.Username = dto.Username;
+        user.Email = dto.Email;
+        user.Name = dto.Name;
+        user.Surname = dto.Surname;
+        if (!string.IsNullOrWhiteSpace(dto.Password))
+            user.Password = AuthService.HashPassword(dto.Password);
+
+        await context.SaveChangesAsync();
+        return MapToDto(user);
     }
 
 

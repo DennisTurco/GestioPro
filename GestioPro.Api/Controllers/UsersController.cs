@@ -1,6 +1,8 @@
 using GestioPro.Common.DTOs;
 using GestioPro.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GestioPro.Api.Controllers;
 
@@ -8,6 +10,26 @@ namespace GestioPro.Api.Controllers;
 [Route("api/v1/users")]
 public class UsersController(IUserService userService) : ControllerBase
 {
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> Me()
+    {
+        var userId =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            User.FindFirst("sub")?.Value;
+
+        if (!Guid.TryParse(userId, out var guid))
+            return Unauthorized();
+
+        var user = await userService.GetByIdAsync(guid);
+
+        if (user is null)
+            return NotFound();
+
+        return Ok(user);
+    }
+
     /// <summary>
     /// Return all users
     /// </summary>

@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Fatture - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -16,7 +17,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -87,7 +88,7 @@
                 <div class="toolbar">
                     <div class="search-bar" style="width:260px">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" class="form-control" id="search-input" placeholder="Cerca fattura…">
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca fattura">
                     </div>
                     <select class="form-control" id="filtro-stato" style="width:auto">
                         <option value="">Tutti gli stati</option>
@@ -104,7 +105,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>N° Fattura</th>
+                                <th>N&#176; Fattura</th>
                                 <th>Cliente</th>
                                 <th>Descrizione</th>
                                 <th>Importo</th>
@@ -142,7 +143,7 @@
     <div class="modal" style="width:min(600px,95vw)">
         <div class="modal-header">
             <span id="modal-fattura-title"><i class="fa-solid fa-receipt"></i> Nuova fattura</span>
-            <button class="btn-close" data-modal-close="modal-fattura">✕</button>
+            <button class="btn-close" data-modal-close="modal-fattura"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="fattura-id">
@@ -160,11 +161,11 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Descrizione</label>
-                <textarea class="form-control" id="fattura-descrizione" rows="2" placeholder="Sviluppo sito web, consulenza…"></textarea>
+                <textarea class="form-control" id="fattura-descrizione" rows="2" placeholder="Sviluppo sito web, consulenza"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Importo (€) *</label>
+                    <label class="form-label">Importo (&#8364;) *</label>
                     <input type="number" class="form-control" id="fattura-importo" placeholder="0.00" step="0.01" min="0">
                 </div>
                 <div class="form-group">
@@ -192,7 +193,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Note</label>
-                <textarea class="form-control" id="fattura-note" rows="2" placeholder="Note aggiuntive…"></textarea>
+                <textarea class="form-control" id="fattura-note" rows="2" placeholder="Note aggiuntive"></textarea>
             </div>
         </div>
         <div class="modal-footer">
@@ -204,13 +205,13 @@
 
 <div class="toast-container"></div>
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load();
 let tutteFatture = [];
 
 const STATI = {

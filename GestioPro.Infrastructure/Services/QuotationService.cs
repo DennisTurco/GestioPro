@@ -12,7 +12,6 @@ public class QuotationService(AppDbContext context) : IQuotationService
     public async Task<List<QuotationResponseDTO>> GetAllAsync()
         => await context.Quotations
             .Include(q => q.Customer)
-            .Include(q => q.QuotationStatus)
             .AsNoTracking()
             .Select(x => MapToDto(x))
             .ToListAsync();
@@ -21,7 +20,6 @@ public class QuotationService(AppDbContext context) : IQuotationService
     {
         var quotation = await context.Quotations
             .Include(q => q.Customer)
-            .Include(q => q.QuotationStatus)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -40,7 +38,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
         var quotation = new Quotation
         {
             CustomerId = dto.CustomerId,
-            QuotationStatusId = dto.QuotationStatusId,
+            QuotationStatus = dto.QuotationStatus,
             Number = dto.Number,
             Amount = dto.Amount,
             VatPercentage = dto.VatPercentage,
@@ -61,7 +59,6 @@ public class QuotationService(AppDbContext context) : IQuotationService
     {
         var quotation = await context.Quotations
             .Include(q => q.Customer)
-            .Include(q => q.QuotationStatus)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (quotation is null)
@@ -69,14 +66,13 @@ public class QuotationService(AppDbContext context) : IQuotationService
 
         var quotationNumberExists = await context.Quotations
             .Include(q => q.Customer)
-            .Include(q => q.QuotationStatus)
             .AnyAsync(x => x.Number.Equals(dto.Number));
 
         if (quotationNumberExists)
             throw new BusinessException("Esiste già un preventivo con lo stesso numero");
 
         quotation.CustomerId = dto.CustomerId;
-        quotation.QuotationStatusId = dto.QuotationStatusId;
+        quotation.QuotationStatus = dto.QuotationStatus;
         quotation.Number = dto.Number;
         quotation.Amount = dto.Amount;
         quotation.VatPercentage = dto.VatPercentage;
@@ -108,8 +104,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
             q.Id,
             q.CustomerId,
             q.Customer.Name.ToString(),
-            q.QuotationStatusId,
-            q.QuotationStatus.Name.ToString(),
+            q.QuotationStatus,
             q.Number,
             q.Amount,
             q.VatPercentage,

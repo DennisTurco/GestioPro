@@ -1,11 +1,12 @@
+using GestioPro.Common.Enums;
+
 namespace GestioPro.Common.DTOs;
 
 public record QuotationResponseDTO(
     long Id,
     long CustomerId,
     string CustomerName,
-    long QuotationStatusId,
-    string QuotationStatusName,
+    QuotationStatus QuotationStatus,
     string Number,
     float Amount,
     int VatPercentage,

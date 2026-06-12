@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Scheda Cliente - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -12,11 +13,9 @@
 <body>
 
 <div class="app-shell">
-
-    <!-- ═══════ SIDEBAR ═══════════════════════════════════ -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -41,7 +40,6 @@
         </div>
     </aside>
 
-    <!-- ═══════ MAIN ══════════════════════════════════════ -->
     <div class="main-content">
 
         <header class="topbar">
@@ -70,7 +68,7 @@
             <div id="not-found" style="display:none">
                 <div class="card">
                     <div class="not-found-box">
-                        <div class="icon">🔍</div>
+                        <div class="icon">ðŸ”</div>
                         <h2>Cliente non trovato</h2>
                         <p>Nessun cliente corrisponde all'ID richiesto.</p>
                         <button class="btn btn-primary" onclick="window.location.href='clienti.html'">
@@ -85,9 +83,9 @@
 
                 <!-- Hero Header -->
                 <div class="client-hero" id="client-hero">
-                    <div class="client-hero-avatar" id="hero-avatar">—</div>
+                    <div class="client-hero-avatar" id="hero-avatar">-</div>
                     <div class="client-hero-body">
-                        <div class="client-hero-name" id="hero-name">—</div>
+                        <div class="client-hero-name" id="hero-name">-</div>
                         <div class="client-hero-meta" id="hero-meta"></div>
                     </div>
                     <div class="client-hero-actions">
@@ -116,7 +114,6 @@
 
                     <div style="padding:24px">
 
-                        <!-- ── TAB: PREVENTIVI ─────────────────── -->
                         <div class="tab-panel active" id="tab-preventivi">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
                                 <h3 style="font-size:15px;font-weight:600;margin:0">Preventivi del cliente</h3>
@@ -125,7 +122,6 @@
                                 </button>
                             </div>
 
-                            <!-- Filtro stato -->
                             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="filtri-stato">
                                 <button class="btn btn-ghost btn-sm filtro-btn active" data-stato="">Tutti</button>
                                 <button class="btn btn-ghost btn-sm filtro-btn" data-stato="draft">Bozza</button>
@@ -137,25 +133,24 @@
                             <div id="preventivi-list"></div>
                         </div>
 
-                        <!-- ── TAB: NOTE ───────────────────────── -->
                         <div class="tab-panel" id="tab-note">
                             <h3 style="font-size:15px;font-weight:600;margin:0 0 20px">Note Cliente</h3>
                             <div class="note-grid">
                                 <div class="form-group">
                                     <label class="form-label">Note generali</label>
                                     <textarea id="note-generali" class="form-control" rows="6"
-                                              placeholder="Informazioni generali sul cliente, preferenze, contesto…"></textarea>
+                                              placeholder="Informazioni generali sul cliente, preferenze, contesto"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Note interne</label>
                                     <textarea id="note-interne" class="form-control" rows="6"
-                                              placeholder="Note riservate per uso interno dello studio…"></textarea>
+                                              placeholder="Note riservate per uso interno dello studio"></textarea>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Note aggiuntive</label>
                                 <textarea id="note-aggiuntive" class="form-control" rows="4"
-                                          placeholder="Dettagli aggiuntivi, follow-up, accordi particolari…"></textarea>
+                                          placeholder="Dettagli aggiuntivi, follow-up, accordi particolari"></textarea>
                             </div>
                             <div style="display:flex;gap:10px;align-items:center">
                                 <button class="btn btn-primary" onclick="saveNote()">
@@ -175,12 +170,11 @@
     </div>
 </div>
 
-<!-- ═══ MODAL: Nuovo / Modifica Preventivo ════════════════ -->
 <div class="modal-overlay" id="modal-preventivo">
     <div class="modal" style="width:min(600px,95vw)">
         <div class="modal-header">
             <span id="modal-prev-title"><i class="fa-solid fa-receipt"></i> Nuovo Preventivo</span>
-            <button class="btn-close" data-modal-close="modal-preventivo">✕</button>
+            <button class="btn-close" data-modal-close="modal-preventivo"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="prev-id">
@@ -211,7 +205,7 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Importo (€) *</label>
+                    <label class="form-label">Importo (&#8364;) *</label>
                     <input type="number" id="prev-importo" class="form-control" placeholder="0.00" min="0" step="0.01">
                 </div>
                 <div class="form-group">
@@ -222,11 +216,11 @@
             <div class="form-group">
                 <label class="form-label">Descrizione / Oggetto</label>
                 <textarea id="prev-descrizione" class="form-control" rows="3"
-                          placeholder="Descrizione dei servizi offerti…"></textarea>
+                          placeholder="Descrizione dei servizi offerti"></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Note</label>
-                <input type="text" id="prev-note" class="form-control" placeholder="Note aggiuntive…">
+                <input type="text" id="prev-note" class="form-control" placeholder="Note aggiuntive">
             </div>
         </div>
         <div class="modal-footer">
@@ -238,12 +232,11 @@
     </div>
 </div>
 
-<!-- ═══ MODAL: Modifica Cliente ══════════════════════════ -->
 <div class="modal-overlay" id="modal-edit-cliente">
     <div class="modal" style="width:min(680px,95vw)">
         <div class="modal-header">
             <span><i class="fa-solid fa-pen"></i> Modifica Cliente</span>
-            <button class="btn-close" data-modal-close="modal-edit-cliente">✕</button>
+            <button class="btn-close" data-modal-close="modal-edit-cliente"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <div class="form-row">
@@ -316,12 +309,11 @@
     </div>
 </div>
 
-<!-- ═══ MODAL: Conferma eliminazione ════════════════════ -->
 <div class="modal-overlay" id="modal-elimina">
     <div class="modal">
         <div class="modal-header">
             <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
-            <button class="btn-close" data-modal-close="modal-elimina">✕</button>
+            <button class="btn-close" data-modal-close="modal-elimina"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <p>Sei sicuro di voler eliminare <strong id="elimina-name"></strong>?</p>
@@ -338,30 +330,19 @@
 
 <div class="toast-container"></div>
 
-<!-- ─── Script dependencies (stessa struttura di GestioPro) ─── -->
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
-
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-/* ════════════════════════════════════════════════════════════
-   SCHEDA CLIENTE — GestioPro
-   Dipende da: ClientiAPI, QuotationAPI (js/api.js)
-               openModal / closeModal / showToast / setHTML (js/app.js)
-               formatCurrency / filterItems (js/utils.js)
-   ════════════════════════════════════════════════════════════ */
 
-UserStore.load();
-
-/* ── Stato ── */
 let currentClienteId = null;
 let currentCliente   = null;
 let tuttiPreventivi  = [];   // preventivi di questo cliente
 let filtroStato      = '';   // '' = tutti
 
-/* ── Status map ── */
 const STATO_MAP = {
     draft:    { label: 'Bozza',     css: 'badge-neutral' },
     sent:     { label: 'Inviato',   css: 'badge-info'    },
@@ -370,11 +351,10 @@ const STATO_MAP = {
 };
 
 function statoBadge(stato) {
-    const s = STATO_MAP[stato] || { label: stato || '—', css: 'badge-neutral' };
+    const s = STATO_MAP[stato] || { label: stato || '-', css: 'badge-neutral' };
     return `<span class="badge ${s.css}">${s.label}</span>`;
 }
 
-/* ═══════════════════════════ INIT ══════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
     await loadLoggedUser();
 
@@ -406,13 +386,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (emissione && !emissione.value) emissione.value = today;
 });
 
-/* ═══════════════════════ LOAD CLIENTE ═══════════════════ */
 async function loadCliente() {
     try {
         currentCliente = await ClientiAPI.getById(currentClienteId);
         if (!currentCliente) { showNotFound(); return; }
 
-        document.title = `GestioPro — ${currentCliente.name} ${currentCliente.surname}`;
+        document.title = `GestioPro - ${currentCliente.name} ${currentCliente.surname}`;
         renderHero(currentCliente);
         renderInfoGrid(currentCliente);
         document.getElementById('scheda-content').style.display = '';
@@ -426,7 +405,6 @@ async function loadCliente() {
     }
 }
 
-/* ═══════════════════════ HERO + INFO ════════════════════ */
 function renderHero(c) {
     const initials = `${(c.name || ' ')[0]}${(c.surname || ' ')[0]}`.toUpperCase();
     document.getElementById('hero-avatar').textContent = initials;
@@ -442,28 +420,27 @@ function renderHero(c) {
 
 function renderInfoGrid(c) {
     const items = [
-        { label: 'Email',         value: c.email       || '—' },
-        { label: 'Telefono',      value: c.phone        || '—' },
-        { label: 'Ragione Sociale',value: c.companyName || '—' },
-        { label: 'Partita IVA',   value: `<code>${c.vatNumber || '—'}</code>` },
-        { label: 'Codice Fiscale',value: `<code>${c.taxCode   || '—'}</code>` },
-        { label: 'Nazione',       value: c.country     || '—' },
-        { label: 'Regione',       value: c.region      || '—' },
-        { label: 'Provincia',     value: c.province    || '—' },
-        { label: 'Città',         value: c.city        || '—' },
-        { label: 'Indirizzo',     value: c.address     || '—' },
-    ].filter(i => i.value && i.value !== '—' && i.value !== '<code>—</code>');
+        { label: 'Email',         value: c.email       || '-' },
+        { label: 'Telefono',      value: c.phone        || '-' },
+        { label: 'Ragione Sociale',value: c.companyName || '-' },
+        { label: 'Partita IVA',   value: `<code>${c.vatNumber || '-'}</code>` },
+        { label: 'Codice Fiscale',value: `<code>${c.taxCode   || '-'}</code>` },
+        { label: 'Nazione',       value: c.country     || '-' },
+        { label: 'Regione',       value: c.region      || '-' },
+        { label: 'Provincia',     value: c.province    || '-' },
+        { label: 'Citt&#225;',         value: c.city        || '-' },
+        { label: 'Indirizzo',     value: c.address     || '-' },
+    ].filter(i => i.value && i.value !== '-' && i.value !== '<code>-</code>');
 
-    // mostra comunque tutti, troncando i vuoti
     const allItems = [
-        { label: 'Email',          value: c.email        || '—' },
-        { label: 'Telefono',       value: c.phone         || '—' },
-        { label: 'Ragione Sociale',value: c.companyName   || '—' },
-        { label: 'Partita IVA',    value: `<code>${c.vatNumber || '—'}</code>` },
-        { label: 'Codice Fiscale', value: `<code>${c.taxCode   || '—'}</code>` },
-        { label: 'Città',          value: [c.city, c.province, c.region, c.country].filter(Boolean).join(', ') || '—' },
-        { label: 'Indirizzo',      value: c.address       || '—' },
-        { label: 'Tel. fisso',     value: c.landline      || '—' },
+        { label: 'Email',          value: c.email        || '-' },
+        { label: 'Telefono',       value: c.phone         || '-' },
+        { label: 'Ragione Sociale',value: c.companyName   || '-' },
+        { label: 'Partita IVA',    value: `<code>${c.vatNumber || '-'}</code>` },
+        { label: 'Codice Fiscale', value: `<code>${c.taxCode   || '-'}</code>` },
+        { label: 'Citt&#225;',          value: [c.city, c.province, c.region, c.country].filter(Boolean).join(', ') || '-' },
+        { label: 'Indirizzo',      value: c.address       || '-' },
+        { label: 'Tel. fisso',     value: c.landline      || '-' },
     ];
 
     setHTML(document.getElementById('info-grid'),
@@ -476,7 +453,6 @@ function renderInfoGrid(c) {
     );
 }
 
-/* ═══════════════════════ PREVENTIVI ════════════════════ */
 async function loadPreventivi() {
     try {
         const all = await QuotationAPI.getAll();
@@ -526,7 +502,7 @@ function renderPreventivi() {
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>N° Preventivo</th>
+                        <th>N&#176; Preventivo</th>
                         <th>Importo</th>
                         <th>Data emissione</th>
                         <th>Scadenza</th>
@@ -563,11 +539,10 @@ function renderPreventivi() {
         </div>
         <div style="margin-top:12px;font-size:12px;color:var(--color-muted)">
             ${filtered.length} preventiv${filtered.length === 1 ? 'o' : 'i'}
-            ${filtroStato ? `· filtro: <strong>${STATO_MAP[filtroStato]?.label || filtroStato}</strong>` : ''}
+            ${filtroStato ? `Â· filtro: <strong>${STATO_MAP[filtroStato]?.label || filtroStato}</strong>` : ''}
         </div>`);
 }
 
-/* Risolve lo status ID numerico (da QUOTATION_STATUSES) in chiave stringa */
 function resolveStatus(statusId) {
     if (!statusId || typeof QUOTATION_STATUSES === 'undefined') return '';
     for (const [key, val] of Object.entries(QUOTATION_STATUSES)) {
@@ -577,13 +552,12 @@ function resolveStatus(statusId) {
 }
 
 function formatDate(d) {
-    if (!d) return '—';
+    if (!d) return '-';
     try {
         return new Date(d).toLocaleDateString('it-IT');
     } catch { return d; }
 }
 
-/* ── Modal Preventivo ── */
 function openModalPreventivo() {
     document.getElementById('modal-prev-title').innerHTML =
         '<i class="fa-solid fa-receipt"></i> Nuovo Preventivo';
@@ -616,8 +590,8 @@ function openModalPreventivoEdit(id) {
 async function savePreventivo() {
     const numero  = document.getElementById('prev-numero').value.trim();
     const importo = document.getElementById('prev-importo').value;
-    if (!numero)  { showToast('Il numero preventivo è obbligatorio', 'warning'); return; }
-    if (!importo) { showToast('L\'importo è obbligatorio', 'warning'); return; }
+    if (!numero)  { showToast('Il numero preventivo &#232; obbligatorio', 'warning'); return; }
+    if (!importo) { showToast('L\'importo &#232; obbligatorio', 'warning'); return; }
 
     const data = {
         customerId:   parseInt(currentClienteId),
@@ -656,15 +630,9 @@ function chiediEliminaPreventivo(id) {
     openModal('modal-elimina');
 }
 
-/* ═══════════════════════ NOTE ══════════════════════════ */
-/*
-   Le note vengono salvate sul backend tramite ClientiAPI.updateNote(id, data)
-   oppure, se l'API non è ancora disponibile, si usa un campo "notes" sull'oggetto cliente.
-   Adatta all'endpoint reale della tua API.
-*/
+
 function loadNote() {
     if (!currentCliente) return;
-    // Tentativo con campi dedicati; cade su campo notes generico
     document.getElementById('note-generali').value   = currentCliente.noteGenerali  || currentCliente.notes || '';
     document.getElementById('note-interne').value    = currentCliente.noteInterne   || '';
     document.getElementById('note-aggiuntive').value = currentCliente.noteAggiuntive|| '';
@@ -675,7 +643,6 @@ async function saveNote() {
         noteGenerali:   document.getElementById('note-generali').value,
         noteInterne:    document.getElementById('note-interne').value,
         noteAggiuntive: document.getElementById('note-aggiuntive').value,
-        // campo generico notes per retrocompatibilità
         notes: document.getElementById('note-generali').value,
     };
     try {
@@ -691,7 +658,6 @@ async function saveNote() {
     }
 }
 
-/* ═══════════════════════ EDIT CLIENTE ══════════════════ */
 function openEditCliente() {
     if (!currentCliente) return;
     const c = currentCliente;
@@ -716,9 +682,9 @@ async function saveEditCliente() {
     const cognome = document.getElementById('ep-cognome').value.trim();
     const email   = document.getElementById('ep-email').value.trim();
     const telefono= document.getElementById('ep-telefono').value.trim();
-    if (!nome)    { showToast('Il nome è obbligatorio', 'warning');    return; }
-    if (!cognome) { showToast('Il cognome è obbligatorio', 'warning'); return; }
-    if (!email)   { showToast('L\'email è obbligatoria', 'warning');   return; }
+    if (!nome)    { showToast('Il nome &#232; obbligatorio', 'warning');    return; }
+    if (!cognome) { showToast('Il cognome &#232; obbligatorio', 'warning'); return; }
+    if (!email)   { showToast('L\'email &#232; obbligatoria', 'warning');   return; }
 
     const data = {
         ...currentCliente,
@@ -743,24 +709,22 @@ async function saveEditCliente() {
         closeModal('modal-edit-cliente');
         renderHero(currentCliente);
         renderInfoGrid(currentCliente);
-        document.title = `GestioPro — ${currentCliente.name} ${currentCliente.surname}`;
+        document.title = `GestioPro - ${currentCliente.name} ${currentCliente.surname}`;
         showToast('Cliente aggiornato', 'success');
     } catch (e) {
         showToast(`Errore: ${e.message}`, 'error');
     }
 }
 
-/* ═══════════════════════ ELIMINA CLIENTE ═══════════════ */
 function chiediElimina() {
     if (!currentCliente) return;
-    prevDaEliminare = null; // reset preventivo da eliminare
+    prevDaEliminare = null;
     document.getElementById('elimina-name').textContent =
         `${currentCliente.name} ${currentCliente.surname}`;
     openModal('modal-elimina');
 }
 
 async function confermaElimina() {
-    // Se c'è un preventivo da eliminare, elimina quello
     if (prevDaEliminare !== null) {
         try {
             await QuotationAPI.delete(prevDaEliminare);
@@ -774,7 +738,6 @@ async function confermaElimina() {
         return;
     }
 
-    // Altrimenti elimina il cliente
     try {
         await ClientiAPI.delete(currentClienteId);
         showToast('Cliente eliminato', 'success');
@@ -785,7 +748,6 @@ async function confermaElimina() {
     }
 }
 
-/* ═══════════════════════ TABS ══════════════════════════ */
 function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.tab === tab);
@@ -795,7 +757,6 @@ function switchTab(tab) {
     });
 }
 
-/* ═══════════════════════ UTILITIES ═════════════════════ */
 function showNotFound() {
     document.getElementById('not-found').style.display = '';
     document.getElementById('scheda-content').style.display = 'none';

@@ -1,6 +1,6 @@
 namespace GestioPro.Common.Enums;
 
-public enum CustomerTypeEnum
+public enum CustomerType : byte
 {
     COMPANY = 1,       // vatNumber == taxCode; companyName not null
     PUBLIC_ADMIN = 2,  // vatNumber != taxCode (taxCode numeric); companyName not null

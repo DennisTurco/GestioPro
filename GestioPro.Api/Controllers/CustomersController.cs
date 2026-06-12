@@ -27,7 +27,7 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
-        var result = customerService.GetByIdAsync(id);
+        var result = await customerService.GetByIdAsync(id);
 
         if (result is null)
             return NotFound();

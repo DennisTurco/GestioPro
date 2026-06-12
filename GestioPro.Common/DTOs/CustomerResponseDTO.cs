@@ -1,9 +1,10 @@
+using GestioPro.Common.Enums;
+
 namespace GestioPro.Common.DTOs;
 
 public record CustomerResponseDTO(
     long Id,
-    long CustomerTypeId,
-    string CustomerTypeName,
+    CustomerType CustomerType,
     string Name,
     string Surname,
     string Email,

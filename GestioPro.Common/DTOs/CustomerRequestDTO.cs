@@ -1,9 +1,10 @@
+using GestioPro.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace GestioPro.Common.DTOs;
 
 public record CustomerRequestDTO(
-    long CustomerTypeId,
+    CustomerType CustomerType,
 
     [Required, MaxLength(50)] string Name,
     [Required, MaxLength(50)] string Surname,

@@ -1,11 +1,12 @@
+using GestioPro.Common.Enums;
+
 namespace GestioPro.Common.DTOs;
 
 public record ProductResponseDTO(
     long Id,
     long CategoryId,
     string CategoryName,
-    long StatusId,
-    string StatusName,
+    ProductStatus ProductStatus,
     string Code,
     string? Ean,
     string Name,

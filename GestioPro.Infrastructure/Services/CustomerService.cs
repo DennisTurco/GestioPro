@@ -28,7 +28,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
 
     public async Task CreateAsync(CustomerRequestDTO dto)
     {
-        DateTimeOffset now = DateTimeOffset.Now;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
         var exist = await context.Customers
             .AnyAsync(x => x.Email.Equals(dto.Email));
@@ -38,7 +38,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
 
         var entity = new Customer
         {
-            CustomerTypeId = dto.CustomerTypeId,
+            CustomerType = dto.CustomerType,
             Name = dto.Name,
             Surname = dto.Surname,
             Email = dto.Email,
@@ -71,7 +71,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
         if (entity is null)
             throw new BusinessException("Customer not found");
 
-        entity.CustomerTypeId = dto.CustomerTypeId;
+        entity.CustomerType = dto.CustomerType;
         entity.Name = dto.Name;
         entity.Surname = dto.Surname;
         entity.Email = dto.Email;
@@ -88,7 +88,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
         entity.Lat = dto.Lat;
         entity.Lon = dto.Lon;
         entity.Notes = dto.Notes;
-        entity.LastUpdateDate = DateTimeOffset.Now;
+        entity.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
         return MapToDto(entity);
@@ -109,8 +109,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
     private static CustomerResponseDTO MapToDto(Customer c)
         => new (
             c.Id,
-            c.CustomerTypeId,
-            c.CustomerType.Name.ToString(),
+            c.CustomerType = c.CustomerType,
             c.Name,
             c.Surname,
             c.Email,

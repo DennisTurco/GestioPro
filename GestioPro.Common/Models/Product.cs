@@ -1,3 +1,4 @@
+using GestioPro.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,11 +16,7 @@ public class Product
     [ForeignKey(nameof(CategoryId))]
     public ProductCategory Category { get; set; } = null!;
 
-    [Required]
-    public long StatusId { get; set; }
-
-    [ForeignKey(nameof(StatusId))]
-    public ProductStatus Status { get; set; } = null!;
+    public ProductStatus ProductStatus { get; set; }
 
     [Required]
     public string Code { get; set; } = string.Empty;

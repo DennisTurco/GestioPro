@@ -1,3 +1,4 @@
+using GestioPro.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,11 +16,7 @@ public class Contract
     [ForeignKey(nameof(CustomerId))]
     public Customer Customer { get; set; } = null!;
 
-    [Required]
-    public long ContractTypeId { get; set; }
-
-    [ForeignKey(nameof(ContractTypeId))]
-    public ContractType ContractType { get; set; } = null!;
+    public ContractType ContractType { get; set; }
 
     [Required]
     public DateOnly StartDate { get; set; }

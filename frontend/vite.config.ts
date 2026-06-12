@@ -6,9 +6,8 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxying API calls al backend C# (evita CORS in dev)
       '/api': {
-        target: 'https://localhost:7000',
+        target: 'https://localhost:7160',
         changeOrigin: true,
         secure: false
       }

@@ -1,3 +1,4 @@
+using GestioPro.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,11 +10,7 @@ public class Customer
     [Key]
     public long Id { get; set; }
 
-    [Required]
-    public long CustomerTypeId { get; set; }
-
-    [ForeignKey(nameof(CustomerTypeId))]
-    public CustomerType CustomerType { get; set; } = null!;
+    public CustomerType CustomerType { get; set; }
 
     [Required]
     [MaxLength(50)]

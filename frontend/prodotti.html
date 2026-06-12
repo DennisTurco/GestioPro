@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Prodotti - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -16,7 +17,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -61,7 +62,7 @@
                 <div class="toolbar">
                     <div class="search-bar" style="width:260px">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" class="form-control" id="search-input" placeholder="Cerca prodotto…">
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca prodotto">
                     </div>
                     <div class="toolbar-right">
                         <select class="form-control" id="filter-categoria" style="width:180px">
@@ -83,7 +84,7 @@
                                 <th>Nome</th>
                                 <th>Categoria</th>
                                 <th>Stato</th>
-                                <th>Quantità</th>
+                                <th>Quantit&#224; </th>
                                 <th>IVA %</th>
                                 <th>Prezzo</th>
                                 <th style="width:100px">Azioni</th>
@@ -98,7 +99,7 @@
                 </div>
 
                 <div class="card-footer text-muted text-sm" id="table-footer">
-                    Caricamento…
+                    Caricamento
                 </div>
             </div>
 
@@ -113,7 +114,7 @@
             <span id="modal-prodotto-title">
                 <i class="fa-solid fa-box"></i> Nuovo prodotto
             </span>
-            <button class="btn-close" data-modal-close="modal-prodotto">✕</button>
+            <button class="btn-close" data-modal-close="modal-prodotto"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="prodotto-id">
@@ -153,13 +154,13 @@
             <!-- DESCRIZIONE -->
             <div class="form-group">
                 <label class="form-label">Descrizione</label>
-                <textarea class="form-control" id="prodotto-description" rows="3" maxlength="1000" style="resize:vertical" placeholder="Descrizione del prodotto…"></textarea>
+                <textarea class="form-control" id="prodotto-description" rows="3" maxlength="1000" style="resize:vertical" placeholder="Descrizione del prodotto"></textarea>
             </div>
 
             <div class="form-row">
                 <!-- QUANTITA -->
                 <div class="form-group">
-                    <label class="form-label">Quantità</label>
+                    <label class="form-label">Quantit&#224; </label>
                     <input type="number" class="form-control" id="prodotto-quantity" min="0" placeholder="0">
                 </div>
                 <!-- IVA -->
@@ -169,7 +170,7 @@
                 </div>
                 <!-- PREZZO -->
                 <div class="form-group">
-                    <label class="form-label">Prezzo (€) *</label>
+                    <label class="form-label">Prezzo (&#8364;) *</label>
                     <input type="number" class="form-control" id="prodotto-price" min="0" step="0.01" placeholder="0.00" required>
                 </div>
             </div>
@@ -188,11 +189,11 @@
     <div class="modal">
         <div class="modal-header">
             <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
-            <button class="btn-close" data-modal-close="modal-elimina">✕</button>
+            <button class="btn-close" data-modal-close="modal-elimina"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <p>Sei sicuro di voler eliminare <strong id="elimina-name"></strong>?</p>
-            <p class="text-muted text-sm mt-8">Questa azione non può essere annullata.</p>
+            <p class="text-muted text-sm mt-8">Questa azione non pu&#242; essere annullata.</p>
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-modal-close="modal-elimina">Annulla</button>
@@ -203,13 +204,13 @@
 
 <div class="toast-container"></div>
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load();
 let tuttiProdotti = [];
 let categorie = [];
 let statuses = [];
@@ -237,7 +238,7 @@ async function loadProdotti() {
         const tbody = document.getElementById('prodotti-tbody');
         setHTML(tbody, `<tr><td colspan="8" class="text-center text-muted" style="padding:32px">
             <i class="fa-solid fa-x"></i> Errore nel caricamento dei prodotti.<br>
-            <span class="text-sm">Verificare che il server Spring Boot sia avviato.</span>
+            <span class="text-sm">Verificare che il server sia avviato.</span>
         </td></tr>`);
     }
 }
@@ -295,7 +296,7 @@ function renderTabella(items) {
         const statusLabel = p.statusName === 'NEW' ? '<span class="badge badge-success">Nuovo</span>'
                           : p.statusName === 'USED' ? '<span class="badge badge-warning">Usato</span>'
                           : `<span class="badge badge-muted">${p.statusName ?? '-'}</span>`;
-        const qty = p.quantity != null ? p.quantity : '<span class="text-muted">—</span>';
+        const qty = p.quantity != null ? p.quantity : '<span class="text-muted">â€”</span>';
         const price = p.price != null ? formatCurrency(p.price) : '-';
         return `
         <tr>
@@ -425,7 +426,7 @@ async function confermaElimina() {
 
 function exportProducts() {
     if (!tuttiProdotti.length) { showToast('Nessun dato da esportare', 'warning'); return; }
-    const header = ['Codice','Nome','Categoria','Stato','EAN','Quantità','IVA%','Prezzo','Descrizione'].join(',');
+    const header = ['Codice','Nome','Categoria','Stato','EAN','Quantit&#224; ','IVA%','Prezzo','Descrizione'].join(',');
     const rows = tuttiProdotti.map(p =>
         [p.code,p.name,p.productCategoryId,p.productStatusId,p.ean,p.quantity,p.vatPercentage,p.price,p.description]
         .map(v => `"${v ?? ''}"`).join(','));

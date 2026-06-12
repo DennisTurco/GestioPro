@@ -15,29 +15,34 @@ namespace GestioPro.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "contract_types",
+                name: "customers",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "varchar(20)", nullable: false)
+                    CustomerType = table.Column<byte>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Country = table.Column<string>(type: "text", nullable: true),
+                    Region = table.Column<string>(type: "text", nullable: true),
+                    City = table.Column<string>(type: "text", nullable: true),
+                    Province = table.Column<string>(type: "text", nullable: true),
+                    Address = table.Column<string>(type: "text", nullable: true),
+                    VatNumber = table.Column<string>(type: "text", nullable: true),
+                    CompanyName = table.Column<string>(type: "text", nullable: true),
+                    TaxCode = table.Column<string>(type: "text", nullable: true),
+                    Landline = table.Column<string>(type: "text", nullable: true),
+                    Lat = table.Column<double>(type: "double precision", nullable: true),
+                    Lon = table.Column<double>(type: "double precision", nullable: true),
+                    InsertDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastUpdateDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_contract_types", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "customer_types",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "varchar(50)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_customer_types", x => x.Id);
+                    table.PrimaryKey("PK_customers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -51,32 +56,6 @@ namespace GestioPro.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_product_categories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "product_statuses",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "varchar(20)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_product_statuses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "quotation_statuses",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "varchar(20)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_quotation_statuses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -111,95 +90,19 @@ namespace GestioPro.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "customers",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CustomerTypeId = table.Column<long>(type: "bigint", nullable: false),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Surname = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    Country = table.Column<string>(type: "text", nullable: true),
-                    Region = table.Column<string>(type: "text", nullable: true),
-                    City = table.Column<string>(type: "text", nullable: true),
-                    Province = table.Column<string>(type: "text", nullable: true),
-                    Address = table.Column<string>(type: "text", nullable: true),
-                    VatNumber = table.Column<string>(type: "text", nullable: true),
-                    CompanyName = table.Column<string>(type: "text", nullable: true),
-                    TaxCode = table.Column<string>(type: "text", nullable: true),
-                    Landline = table.Column<string>(type: "text", nullable: true),
-                    Lat = table.Column<double>(type: "double precision", nullable: true),
-                    Lon = table.Column<double>(type: "double precision", nullable: true),
-                    InsertDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastUpdateDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_customers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_customers_customer_types_CustomerTypeId",
-                        column: x => x.CustomerTypeId,
-                        principalTable: "customer_types",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "products",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CategoryId = table.Column<long>(type: "bigint", nullable: false),
-                    StatusId = table.Column<long>(type: "bigint", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false),
-                    Ean = table.Column<string>(type: "text", nullable: true),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    Quantity = table.Column<int>(type: "integer", nullable: true),
-                    VatPercentage = table.Column<int>(type: "integer", nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_products", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_products_product_categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "product_categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_products_product_statuses_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "product_statuses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "contracts",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CustomerId = table.Column<long>(type: "bigint", nullable: false),
-                    ContractTypeId = table.Column<long>(type: "bigint", nullable: false),
+                    ContractType = table.Column<byte>(type: "smallint", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_contracts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_contracts_contract_types_ContractTypeId",
-                        column: x => x.ContractTypeId,
-                        principalTable: "contract_types",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_contracts_customers_CustomerId",
                         column: x => x.CustomerId,
@@ -240,7 +143,7 @@ namespace GestioPro.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CustomerId = table.Column<long>(type: "bigint", nullable: false),
-                    QuotationStatusId = table.Column<long>(type: "bigint", nullable: false),
+                    QuotationStatus = table.Column<byte>(type: "smallint", nullable: false),
                     Number = table.Column<string>(type: "text", nullable: false),
                     Amount = table.Column<float>(type: "real", nullable: false),
                     VatPercentage = table.Column<int>(type: "integer", nullable: false),
@@ -261,54 +164,33 @@ namespace GestioPro.Infrastructure.Migrations
                         principalTable: "customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "products",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CategoryId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductStatus = table.Column<byte>(type: "smallint", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    Ean = table.Column<string>(type: "text", nullable: true),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Quantity = table.Column<int>(type: "integer", nullable: true),
+                    VatPercentage = table.Column<int>(type: "integer", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_quotations_quotation_statuses_QuotationStatusId",
-                        column: x => x.QuotationStatusId,
-                        principalTable: "quotation_statuses",
+                        name: "FK_products_product_categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "product_categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "contract_types",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1L, "MONTHLY" },
-                    { 2L, "SEMESTRAL" },
-                    { 3L, "ANNUAL" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "customer_types",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1L, "COMPANY" },
-                    { 2L, "PUBLIC_ADMIN" },
-                    { 3L, "FREELANCER" },
-                    { 4L, "PRIVATE" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "product_statuses",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1L, "NEW" },
-                    { 2L, "USED" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "quotation_statuses",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1L, "DRAFT" },
-                    { 2L, "DELIVERED" },
-                    { 3L, "ACCEPTED" },
-                    { 4L, "REJECTED" },
-                    { 5L, "EXPIRED" }
                 });
 
             migrationBuilder.InsertData(
@@ -328,25 +210,10 @@ namespace GestioPro.Infrastructure.Migrations
                     { "Website", "company public website", null, null }
                 });
 
-            migrationBuilder.InsertData(
-                table: "users",
-                columns: new[] { "Id", "CreatedDate", "Email", "Name", "Password", "Surname", "Username" },
-                values: new object[] { new Guid("11111111-1111-1111-1111-111111111111"), new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "admin@gmail.com", "admin", "asdasd123", "admin", "Admin" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_contracts_ContractTypeId",
-                table: "contracts",
-                column: "ContractTypeId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_contracts_CustomerId",
                 table: "contracts",
                 column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_customers_CustomerTypeId",
-                table: "customers",
-                column: "CustomerTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_customers_Email",
@@ -377,11 +244,6 @@ namespace GestioPro.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_products_StatusId",
-                table: "products",
-                column: "StatusId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_quotations_CustomerId",
                 table: "quotations",
                 column: "CustomerId");
@@ -391,11 +253,6 @@ namespace GestioPro.Infrastructure.Migrations
                 table: "quotations",
                 column: "Number",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_quotations_QuotationStatusId",
-                table: "quotations",
-                column: "QuotationStatusId");
         }
 
         /// <inheritdoc />
@@ -420,22 +277,10 @@ namespace GestioPro.Infrastructure.Migrations
                 name: "users");
 
             migrationBuilder.DropTable(
-                name: "contract_types");
-
-            migrationBuilder.DropTable(
                 name: "product_categories");
 
             migrationBuilder.DropTable(
-                name: "product_statuses");
-
-            migrationBuilder.DropTable(
                 name: "customers");
-
-            migrationBuilder.DropTable(
-                name: "quotation_statuses");
-
-            migrationBuilder.DropTable(
-                name: "customer_types");
         }
     }
 }

@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Categorie Prodotti - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -16,7 +17,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -61,7 +62,7 @@
                 <div class="toolbar">
                     <div class="search-bar" style="width:260px">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" class="form-control" id="search-input" placeholder="Cerca categoria…">
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca categoria">
                     </div>
 
                     <div class="toolbar-right">
@@ -90,7 +91,7 @@
                 </div>
 
                 <div class="card-footer text-muted text-sm" id="table-footer">
-                    Caricamento…
+                    Caricamento
                 </div>
             </div>
 
@@ -105,7 +106,7 @@
             <span id="modal-categoria-title">
                 <i class="fa-solid fa-tags"></i> Nuova categoria
             </span>
-            <button class="btn-close" data-modal-close="modal-categoria">✕</button>
+            <button class="btn-close" data-modal-close="modal-categoria"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="categoria-id">
@@ -119,7 +120,7 @@
             <!-- DESCRIZIONE -->
             <div class="form-group">
                 <label class="form-label">Descrizione *</label>
-                <textarea class="form-control" id="categoria-description" rows="4" maxlength="455" style="resize:vertical" placeholder="Descrizione della categoria…"></textarea>
+                <textarea class="form-control" id="categoria-description" rows="4" maxlength="455" style="resize:vertical" placeholder="Descrizione della categoria"></textarea>
             </div>
         </div>
         <div class="modal-footer">
@@ -136,11 +137,11 @@
     <div class="modal">
         <div class="modal-header">
             <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
-            <button class="btn-close" data-modal-close="modal-elimina">✕</button>
+            <button class="btn-close" data-modal-close="modal-elimina"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <p>Sei sicuro di voler eliminare la categoria <strong id="elimina-name"></strong>?</p>
-            <p class="text-muted text-sm mt-8">Questa azione non può essere annullata. I prodotti in questa categoria potrebbero essere influenzati.</p>
+            <p class="text-muted text-sm mt-8">Questa azione non pu&#242; essere annullata. I prodotti in questa categoria potrebbero essere influenzati.</p>
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-modal-close="modal-elimina">Annulla</button>
@@ -151,13 +152,13 @@
 
 <div class="toast-container"></div>
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load();
 let tutteCategorie = [];
 let categoriaDaEliminare = null;
 
@@ -211,7 +212,7 @@ function renderTabella(items) {
     setHTML(tbody, items.map(c => `
         <tr>
             <td><span class="font-medium">${c.name ?? '-'}</span></td>
-            <td><span class="text-muted text-sm">${c.description ? c.description.slice(0, 80) + (c.description.length > 80 ? '…' : '') : '-'}</span></td>
+            <td><span class="text-muted text-sm">${c.description ? c.description.slice(0, 80) + (c.description.length > 80 ? '' : '') : '-'}</span></td>
             <td>${formatDate(c.creationDate)}</td>
             <td>${formatDate(c.lastUpdateDate)}</td>
             <td>

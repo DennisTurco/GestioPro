@@ -13,12 +13,16 @@ const API_BASE = window.location.origin + '/api/v1';
  * @param {RequestInit} opts - standard fetch options
  * @returns {Promise<any>}
  */
-async function apiFetch(endpoint, opts = {}) {
+async function apiFetch(endpoint: string, opts = {}) {
     const url = API_BASE + endpoint;
+
+    const token = localStorage.getItem('auth_token');
+    const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
 
     const response = await fetch(url, {
         headers: {
             'Content-Type': 'application/json',
+            ...authHeader,
             ...opts.headers,
         },
         ...opts,
@@ -67,7 +71,7 @@ async function apiFetch(endpoint, opts = {}) {
 
 /** API error carrying an HTTP status code */
 class ApiError extends Error {
-    constructor(status, message) {
+    constructor(status, message: string) {
         super(message);
         this.status = status;
         this.name = 'ApiError';
@@ -80,7 +84,7 @@ const ClientiAPI = {
     getAll: () => apiFetch('/customers'),
 
     /** GET /api/v1/customers/:id */
-    getById: (id) => apiFetch(`/customers/${id}`),
+    getById: (id: number) => apiFetch(`/customers/${id}`),
 
     /** POST /api/v1/customers */
     create: (data) => apiFetch('/customers', {
@@ -89,20 +93,15 @@ const ClientiAPI = {
     }),
 
     /** PUT /api/v1/customers/:id */
-    update: (id, data) => apiFetch(`/customers/${id}`, {
+    update: (id: number, data) => apiFetch(`/customers/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
 
     /** DELETE /api/v1/customers/:id */
-    delete: (id) => apiFetch(`/customers/${id}`, { method: 'DELETE' }),
+    delete: (id: number) => apiFetch(`/customers/${id}`, { method: 'DELETE' }),
 };
 
-/* ═══════════════ CUSTOMER TYPE ════════════════════════ */
-
-const CustomerTypeAPI = {
-    getAll: () => apiFetch('/customer-types'),
-};
 
 /* ═══════════════ PRODUCT ════════════════════════ */
 const ProductAPI = {
@@ -110,7 +109,7 @@ const ProductAPI = {
     getAll: () => apiFetch('/products'),
 
     /** GET /api/v1/products/:id */
-    getById: (id) => apiFetch(`/products/${id}`),
+    getById: (id: number) => apiFetch(`/products/${id}`),
 
     /** POST /api/v1/products */
     create: (data) => apiFetch('/products', {
@@ -119,13 +118,13 @@ const ProductAPI = {
     }),
 
     /** PUT /api/v1/products/:id */
-    update: (id, data) => apiFetch(`/products/${id}`, {
+    update: (id: number, data) => apiFetch(`/products/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
 
     /** DELETE /api/v1/products/:id */
-    delete: (id) => apiFetch(`/products/${id}`, { method: 'DELETE' }),
+    delete: (id: number) => apiFetch(`/products/${id}`, { method: 'DELETE' }),
 };
 
 /* ═══════════════ PRODUCT STATUS ════════════════════════ */
@@ -139,18 +138,18 @@ const ProductStatusAPI = {
 const ProductCategoryAPI = {
     getAll:  ()          => apiFetch('/product-categories'),
     create:  (data)      => apiFetch('/product-categories', { method: 'POST', body: JSON.stringify(data) }),
-    update:  (id, data)  => apiFetch(`/product-categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-    delete:  (id)        => apiFetch(`/product-categories/${id}`, { method: 'DELETE' }),
+    update:  (id: number, data)  => apiFetch(`/product-categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete:  (id: number)        => apiFetch(`/product-categories/${id}`, { method: 'DELETE' }),
 };
 
 /* ═══════════════ QUOTATIONS ════════════════════════ */
 const QuotationAPI = {
     getAll:         ()       => apiFetch('/quotations'),
-    getById:        (id)     => apiFetch(`/quotations/${id}`),
+    getById:        (id: number)     => apiFetch(`/quotations/${id}`),
     create:         (data)   => apiFetch('/quotations', { method: 'POST', body: JSON.stringify(data) }),
-    statusUpdate:   (id, statusId)  => apiFetch(`/quotations/status-update/${id}`, { method: 'PUT', body: JSON.stringify(statusId) }),
-    update:         (id, d)  => apiFetch(`/quotations/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
-    delete:         (id)     => apiFetch(`/quotations/${id}`, { method: 'DELETE' }),
+    statusUpdate:   (id: number, statusId)  => apiFetch(`/quotations/status-update/${id}`, { method: 'PUT', body: JSON.stringify(statusId) }),
+    update:         (id: number, d)  => apiFetch(`/quotations/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
+    delete:         (id: number)     => apiFetch(`/quotations/${id}`, { method: 'DELETE' }),
 };
 
 /* ═══════════════ QUOTATION STATUSES ════════════════════════ */
@@ -163,10 +162,10 @@ const QuotationStatusAPI = {
 /* ═══════════════ TASK ═══════════════════════════ */
 const TaskAPI = {
     getAll:   ()       => apiFetch('/task'),
-    getById:  (id)     => apiFetch(`/task/${id}`),
+    getById:  (id: number)     => apiFetch(`/task/${id}`),
     create:   (data)   => apiFetch('/task', { method: 'POST', body: JSON.stringify(data) }),
-    update:   (id, d)  => apiFetch(`/task/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
-    delete:   (id)     => apiFetch(`/task/${id}`, { method: 'DELETE' }),
+    update:   (id: number, d)  => apiFetch(`/task/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
+    delete:   (id: number)     => apiFetch(`/task/${id}`, { method: 'DELETE' }),
 };
 
 /* ═══════════════ DASHBOARD ══════════════════════ */
@@ -191,7 +190,7 @@ const SettingsAPI = {
  * @param {'success'|'error'|'warning'|'info'} type
  * @param {number} duration  ms before the toast disappears
  */
-function showToast(message, type = 'info', duration = 3500) {
+function showToast(message: string, type = 'info', duration = 3500) {
     let container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -218,7 +217,7 @@ function showToast(message, type = 'info', duration = 3500) {
  * @param {number} value
  * @returns {string}  e.g. "€ 1.240,00"
  */
-function formatCurrency(value) {
+function formatCurrency(value: number) {
     return new Intl.NumberFormat('it-IT', {
         style: 'currency',
         currency: 'EUR',
@@ -230,7 +229,7 @@ function formatCurrency(value) {
  * @param {string} isoString
  * @returns {string}  e.g. "06/05/2025"
  */
-function formatDate(isoString) {
+function formatDate(isoString: string) {
     if (!isoString) return '-';
     return new Date(isoString).toLocaleDateString('it-IT');
 }

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GestioPro.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611164910_InitialCreate")]
+    [Migration("20260612065453_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,8 +33,8 @@ namespace GestioPro.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("ContractTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<byte>("ContractType")
+                        .HasColumnType("smallint");
 
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
@@ -47,45 +47,9 @@ namespace GestioPro.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContractTypeId");
-
                     b.HasIndex("CustomerId");
 
                     b.ToTable("contracts");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.ContractType", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("contract_types");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "MONTHLY"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "SEMESTRAL"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "ANNUAL"
-                        });
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Customer", b =>
@@ -108,8 +72,8 @@ namespace GestioPro.Infrastructure.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("text");
 
-                    b.Property<long>("CustomerTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<byte>("CustomerType")
+                        .HasColumnType("smallint");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -164,8 +128,6 @@ namespace GestioPro.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerTypeId");
-
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -173,45 +135,6 @@ namespace GestioPro.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("customers");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.CustomerType", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("customer_types");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "COMPANY"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "PUBLIC_ADMIN"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "FREELANCER"
-                        },
-                        new
-                        {
-                            Id = 4L,
-                            Name = "PRIVATE"
-                        });
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Invoice", b =>
@@ -283,11 +206,11 @@ namespace GestioPro.Infrastructure.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
+                    b.Property<byte>("ProductStatus")
+                        .HasColumnType("smallint");
+
                     b.Property<int?>("Quantity")
                         .HasColumnType("integer");
-
-                    b.Property<long>("StatusId")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("VatPercentage")
                         .HasColumnType("integer");
@@ -298,8 +221,6 @@ namespace GestioPro.Infrastructure.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
-
-                    b.HasIndex("StatusId");
 
                     b.ToTable("products");
                 });
@@ -320,35 +241,6 @@ namespace GestioPro.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("product_categories");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.ProductStatus", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("product_statuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "NEW"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "USED"
-                        });
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Quotation", b =>
@@ -389,8 +281,8 @@ namespace GestioPro.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("QuotationStatusId")
-                        .HasColumnType("bigint");
+                    b.Property<byte>("QuotationStatus")
+                        .HasColumnType("smallint");
 
                     b.Property<DateOnly?>("ValidityDate")
                         .HasColumnType("date");
@@ -405,53 +297,7 @@ namespace GestioPro.Infrastructure.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
-                    b.HasIndex("QuotationStatusId");
-
                     b.ToTable("quotations");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.QuotationStatus", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("quotation_statuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "DRAFT"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "DELIVERED"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "ACCEPTED"
-                        },
-                        new
-                        {
-                            Id = 4L,
-                            Name = "REJECTED"
-                        },
-                        new
-                        {
-                            Id = 5L,
-                            Name = "EXPIRED"
-                        });
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Settings", b =>
@@ -566,48 +412,17 @@ namespace GestioPro.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedDate = new DateTimeOffset(new DateTime(2026, 6, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "admin@gmail.com",
-                            Name = "admin",
-                            Password = "asdasd123",
-                            Surname = "admin",
-                            Username = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Contract", b =>
                 {
-                    b.HasOne("GestioPro.Common.Models.ContractType", "ContractType")
-                        .WithMany()
-                        .HasForeignKey("ContractTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GestioPro.Common.Models.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ContractType");
-
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.Customer", b =>
-                {
-                    b.HasOne("GestioPro.Common.Models.CustomerType", "CustomerType")
-                        .WithMany()
-                        .HasForeignKey("CustomerTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CustomerType");
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Invoice", b =>
@@ -629,15 +444,7 @@ namespace GestioPro.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GestioPro.Common.Models.ProductStatus", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Category");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Quotation", b =>
@@ -648,15 +455,7 @@ namespace GestioPro.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GestioPro.Common.Models.QuotationStatus", "QuotationStatus")
-                        .WithMany()
-                        .HasForeignKey("QuotationStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Customer");
-
-                    b.Navigation("QuotationStatus");
                 });
 #pragma warning restore 612, 618
         }

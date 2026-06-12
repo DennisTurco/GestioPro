@@ -1,6 +1,6 @@
 namespace GestioPro.Common.Enums;
 
-public enum QuotationStatusEnum
+public enum QuotationStatus : byte
 {
     DRAFT = 1,
     DELIVERED = 2,

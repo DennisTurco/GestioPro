@@ -1,12 +1,24 @@
 const UserAPI = {
-
     /**
      * GET /api/v1/users/me
-     * ritorna l'utente loggato
+     * Returns the currently logged-in user (requires valid JWT).
      */
-    me: () => apiFetch('/user/me'),
+    me: () => apiFetch('/users/me'),
 
-    /** GET /api/v1/user/register - register a new user */
-    register: () => apiFetch('/user/register'),
+    /**
+     * POST /api/v1/auth/login
+     * Returns { token, user } on success.
+     */
+    login: (username: string, password: string) => apiFetch('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+    }),
 
+    /**
+     * POST /api/v1/auth/register
+     */
+    register: (data) => apiFetch('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
 };

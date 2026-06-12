@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Task - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -16,7 +17,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -64,49 +65,48 @@
                 <div style="margin-left:auto">
                     <div class="search-bar" style="width:220px">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" class="form-control" id="search-input" placeholder="Cerca task…">
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca task">
                     </div>
                 </div>
             </div>
 
-            <!-- Lista task -->
             <div id="task-list"></div>
 
         </main>
     </div>
 </div>
 
-<!-- MODAL: Nuovo / Modifica Task -->
+<!-- MODAL: New / Edit Task -->
 <div class="modal-overlay" id="modal-task">
     <div class="modal">
         <div class="modal-header">
             <span id="modal-task-title"><i class="fa-solid fa-calendar-check"></i> Nuovo task</span>
-            <button class="btn-close" data-modal-close="modal-task">✕</button>
+            <button class="btn-close" data-modal-close="modal-task"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="task-id">
             <div class="form-group">
                 <label class="form-label">Titolo *</label>
-                <input type="text" class="form-control" id="task-titolo" placeholder="Descrivi brevemente il task…">
+                <input type="text" class="form-control" id="task-titolo" placeholder="Descrivi brevemente il task">
             </div>
             <div class="form-group">
                 <label class="form-label">Descrizione</label>
-                <textarea class="form-control" id="task-descrizione" rows="3" placeholder="Dettagli, link, note utili…" style="resize:vertical"></textarea>
+                <textarea class="form-control" id="task-descrizione" rows="3" placeholder="Dettagli, link, note utili" style="resize:vertical"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Priorità</label>
+                    <label class="form-label">Priorit&#224; </label>
                     <select class="form-control" id="task-priorita">
-                        <option value="alta">🔴 Alta</option>
-                        <option value="media" selected>🟡 Media</option>
-                        <option value="bassa">🟢 Bassa</option>
+                        <option value="alta">ðŸ”´ Alta</option>
+                        <option value="media" selected>ðŸŸ¡ Media</option>
+                        <option value="bassa">ðŸŸ¢ Bassa</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Stato</label>
                     <select class="form-control" id="task-stato">
-                        <option value="da_fare">📋 Da fare</option>
-                        <option value="in_corso">▶️ In corso</option>
+                        <option value="da_fare">ðŸ“‹ Da fare</option>
+                        <option value="in_corso">â–¶ï¸ In corso</option>
                         <option value="completato"><i class="fa-solid fa-check"></i> Completato</option>
                     </select>
                 </div>
@@ -133,28 +133,26 @@
 
 <div class="toast-container"></div>
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load().then(user => {
-    console.log(user);
-});
 let tuttiTask = [];
 let filtroCorrente = 'tutti';
 
 const STATI_TASK = {
-    da_fare:    { label: 'Da fare',    cls: 'badge-muted',   icon: '📋' },
-    in_corso:   { label: 'In corso',   cls: 'badge-info',    icon: '▶️' },
-    completato: { label: 'Completato', cls: 'badge-success', icon: '✅' },
+    da_fare:    { label: 'Da fare',    cls: 'badge-muted',   icon: 'ðŸ“‹' },
+    in_corso:   { label: 'In corso',   cls: 'badge-info',    icon: 'â–¶ï¸' },
+    completato: { label: 'Completato', cls: 'badge-success', icon: 'âœ…' },
 };
 
 const PRIORITA = {
-    alta:  { label: 'Alta',  cls: 'alta',  dot: '🔴' },
-    media: { label: 'Media', cls: 'media', dot: '🟡' },
-    bassa: { label: 'Bassa', cls: 'bassa', dot: '🟢' },
+    alta:  { label: 'Alta',  cls: 'alta',  dot: 'ðŸ”´' },
+    media: { label: 'Media', cls: 'media', dot: 'ðŸŸ¡' },
+    bassa: { label: 'Bassa', cls: 'bassa', dot: 'ðŸŸ¢' },
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -220,7 +218,7 @@ function renderTask(tasks) {
         return `
         <div class="card mb-16">
             <div class="card-header">
-                <span><span class="priority-dot ${p.cls}"></span>${p.label} priorità</span>
+                <span><span class="priority-dot ${p.cls}"></span>${p.label} priorit&#224; </span>
                 <span class="badge badge-muted">${g.items.length}</span>
             </div>
             <ul style="padding:0">
@@ -233,7 +231,7 @@ function renderTask(tasks) {
 function renderTaskItem(t) {
     const s = STATI_TASK[t.stato] ?? STATI_TASK.da_fare;
     const scadenzaHtml = t.scadenza
-        ? `<span class="text-xs text-muted">📅 ${formatDate(t.scadenza)}</span>`
+        ? `<span class="text-xs text-muted">ðŸ“… ${formatDate(t.scadenza)}</span>`
         : '';
     const clienteHtml = t.clienteNome
         ? `<span class="text-xs text-muted"><i class="fa-solid fa-users"></i> ${t.clienteNome}</span>`
@@ -258,7 +256,7 @@ function renderTaskItem(t) {
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
             <span class="badge ${s.cls}">${s.icon} ${s.label}</span>
             <button class="btn btn-ghost btn-sm btn-icon" onclick="modificaTask(${t.id})"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaTask(${t.id})">🗑️</button>
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaTask(${t.id})">ðŸ—‘ï¸</button>
         </div>
     </li>`;
 }
@@ -272,7 +270,7 @@ async function toggleCompletato(id, checked) {
 
 function resetTaskForm() {
     document.getElementById('task-id').value = '';
-    document.getElementById('modal-task-title').innerHTML = '✅ Nuovo task';
+    document.getElementById('modal-task-title').innerHTML = 'âœ… Nuovo task';
     ['titolo','descrizione'].forEach(f => document.getElementById(`task-${f}`).value = '');
     document.getElementById('task-priorita').value = 'media';
     document.getElementById('task-stato').value = 'da_fare';
@@ -296,7 +294,7 @@ function modificaTask(id) {
 
 async function salvaTask() {
     const titolo = document.getElementById('task-titolo').value.trim();
-    if (!titolo) { showToast('Il titolo è obbligatorio', 'warning'); return; }
+    if (!titolo) { showToast('Il titolo &#232; obbligatorio', 'warning'); return; }
 
     const data = {
         titolo,

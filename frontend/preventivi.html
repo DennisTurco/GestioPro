@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Preventivi - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -17,7 +18,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -114,7 +115,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>N° Preventivo</th>
+                                <th>N&#176; Preventivo</th>
                                 <th>Cliente</th>
                                 <th>Importo</th>
                                 <th>Data emissione</th>
@@ -151,7 +152,7 @@
     <div class="modal" style="width:min(600px,95vw)">
         <div class="modal-header">
             <span id="modal-quotation-title"><i class="fa-solid fa-receipt"></i> Nuovo preventivo</span>
-            <button class="btn-close" data-modal-close="modal-quotation">✕</button>
+            <button class="btn-close" data-modal-close="modal-quotation"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="quotation-id">
@@ -169,11 +170,11 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Descrizione</label>
-                <textarea class="form-control" id="quotation-description" rows="2" placeholder="Sviluppo sito web, consulenza…"></textarea>
+                <textarea class="form-control" id="quotation-description" rows="2" placeholder="Sviluppo sito web, consulenza"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Importo (€) *</label>
+                    <label class="form-label">Importo (&#8364;) *</label>
                     <input type="number" class="form-control" id="quotation-amount" placeholder="0.00" step="0.01" min="0">
                 </div>
                 <div class="form-group">
@@ -202,7 +203,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Note Interne</label>
-                <textarea class="form-control" id="quotation-notes" rows="2" placeholder="Note aggiuntive…"></textarea>
+                <textarea class="form-control" id="quotation-notes" rows="2" placeholder="Note aggiuntive"></textarea>
             </div>
         </div>
         <div class="modal-footer">
@@ -216,13 +217,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load();
 let quotationList = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -511,7 +512,7 @@ function buildPdfTemplate(contentHtml) {
 
         <div class="pdf-header">
             <div class="brand">
-                <div class="logo">📄</div>
+                <div class="logo">ðŸ“„</div>
                 <div>
                     <div class="title">Preventivo</div>
                     <div class="subtitle">Documento generato automaticamente</div>

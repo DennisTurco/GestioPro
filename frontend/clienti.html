@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Clienti - GestioPro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -16,7 +17,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
         <nav class="sidebar-nav">
@@ -61,7 +62,7 @@
                 <div class="toolbar">
                     <div class="search-bar" style="width:260px">
                         <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" class="form-control" id="search-input" placeholder="Cerca cliente…">
+                        <input type="text" class="form-control" id="search-input" placeholder="Cerca cliente">
                     </div>
                     <div class="toolbar-right">
                         <button class="btn btn-ghost btn-sm" onclick="exportClienti()"><i class="fa-solid fa-download"></i> Esporta CSV</button>
@@ -77,7 +78,7 @@
                                 <th>Cliente</th>
                                 <th>Email</th>
                                 <th>Telefono</th>
-                                <th>Città</th>
+                                <th>Citt&#224; </th>
                                 <th>Fatture</th>
                                 <th style="width:100px">Azioni</th>
                             </tr>
@@ -91,7 +92,7 @@
                 </div>
 
                 <div class="card-footer text-muted text-sm" id="table-footer">
-                    Caricamento…
+                    Caricamento
                 </div>
             </div>
 
@@ -106,7 +107,7 @@
             <span id="modal-customer-title">
                 <i class="fa-solid fa-users"></i> Nuovo cliente
             </span>
-            <button class="btn-close" data-modal-close="modal-cliente">✕</button>
+            <button class="btn-close" data-modal-close="modal-cliente"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="customer-id">
@@ -186,7 +187,7 @@
                     <input type="text" class="form-control" id="customer-province">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Città</label>
+                    <label class="form-label">Citt&#224; </label>
                     <input type="text" class="form-control" id="customer-city">
                 </div>
             </div>
@@ -239,11 +240,11 @@
     <div class="modal">
         <div class="modal-header">
             <i class="fa-solid fa-triangle-exclamation"></i> Conferma eliminazione
-            <button class="btn-close" data-modal-close="modal-elimina">✕</button>
+            <button class="btn-close" data-modal-close="modal-elimina"><i class="fa-solid fa-x"></i></button>
         </div>
         <div class="modal-body">
             <p>Sei sicuro di voler eliminare <strong id="elimina-name"></strong>?</p>
-            <p class="text-muted text-sm mt-8">Questa azione non può essere annullata.</p>
+            <p class="text-muted text-sm mt-8">Questa azione non pu&#242; essere annullata.</p>
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-modal-close="modal-elimina">Annulla</button>
@@ -254,13 +255,13 @@
 
 <div class="toast-container"></div>
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 <script>
-UserStore.load();
 let tuttiClienti = [];
 let quotationList = []
 let clienteDaEliminare = null;
@@ -270,7 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadLoggedUser();
     await loadQuotations();
     await loadClienti();
-    await loadCustomeTypes();
+    loadCustomerTypes();
 
     document.getElementById('search-input').addEventListener('input', (e) => {
         renderTabella(filterItems(tuttiClienti, e.target.value, ['nome', 'email', 'citta', 'azienda']));
@@ -295,7 +296,7 @@ async function loadClienti() {
         const tbody = document.getElementById('clienti-tbody');
         setHTML(tbody, `<tr><td colspan="7" class="text-center text-muted" style="padding:32px">
             <i class="fa-solid fa-x"></i> Errore nel caricamento dei clienti.<br>
-            <span class="text-sm">Verificare che il server Spring Boot sia avviato.</span>
+            <span class="text-sm">Verificare che il server sia avviato.</span>
         </td></tr>`);
     }
 }
@@ -403,39 +404,37 @@ function updateCustomerFields() {
     const vatNumber   = document.getElementById('customer-vatNumber');
     const taxCode     = document.getElementById('customer-taxCode');
 
-    if (type === CUSTOMER_TYPES.COMPANY) {
-        companyName.disabled = false;
-        vatNumber.disabled = false;
-        taxCode.disabled = false;
-    } else if (type === CUSTOMER_TYPES.PUBLIC_ADMIN) {
-        companyName.disabled = false;
-        vatNumber.disabled = false;
-        taxCode.disabled = false;
-    } else if (type === CUSTOMER_TYPES.FREELANCER) {
-        companyName.disabled = false;
-        vatNumber.disabled = false;
-        taxCode.disabled = false;
-    } else if (type === CUSTOMER_TYPES.PRIVATE) {
-        companyName.disabled = true;
-        vatNumber.disabled = true;
-        companyName.value = null;
-        vatNumber.value = null;
-        taxCode.disabled = false;
+    switch (type) {
+        case CustomerType.Company:
+        case CustomerType.PublicAdmin:
+        case CustomerType.Freelancer:
+            companyName.disabled = false;
+            vatNumber.disabled = false;
+            taxCode.disabled = false;
+            break;
+
+        case CustomerType.Private:
+            companyName.disabled = true;
+            vatNumber.disabled = true;
+            companyName.value = "";
+            vatNumber.value = "";
+            taxCode.disabled = false;
+            break;
     }
 }
 
 async function saveCustomer() {
     const name = document.getElementById('customer-name').value.trim();
-    if (!name) { showToast('Il nome è obbligatorio', 'warning'); return; }
+    if (!name) { showToast('Il nome &#232; obbligatorio', 'warning'); return; }
 
     const surname = document.getElementById('customer-surname').value.trim();
-    if (!surname) { showToast('Il cognome è obbligatorio', 'warning'); return; }
+    if (!surname) { showToast('Il cognome &#232; obbligatorio', 'warning'); return; }
 
     const email = document.getElementById('customer-email').value.trim();
-    if (!email) { showToast(`L'email è obbligatoria`, 'warning'); return; }
+    if (!email) { showToast(`L'email &#232; obbligatoria`, 'warning'); return; }
 
     const phone = document.getElementById('customer-phone').value.trim();
-    if (!phone) { showToast('Il telefono è obbligatorio', 'warning'); return; }
+    if (!phone) { showToast('Il telefono &#232; obbligatorio', 'warning'); return; }
 
     const vatNumber = document.getElementById('customer-vatNumber').value.trim() || null;
     const taxCode = document.getElementById('customer-taxCode').value.trim()  || null;
@@ -443,20 +442,20 @@ async function saveCustomer() {
     const customerTypeId = document.getElementById("customer-type").value.trim() || null;
 
     if (!customerTypeId) {
-        showToast(`Il tipo cliente è obbligatorio`, 'warning'); return;
+        showToast(`Il tipo cliente &#232; obbligatorio`, 'warning'); return;
     }
 
-    if (customerTypeId === CUSTOMER_TYPES.COMPANY || customerTypeId === CUSTOMER_TYPES.PUBLIC_ADMIN || customerTypeId === CUSTOMER_TYPES.FREELANCER) {
-        if (!companyName) { showToast(`La ragione sociale è obbligatoria`, 'warning'); return; }
-        if (!vatNumber) { showToast(`La P.IVA è obbligatoria`, 'warning'); return; }
-        if (!taxCode) { showToast(`Il C.F. è obbligatorio`, 'warning'); return; }
+    if (customerTypeId === CustomerType.Company || customerTypeId === CustomerType.PublicAdmin || customerTypeId === CustomerType.Freelancer) {
+        if (!companyName) { showToast(`La ragione sociale &#232; obbligatoria`, 'warning'); return; }
+        if (!vatNumber) { showToast(`La P.IVA &#232; obbligatoria`, 'warning'); return; }
+        if (!taxCode) { showToast(`Il C.F. &#232; obbligatorio`, 'warning'); return; }
     }
 
-    if (customerTypeId === CUSTOMER_TYPES.COMPANY) {
+    if (customerTypeId === CustomerType.Company) {
         if (vatNumber != taxCode) { showToast(`La P.IVA deve essere uguale al C.F.`, 'warning'); return; }
-    } else if (customerTypeId === CUSTOMER_TYPES.PUBLIC_ADMIN) {
+    } else if (customerTypeId === CustomerType.PublicAdmin) {
         // TODO: check -> vatNumber != taxCode (taxCode must be numeric)
-    } else if (customerTypeId === CUSTOMER_TYPES.FREELANCER) {
+    } else if (customerTypeId === CustomerType.Freelancer) {
         // TODO: check -> taxCode is a normal taxCode
     }
 
@@ -498,21 +497,19 @@ async function saveCustomer() {
     }
 }
 
-async function loadCustomeTypes() {
+function loadCustomerTypes() {
     const select = document.getElementById('customer-type');
 
-    try {
-        const types = await CustomerTypeAPI.getAll();
-
-        select.innerHTML =
-            `<option value="">Seleziona tipo cliente</option>` +
-            types.map(t =>
-                `<option value="${t.id}">${t.name}</option>`
-            ).join('');
-    } catch (e) {
-        showToast(`Errore caricamento tipi cliente: ${e.message}`, 'error');
-        console.log(`Errore caricamento tipi cliente: ${e.message}`);
-    }
+    select.innerHTML =
+        `<option value="">Seleziona tipo cliente</option>` +
+        Object.values(CustomerType)
+            .filter(v => typeof v === "number")
+            .map(id => `
+                <option value="${id}">
+                    ${CustomerTypeLabel[id]}
+                </option>
+            `)
+            .join('');
 }
 
 function chiediElimina(id, nome) {
@@ -538,7 +535,7 @@ function exportClienti() {
     if (!tuttiClienti.length) { showToast('Nessun dato da esportare', 'warning'); return; }
     const header = ['Nome','Cognome','TipoCliente','Azienda','Email','Telefono','Nazione','Regione','Provincia','Città','Indirizzo','PartitaIVA','CodiceFiscale','TelefonoFisso','Latitudine','Longitudine','DataInserimento','DataUltimaModifica'].join(',');
     const rows = tuttiClienti.map(c =>
-        [c.name, c.surname, c.customerTypeName, c.companyName, c.email, c.phone, c.country, c.region, c.province, c.city, c.address, c.vatNumber, c.taxCode, c.landline, c.lat, c.lon, c.insertDate, c.lastUpdateDate]
+        [c.name, c.surname, c.customerType, c.companyName, c.email, c.phone, c.country, c.region, c.province, c.city, c.address, c.vatNumber, c.taxCode, c.landline, c.lat, c.lon, c.insertDate, c.lastUpdateDate]
         .map(v => `"${v ?? ''}"`).join(','));
     const csv = [header, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -548,13 +545,6 @@ function exportClienti() {
     a.click();
     showToast('CSV esportato', 'success');
 }
-
-const CUSTOMER_TYPES = {
-    COMPANY: "1",
-    PUBLIC_ADMIN: "2",
-    FREELANCER: "3",
-    PRIVATE: "4",
-};
 
 </script>
 </body>

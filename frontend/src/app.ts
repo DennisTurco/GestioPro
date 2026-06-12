@@ -6,6 +6,36 @@
  * - DOM utilities
  */
 
+/* ══════════ DARK MODE ══════════════════════════════ */
+
+function applyTheme(theme: string) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = document.getElementById('btn-theme-toggle');
+    if (btn) btn.innerHTML = theme === 'dark'
+        ? '<i class="fa-solid fa-sun"></i>'
+        : '<i class="fa-solid fa-moon"></i>';
+}
+
+function toggleDarkMode() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    applyTheme(next);
+}
+
+function initDarkModeToggle() {
+    const actions = document.querySelector('.topbar-actions');
+    if (!actions) return;
+    const btn = document.createElement('button');
+    btn.id = 'btn-theme-toggle';
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.title = 'Cambia tema';
+    btn.onclick = toggleDarkMode;
+    const saved = localStorage.getItem('theme') ?? 'light';
+    btn.innerHTML = saved === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    actions.insertBefore(btn, actions.firstChild);
+}
+
 /* ══════════ NAVIGATION ═════════════════════════════ */
 
 /**
@@ -26,7 +56,7 @@ const ROUTES = {
  * Navigates to a page.
  * @param {string} page  key in ROUTES
  */
-function navigateTo(page) {
+function navigateTo(page: string) {
     const file = ROUTES[page];
     if (file) window.location.href = file;
 }
@@ -53,7 +83,7 @@ function initSidebarActiveState() {
  * Opens a modal given its overlay element id.
  * @param {string} overlayId
  */
-function openModal(overlayId) {
+function openModal(overlayId: string) {
     const el = document.getElementById(overlayId);
     if (el) el.classList.add('open');
 }
@@ -62,7 +92,7 @@ function openModal(overlayId) {
  * Closes a modal given its overlay element id.
  * @param {string} overlayId
  */
-function closeModal(overlayId) {
+function closeModal(overlayId: string) {
     const el = document.getElementById(overlayId);
     if (el) el.classList.remove('open');
 }
@@ -98,15 +128,15 @@ function initModalCloseHandlers() {
  * @param {string} selector
  * @param {Element} [context=document]
  */
-const $ = (selector, context = document) => context.querySelector(selector);
-const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
+const $ = (selector: string, context = document) => context.querySelector(selector);
+const $$ = (selector: string, context = document) => [...context.querySelectorAll(selector)];
 
 /**
  * Clears an element and sets its inner HTML.
  * @param {Element} el
  * @param {string}  html
  */
-function setHTML(el, html) {
+function setHTML(el: Element, html: string) {
     if (el) el.innerHTML = html;
 }
 
@@ -114,7 +144,7 @@ function setHTML(el, html) {
  * Renders a loading spinner inside an element.
  * @param {Element} el
  */
-function showLoading(el) {
+function showLoading(el: Element) {
     setHTML(el, `<div class="text-center" style="padding:32px"><div class="spinner"></div></div>`);
 }
 
@@ -125,7 +155,7 @@ function showLoading(el) {
  * @param {string} [actionLabel]
  * @param {string} [actionCallback]
  */
-function showEmptyState(el, message = 'Nessun elemento', actionLabel = '', actionCallback = '') {
+function showEmptyState(el: Element, message = 'Nessun elemento', actionLabel = '', actionCallback = '') {
     const action = actionLabel
         ? `<button class="btn btn-primary" onclick="${actionCallback}">${actionLabel}</button>`
         : '';
@@ -145,7 +175,7 @@ function showEmptyState(el, message = 'Nessun elemento', actionLabel = '', actio
  * @param {string[]} fields     - object fields to search in
  * @returns {Array}
  */
-function filterItems(items, query, fields) {
+function filterItems(items: Array, query: string, fields: string[]) {
     if (!query.trim()) return items;
     const q = query.toLowerCase();
     return items.filter(item =>
@@ -161,15 +191,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         await UserStore.load();
 
         if (!UserStore.isAuthenticated()) {
-            window.location.href = '/login';
+            window.location.href = 'login.html';
             return;
         }
 
         initSidebarActiveState();
         initModalCloseHandlers();
+        initDarkModeToggle();
 
     } catch (e) {
         console.error('Auth error:', e);
-        window.location.href = '/login';
+        window.location.href = 'login.html';
     }
 });

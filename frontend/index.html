@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
     <title>Dashboard - GestioPro</title>
 
     <!-- THEME PRIMA DI TUTTO - solo questo file cambia per nuovo cliente -->
@@ -15,10 +16,10 @@
 
 <div class="app-shell">
 
-    <!-- ═══════ SIDEBAR ═══════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â• SIDEBAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon"><i class="fa-solid fa-manat-sign"></i></div>
+            <div class="logo-icon"><img src="./public/icon.svg"></div>
             GestioPro
         </div>
 
@@ -59,7 +60,7 @@
         </div>
     </aside>
 
-    <!-- ═══════ MAIN ══════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â• MAIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="main-content">
 
         <!-- Topbar -->
@@ -110,7 +111,7 @@
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-users"></i> Clienti recenti
-                        <button class="btn btn-ghost btn-sm" onclick="navigateTo('clienti')">Vedi tutti →</button>
+                        <button class="btn btn-ghost btn-sm" onclick="navigateTo('clienti')">Vedi tutti &#x2192;</button>
                     </div>
                     <div id="lista-clienti-recenti">
                         <div class="text-center text-muted" style="padding:32px"><div class="spinner"></div></div>
@@ -120,7 +121,7 @@
                 <div class="card">
                     <div class="card-header">
                         <i class="fa-solid fa-box"></i> Prodotti
-                        <button class="btn btn-ghost btn-sm" onclick="navigateTo('prodotti')">Vedi tutti →</button>
+                        <button class="btn btn-ghost btn-sm" onclick="navigateTo('prodotti')">Vedi tutti &#x2192;</button>
                     </div>
                     <div id="lista-prodotti-recenti">
                         <div class="text-center text-muted" style="padding:32px"><div class="spinner"></div></div>
@@ -133,13 +134,13 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa-solid fa-receipt"></i> Ultimi Preventivi
-                    <button class="btn btn-ghost btn-sm" onclick="navigateTo('preventivi')">Vedi tutti →</button>
+                    <button class="btn btn-ghost btn-sm" onclick="navigateTo('preventivi')">Vedi tutti &#x2192;</button>
                 </div>
                 <div class="table-wrapper" style="border:none;border-radius:0 0 var(--radius) var(--radius)">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>N° Preventivo</th>
+                                <th>NÂ° Preventivo</th>
                                 <th>Cliente</th>
                                 <th>Importo</th>
                                 <th>Data emissione</th>
@@ -165,7 +166,7 @@
     <div class="modal">
         <div class="modal-header">
             <i class="fa-solid fa-circle-plus"></i> Azione rapida
-            <button class="btn-close" data-modal-close="modal-azione-rapida">✕</button>
+            <button class="btn-close" data-modal-close="modal-azione-rapida">âœ•</button>
         </div>
         <div class="modal-body">
             <p class="text-muted mb-16">Cosa vuoi fare?</p>
@@ -182,14 +183,14 @@
 <div class="toast-container"></div>
 
 
-<script src="js/user.api.js"></script>
-<script src="js/store/user.store.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
-<script src="js/utils.js"></script>
+<script src="src/user.api.ts"></script>
+<script src="src/store/user.store.ts"></script>
+<script src="src/api.ts"></script>
+<script src="src/app.ts"></script>
+<script src="src/utils.ts"></script>
+<script src="src/enums.ts"></script>
 
 <script>
-UserStore.load();
 document.addEventListener('DOMContentLoaded', async () => {
     // Current date label
     const dateEl = document.getElementById('topbar-date');

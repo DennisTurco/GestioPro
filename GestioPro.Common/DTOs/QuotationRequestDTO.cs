@@ -1,10 +1,11 @@
+using GestioPro.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace GestioPro.Common.DTOs;
 
 public record QuotationRequestDTO(
     long CustomerId,
-    long QuotationStatusId,
+    QuotationStatus QuotationStatus,
     [Required] string Number,
     [Required, Range(0, float.MaxValue)] float Amount,
     [Required, Range(0, 100)] int VatPercentage,

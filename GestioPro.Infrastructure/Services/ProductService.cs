@@ -12,7 +12,6 @@ public class ProductService(AppDbContext context) : IProductService
     public async Task<List<ProductResponseDTO>> GetAllAsync()
         => await context.Products
             .Include(x => x.Category)
-            .Include(x => x.Status)
             .AsNoTracking()
             .Select(x => MapToDto(x))
             .ToListAsync(); 
@@ -21,7 +20,6 @@ public class ProductService(AppDbContext context) : IProductService
     {
         var product = await context.Products
             .Include(p => p.Category)
-            .Include(p => p.Status)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -39,7 +37,7 @@ public class ProductService(AppDbContext context) : IProductService
         var product = new Product
         {
             CategoryId = dto.CategoryId,
-            StatusId = dto.StatusId,
+            ProductStatus = dto.ProductStatus,
             Code = dto.Code,
             Ean = dto.Ean,
             Name = dto.Name,
@@ -57,12 +55,12 @@ public class ProductService(AppDbContext context) : IProductService
     {
         var entity = await context.Products
             .Include(p => p.Category)
-            .Include(p => p.Status)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (entity == null)
             throw new BusinessException("Prodotto non trovato");
 
+        entity.ProductStatus = dto.ProductStatus;
         entity.Code = dto.Code;
         entity.Name = dto.Name;
         entity.Description = dto.Description;
@@ -90,8 +88,7 @@ public class ProductService(AppDbContext context) : IProductService
             p.Id,
             p.CategoryId,
             p.Category.Name,
-            p.StatusId,
-            p.Status.Name.ToString(),
+            p.ProductStatus,
             p.Code,
             p.Ean,
             p.Name,
