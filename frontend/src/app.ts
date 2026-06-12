@@ -23,17 +23,38 @@ function toggleDarkMode() {
     applyTheme(next);
 }
 
+const REPORT_BUG_URL     = 'https://github.com/DennisTurco/GestioPro/issues/new';
+const SUPPORT_PROJECT_URL = 'https://github.com/sponsors/DennisTurco';
+
 function initDarkModeToggle() {
     const actions = document.querySelector('.topbar-actions');
     if (!actions) return;
-    const btn = document.createElement('button');
-    btn.id = 'btn-theme-toggle';
-    btn.className = 'btn btn-ghost btn-sm';
-    btn.title = 'Cambia tema';
-    btn.onclick = toggleDarkMode;
+
+    const makeLink = (href: string, icon: string, label: string, extraClass = '') => {
+        const a = document.createElement('a');
+        a.href = href;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = `btn btn-ghost btn-sm${extraClass ? ' ' + extraClass : ''}`;
+        a.title = label;
+        a.innerHTML = `<i class="${icon}"></i> ${label}`;
+        return a;
+    };
+
+    const support = makeLink(SUPPORT_PROJECT_URL, 'fa-solid fa-heart', 'Supporta', 'btn-support');
+    const bug     = makeLink(REPORT_BUG_URL,      'fa-solid fa-bug',   'Segnala bug');
+
+    const darkBtn = document.createElement('button');
+    darkBtn.id = 'btn-theme-toggle';
+    darkBtn.className = 'btn btn-ghost btn-sm';
+    darkBtn.title = 'Cambia tema';
+    darkBtn.onclick = toggleDarkMode;
     const saved = localStorage.getItem('theme') ?? 'light';
-    btn.innerHTML = saved === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-    actions.insertBefore(btn, actions.firstChild);
+    darkBtn.innerHTML = saved === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+
+    actions.insertBefore(darkBtn, actions.firstChild);
+    actions.insertBefore(bug,     actions.firstChild);
+    actions.insertBefore(support, actions.firstChild);
 }
 
 /* ══════════ NAVIGATION ═════════════════════════════ */

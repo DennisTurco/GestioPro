@@ -56,6 +56,9 @@
 .btn-ghost:hover { background: var(--color-surface-hover); color: var(--color-text); }
 
 .btn-sm { padding: 5px 12px; font-size: var(--font-size-sm); }
+
+.btn-support { color: #e11d48; border-color: rgba(225,29,72,0.25); }
+.btn-support:hover { background: rgba(225,29,72,0.08); color: #e11d48; }
 .btn-lg { padding: 11px 22px; font-size: var(--font-size-md); }
 .btn-icon { padding: 8px; }
 

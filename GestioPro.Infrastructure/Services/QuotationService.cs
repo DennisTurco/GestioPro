@@ -4,6 +4,7 @@ using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
+using GestioPro.Common.Enums;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -34,7 +35,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
         if (existing is not null)
             throw new BusinessException("Esiste già un preventivo con lo stesso numero");
 
-        DateTimeOffset now = DateTimeOffset.Now;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         var quotation = new Quotation
         {
             CustomerId = dto.CustomerId,
@@ -86,6 +87,23 @@ public class QuotationService(AppDbContext context) : IQuotationService
         await context.SaveChangesAsync();
         return MapToDto(quotation);
     }
+
+    public async Task<QuotationResponseDTO> UpdateStatusAsync(long id, QuotationStatus status)
+    {
+        var quotation = await context.Quotations
+            .Include(q => q.Customer)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (quotation is null)
+            throw new BusinessException("Preventivo non trovato");
+
+        quotation.QuotationStatus = status;
+        quotation.LastUpdateDate = DateTimeOffset.Now;
+
+        await context.SaveChangesAsync();
+        return MapToDto(quotation);
+    }
+
 
     public async Task DeleteAsync(long id)
     {

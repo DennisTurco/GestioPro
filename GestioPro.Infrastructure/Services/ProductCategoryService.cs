@@ -34,9 +34,13 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
         if (existing)
             throw new BusinessException("Esiste già una categoria prodotto con lo stesso nome");
 
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         var entity = new ProductCategory
         {
-            Name = dto.Name
+            Name = dto.Name,
+            Description = dto.Description,
+            CreationDate = now,
+            LastUpdateDate = now,
         };
 
         await context.AddAsync(entity);
@@ -52,6 +56,8 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
             throw new BusinessException("Categoria prodotto non trovata");
 
         existing.Name = dto.Name;
+        existing.Description = dto.Description;
+        existing.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
         return MapToDto(existing);
@@ -72,6 +78,9 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
     private static ProductCategoryResponseDTO MapToDto(ProductCategory p)
         => new (
             p.Id,
-            p.Name
+            p.Name,
+            p.Description,
+            p.CreationDate,
+            p.LastUpdateDate
         );
 }

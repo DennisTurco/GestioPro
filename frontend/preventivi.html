@@ -103,6 +103,7 @@
                         <input type="text" class="form-control" id="search-input" placeholder="Cerca preventivo">
                     </div>
                     <select class="form-control" id="quotation-status-filter" style="width:auto">
+                        <option value="">Tutti gli stati</option>
                     </select>
                     <select class="form-control" id="quotation-customer-filter" style="width:auto">
                     </select>
@@ -229,8 +230,7 @@ let quotationList = [];
 document.addEventListener('DOMContentLoaded', async () => {
     await loadLoggedUser();
     await loadQuotationCustomers();
-    await loadQuotationStatuses(document.getElementById('quotation-status'), 'Seleziona lo stato del preventivo');
-    await loadQuotationStatuses(document.getElementById('quotation-status-filter'), 'Tutti gli stati');
+    loadQuotationStatuses();
 
     // Set today's date as default
     const oggi = new Date().toISOString().slice(0,10);
@@ -272,7 +272,7 @@ function applyFilters() {
     const statusId = parseInt(document.getElementById('quotation-status-filter').value);
     const customerId = parseInt(document.getElementById('quotation-customer-filter').value);
     let risultati = filterItems(quotationList, q, ['number', 'customerName']);
-    if (statusId) risultati = risultati.filter(f => f.quotationStatusId === statusId);
+    if (statusId) risultati = risultati.filter(f => f.quotationStatus === statusId);
     if (customerId) risultati = risultati.filter(f => f.customerId === customerId);
     renderTabella(risultati);
 }
@@ -302,10 +302,10 @@ function renderTabella(preventivi) {
     }
 
     setHTML(tbody, preventivi.map(f => {
-        const status = getQuotationStatusById(f.quotationStatusId);
+        const status = getQuotationStatusById(f.quotationStatus);
         return `<tr>
             <td class="font-medium">${f.number}</td>
-            <td>${f.customerSurname}</td>
+            <td>${f.customerName}</td>
             <td class="font-semibold">${formatCurrency(f.amount)}</td>
             <td>${formatDate(f.issueDate)}</td>
             <td>${formatDate(f.validityDate)}</td>
@@ -326,11 +326,11 @@ function updateKpi(preventivi) {
 
     document.getElementById('kpi-tot').textContent = preventivi.length;
 
-    const draft     = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.draft.id);
-    const sent      = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.sent.id);
-    const accepted  = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.accepted.id);
-    const rejected  = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.rejected.id);
-    const expired   = preventivi.filter(f => f.quotationStatusId === QUOTATION_STATUSES.expired.id);
+    const draft     = preventivi.filter(f => f.quotationStatus === QuotationStatus.Draft);
+    const sent      = preventivi.filter(f => f.quotationStatus === QuotationStatus.Sent);
+    const accepted  = preventivi.filter(f => f.quotationStatus === QuotationStatus.Accepted);
+    const rejected  = preventivi.filter(f => f.quotationStatus === QuotationStatus.Rejected);
+    const expired   = preventivi.filter(f => f.quotationStatus === QuotationStatus.Expired);
 
     document.getElementById('kpi-draft').textContent =
         draft.length;
@@ -369,20 +369,19 @@ async function salvaQuotation() {
     const customerId = document.getElementById('quotation-customer').value || null;
     if (!customerId) { showToast('Cliente preventivo obbligatorio', 'warning'); return; }
 
-    const quotationStatusId = document.getElementById("quotation-status").value || null;
-    if (!quotationStatusId) { showToast('Stato preventivo obbligatorio', 'warning'); return; }
+    const quotationStatus = document.getElementById("quotation-status").value || null;
+    if (!quotationStatus) { showToast('Stato preventivo obbligatorio', 'warning'); return; }
 
     const data = {
         number,
-        quotationStatusId,
-        customerId,
+        quotationStatus:    parseInt(quotationStatus),
+        customerId:         parseInt(customerId),
         description:        document.getElementById('quotation-description').value.trim() || null,
         amount,
-        vatPercentage:      parseFloat(document.getElementById('quotation-vatPercentage').value) || 0,
-        discountPercentage: parseFloat(document.getElementById('quotation-discountPercentage').value) || 0,
+        vatPercentage:      parseInt(document.getElementById('quotation-vatPercentage').value) || 0,
+        discountPercentage: parseInt(document.getElementById('quotation-discountPercentage').value) || 0,
         issueDate:          document.getElementById('quotation-issueDate').value || null,
         validityDate:       document.getElementById('quotation-validityDate').value || null,
-        quotationStatus:    document.getElementById('quotation-status').value,
         notes:              document.getElementById('quotation-notes').value.trim() || null,
     };
 
@@ -405,7 +404,7 @@ function modificaQuotation(id) {
     document.getElementById('quotation-id').value          = f.id;
     document.getElementById('modal-quotation-title').innerHTML = '<i class="fa-solid fa-pen"></i> Modifica preventivo';
     document.getElementById('quotation-number').value      = f.number ?? '';
-    document.getElementById('quotation-status').value      = f.quotationStatusId;
+    document.getElementById('quotation-status').value      = f.quotationStatus;
     document.getElementById('quotation-customer').value     = f.customerId ?? '';
     document.getElementById('quotation-description').value = f.description ?? '';
     document.getElementById('quotation-amount').value     = f.amount ?? '';
@@ -416,18 +415,17 @@ function modificaQuotation(id) {
     openModal('modal-quotation');
 }
 
-async function loadQuotationStatuses(document, defaultText) {
-    try {
-        const types = await QuotationStatusAPI.getAll();
+function loadQuotationStatuses() {
+    const sel = document.getElementById('quotation-status');
+    const filterSel = document.getElementById('quotation-status-filter')
+    sel.innerHTML = '<option value="">Seleziona lo stato del preventivo</option>';
+    filterSel.innerHTML = '<option value="">Tutti gli stati</option>';
 
-        document.innerHTML =
-            `<option value="">${defaultText}</option>` +
-            types.map(t =>
-                `<option value="${t.id}">${getQuotationStatusById(t.id).label}</option>`
-            ).join('');
-    } catch (e) {
-        showToast(`Errore caricamento stati preventivo: ${e.message}`, 'error');
-    }
+    Object.entries(QuotationStatusInfo).forEach(([id, info]) => {
+        const option = `<option value="${id}">${info.text}</option>`;
+        sel.insertAdjacentHTML('beforeend', option);
+        filterSel.insertAdjacentHTML('beforeend', option);
+    });
 }
 
 async function loadQuotationCustomers() {
@@ -453,7 +451,7 @@ async function loadQuotationCustomers() {
 
 async function segnaComeAccettato(id) {
     try {
-        await QuotationAPI.statusUpdate(id, QUOTATION_STATUSES.accepted.id);
+        await QuotationAPI.statusUpdate(id, QuotationStatus.Accepted);
         showToast('Preventivo segnato come accettato <i class="fa-solid fa-calendar-check"></i><', 'success');
         await loadQuotations();
     } catch (e) { showToast(`Errore: ${e.message}`, 'error'); }
@@ -461,7 +459,7 @@ async function segnaComeAccettato(id) {
 
 async function segnaComeRifiutato(id) {
     try {
-        await QuotationAPI.statusUpdate(id, QUOTATION_STATUSES.rejected.id);
+        await QuotationAPI.statusUpdate(id, QuotationStatus.Rejected);
         showToast('Preventivo segnato come rifiutato <i class="fa-solid fa-calendar-check"></i><', 'success');
         await loadQuotations();
     } catch (e) { showToast(`Errore: ${e.message}`, 'error'); }
@@ -471,7 +469,7 @@ function exportQuotations() {
     if (!quotationList.length) { showToast('Nessun dato da esportare', 'warning'); return; }
     const header = ['Numero','Cliente','Stato','Importo','IVA%','Sconto%','Emissione','Scadenza','Creazione','UltimoAggiornamento','Descrizione','Note'].join(',');
     const rows = quotationList.map(q =>
-        [q.number, q.customerSurname, getQuotationStatusById(q.quotationStatusId).label, q.amount, q.vatPercentage, q.discountPercentage, q.issueDate, q.validityDate, q.creationDate, q.lastUpdateDate, q.description, q.notes]
+        [q.number, q.customerName, getQuotationStatusById(q.quotationStatus).label, q.amount, q.vatPercentage, q.discountPercentage, q.issueDate, q.validityDate, q.creationDate, q.lastUpdateDate, q.description, q.notes]
         .map(v => `"${v ?? ''}"`).join(','));
     const csv = [header, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });

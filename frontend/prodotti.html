@@ -128,7 +128,7 @@
                 <!-- STATO -->
                 <div class="form-group">
                     <label class="form-label">Stato *</label>
-                    <select class="form-control" id="prodotto-statusId" required></select>
+                    <select class="form-control" id="prodotto-status" required></select>
                 </div>
             </div>
 
@@ -218,8 +218,10 @@ let prodottoDaEliminare = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadLoggedUser();
-    await Promise.all([loadCategorie(), loadStatuses()]);
+    await Promise.all([loadCategorie()]);
     await loadProdotti();
+
+    loadStatuses()
 
     document.getElementById('search-input').addEventListener('input', applyFilters);
     document.getElementById('filter-categoria').addEventListener('change', applyFilters);
@@ -257,19 +259,19 @@ async function loadCategorie() {
     }
 }
 
-async function loadStatuses() {
-    try {
-        statuses = await ProductStatusAPI.getAll();
-        const sel = document.getElementById('prodotto-statusId');
-        const filterSel = document.getElementById('filter-stato');
-        statuses.forEach(s => {
-            const label = s.name === 'NEW' ? 'Nuovo' : s.name === 'USED' ? 'Usato' : s.name;
-            sel.insertAdjacentHTML('beforeend', `<option value="${s.id}">${label}</option>`);
-            filterSel.insertAdjacentHTML('beforeend', `<option value="${s.id}">${label}</option>`);
-        });
-    } catch (e) {
-        showToast('Errore caricamento stati: ' + e.message, 'error');
-    }
+function loadStatuses() {
+    const sel = document.getElementById('prodotto-status');
+    const filterSel = document.getElementById('filter-stato');
+
+    sel.innerHTML = '<option value="">Seleziona stato</option>';
+    filterSel.innerHTML = '<option value="">Tutti gli stati</option>';
+
+    Object.entries(ProductStatusInfo).forEach(([id, info]) => {
+        const option = `<option value="${id}">${info.text}</option>`;
+
+        sel.insertAdjacentHTML('beforeend', option);
+        filterSel.insertAdjacentHTML('beforeend', option);
+    });
 }
 
 function renderTabella(items) {
@@ -293,10 +295,13 @@ function renderTabella(items) {
     }
 
     setHTML(tbody, items.map(p => {
-        const statusLabel = p.statusName === 'NEW' ? '<span class="badge badge-success">Nuovo</span>'
-                          : p.statusName === 'USED' ? '<span class="badge badge-warning">Usato</span>'
-                          : `<span class="badge badge-muted">${p.statusName ?? '-'}</span>`;
-        const qty = p.quantity != null ? p.quantity : '<span class="text-muted">â€”</span>';
+        const statusLabel =
+            p.productStatus === ProductStatus.New
+                ? `<span class="badge ${ProductStatusInfo[ProductStatus.New].cls}">${ProductStatusInfo[ProductStatus.New].text}</span>`
+                : p.productStatus === ProductStatus.Used
+                ? `<span class="badge ${ProductStatusInfo[ProductStatus.Used].cls}">${ProductStatusInfo[ProductStatus.Used].text}</span>`
+                : `<span class="badge badge-muted">${p.statusName ?? '-'}</span>`;
+        const qty = p.quantity != null ? p.quantity : '<span class="text-muted">-</span>';
         const price = p.price != null ? formatCurrency(p.price) : '-';
         return `
         <tr>
@@ -335,7 +340,7 @@ function applyFilters() {
         );
     }
     if (catId) filtered = filtered.filter(p => String(p.categoryId) === catId);
-    if (statusId) filtered = filtered.filter(p => String(p.statusId) === statusId);
+    if (statusId) filtered = filtered.filter(p => String(p.productStatus) === statusId);
 
     renderTabella(filtered);
 }
@@ -365,7 +370,7 @@ function editProdotto(id) {
     document.getElementById('prodotto-vatPercentage').value = p.vatPercentage ?? 22;
     document.getElementById('prodotto-price').value = p.price ?? '';
     document.getElementById('prodotto-categoryId').value = p.categoryId ?? '';
-    document.getElementById('prodotto-statusId').value = p.statusId ?? '';
+    document.getElementById('prodotto-status').value = p.productStatus ?? '';
 
     setHTML(document.getElementById('modal-prodotto-title'), '<i class="fa-solid fa-pencil"></i> Modifica prodotto');
     openModal('modal-prodotto');
@@ -374,8 +379,8 @@ function editProdotto(id) {
 async function saveProdotto() {
     const id = document.getElementById('prodotto-id').value;
     const dto = {
-        productCategoryId: Number(document.getElementById('prodotto-categoryId').value) || null,
-        productStatusId:   Number(document.getElementById('prodotto-statusId').value) || null,
+        categoryId: Number(document.getElementById('prodotto-categoryId').value) || null,
+        productStatus:   Number(document.getElementById('prodotto-status').value) || null,
         code:              document.getElementById('prodotto-code').value.trim(),
         ean:               document.getElementById('prodotto-ean').value.trim() || null,
         name:              document.getElementById('prodotto-name').value.trim(),
@@ -385,7 +390,7 @@ async function saveProdotto() {
         price:             parseFloat(document.getElementById('prodotto-price').value),
     };
 
-    if (!dto.code || !dto.name || !dto.productCategoryId || !dto.productStatusId || !dto.price || !dto.vatPercentage) {
+    if (!dto.code || !dto.name || !dto.categoryId || !dto.productStatus || !dto.price || !dto.vatPercentage) {
         showToast('Compila tutti i campi obbligatori', 'warning');
         return;
     }
@@ -425,17 +430,38 @@ async function confermaElimina() {
 }
 
 function exportProducts() {
-    if (!tuttiProdotti.length) { showToast('Nessun dato da esportare', 'warning'); return; }
-    const header = ['Codice','Nome','Categoria','Stato','EAN','Quantit&#224; ','IVA%','Prezzo','Descrizione'].join(',');
-    const rows = tuttiProdotti.map(p =>
-        [p.code,p.name,p.productCategoryId,p.productStatusId,p.ean,p.quantity,p.vatPercentage,p.price,p.description]
-        .map(v => `"${v ?? ''}"`).join(','));
+    if (!tuttiProdotti.length) {
+        showToast('Nessun dato da esportare', 'warning');
+        return;
+    }
+
+    const header = ['Codice','Nome','Categoria','Stato','EAN','Quantità','IVA%','Prezzo','Descrizione'].join(',');
+    const rows = tuttiProdotti.map(p => {
+        const statusText = ProductStatusInfo[p.productStatus]?.text ?? '';
+
+        return [
+            p.code,
+            p.name,
+            p.categoryName,
+            statusText,
+            p.ean,
+            p.quantity,
+            p.vatPercentage,
+            p.price,
+            p.description
+        ]
+        .map(v => `"${v ?? ''}"`)
+        .join(',');
+    });
+
     const csv = [header, ...rows].join('\n');
+
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `prodotti_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
+
     showToast('CSV esportato', 'success');
 }
 </script>

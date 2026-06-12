@@ -5,7 +5,10 @@
  * Base URL: window.location.origin (so the app works on any port).
  */
 
-const API_BASE = window.location.origin + '/api/v1';
+// In Electron (file:// protocol) point directly to the backend
+const API_BASE = window.location.protocol === 'file:'
+    ? 'https://localhost:7160/api/v1'
+    : window.location.origin + '/api/v1';
 
 /**
  * Fetch wrapper with centralised error handling.
@@ -45,6 +48,7 @@ async function apiFetch(endpoint: string, opts = {}) {
                 (data.errors?.[0]?.field ? data.errors[0].field + ', ' : '') +
                 (data.errors?.[0]?.defaultMessage ||
                 data.message ||
+                data.title ||
                 data.error ||
                 response.statusText);
         } else {
@@ -127,12 +131,6 @@ const ProductAPI = {
     delete: (id: number) => apiFetch(`/products/${id}`, { method: 'DELETE' }),
 };
 
-/* ═══════════════ PRODUCT STATUS ════════════════════════ */
-
-const ProductStatusAPI = {
-    getAll: () => apiFetch('/product-statuses'),
-};
-
 /* ═══════════════ PRODUCT CATEGORY ════════════════════════ */
 
 const ProductCategoryAPI = {
@@ -147,7 +145,11 @@ const QuotationAPI = {
     getAll:         ()       => apiFetch('/quotations'),
     getById:        (id: number)     => apiFetch(`/quotations/${id}`),
     create:         (data)   => apiFetch('/quotations', { method: 'POST', body: JSON.stringify(data) }),
-    statusUpdate:   (id: number, statusId)  => apiFetch(`/quotations/status-update/${id}`, { method: 'PUT', body: JSON.stringify(statusId) }),
+    statusUpdate: (id: number, statusId) =>
+    apiFetch(`/quotations/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify(statusId)
+    }),
     update:         (id: number, d)  => apiFetch(`/quotations/${id}`, { method: 'PUT', body: JSON.stringify(d) }),
     delete:         (id: number)     => apiFetch(`/quotations/${id}`, { method: 'DELETE' }),
 };

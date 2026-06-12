@@ -8,7 +8,6 @@ namespace GestioPro.Api.Controllers;
 [Route("api/v1/product-categories")]
 public class ProductCategoriesController(IProductCategoryService productCategoryService) : ControllerBase
 {
-
     /// <summary>
     /// Return all product categories
     /// </summary>

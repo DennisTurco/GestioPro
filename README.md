@@ -1,6 +1,6 @@
 # GestioPro
 
-Business management application (customers, products, quotations, invoices, contracts) for **freelancers and self-employed professionals**, built with **ASP.NET Core 10**, **Entity Framework Core**, and a **TypeScript/Vite** frontend.
+Business management application (customers, products, quotations, invoices, contracts) for **freelancers and self-employed professionals**, built with **ASP.NET Core 10**, **Entity Framework Core**, and a **TypeScript/Vite** frontend. Available as both a **web app** and a **desktop app** (via Electron).
 
 ---
 
@@ -10,16 +10,18 @@ Business management application (customers, products, quotations, invoices, cont
 GestioPro/
 ├── GestioPro.slnx              ← Solution file (open with VS 2022 17.13+ or dotnet CLI)
 │
-├── GestioPro.Common/           ← Shared layer (Models, DTOs, Interfaces, Enums, Mappers, Exceptions)
+├── GestioPro.Common/           ← Shared layer (Models, DTOs, Interfaces, Enums, Exceptions)
 ├── GestioPro.Infrastructure/   ← Data layer (AppDbContext, Services with EF Core + LINQ)
 ├── GestioPro.Api/              ← Web API layer (Controllers, Program.cs, DI registration)
 │   ├── icon.ico                ← Application icon
-│   └── appsettings.json        ← Connection string and configuration
+│   └── appsettings.json        ← Connection string, JWT config
 │
-└── frontend/                   ← TypeScript + Vite frontend
-    ├── src/                    → .ts source files
+└── frontend/                   ← TypeScript + Vite frontend (web + Electron desktop)
+    ├── electron/               → Electron main process (main.js)
+    ├── src/                    → .ts source files (api, store, app logic)
     ├── *.html                  → HTML pages
-    ├── css/                    → Stylesheets
+    ├── css/                    → Stylesheets (theme.css supports dark mode)
+    ├── public/                 → Static assets (icon.svg)
     ├── vite.config.ts          → Dev server (port 3000, proxies /api to backend)
     └── package.json
 ```
@@ -76,41 +78,41 @@ Then update the connection string in `GestioPro.Api/appsettings.json`:
 ## 2. Run the Backend (API)
 
 ```bash
-# From the repo root
 cd GestioPro.Api
 dotnet run
 ```
 
 The API will be available at:
 
-- HTTP:  https://localhost:5164
 - HTTPS: https://localhost:7160
-- HTTPS: https://localhost:7160/swagger.index.html
-
-To run in a specific environment:
+- Swagger: https://localhost:7160/swagger/index.html
 
 ```bash
-dotnet run --environment Development
-dotnet run --environment Production
-```
-
-To build the full solution:
-
-```bash
+# Build the full solution
 dotnet build GestioPro.slnx
 ```
 
 ### EF Core Migrations
 
 ```bash
-# To DROP the current db (if needed)
-dotnet ef database drop --project GestioPro.Infrastructure --startup-project GestioPro.Api
-
-# Add a new migration (run from repo root)
+# Add a new migration
 dotnet ef migrations add InitialCreate --project GestioPro.Infrastructure --startup-project GestioPro.Api
 
 # Apply migrations to the database
 dotnet ef database update --project GestioPro.Infrastructure --startup-project GestioPro.Api
+
+# Drop the database (if needed)
+dotnet ef database drop --project GestioPro.Infrastructure --startup-project GestioPro.Api
+```
+
+### First-time user setup
+
+There is no default user. Use the **Register** form on the login page to create your account, or call the API directly:
+
+```bash
+curl -X POST https://localhost:7160/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Mario","surname":"Rossi","username":"admin","email":"admin@example.com","password":"secret"}'
 ```
 
 ---
@@ -120,47 +122,95 @@ dotnet ef database update --project GestioPro.Infrastructure --startup-project G
 ```bash
 cd frontend
 npm install       # first time only
-npm run dev       # starts Vite dev server on http://localhost:3000
 ```
 
-The frontend proxies all `/api` calls to the backend automatically — no CORS issues in development.
-
-To build for production:
+### Web version
 
 ```bash
-npm run build     # output in frontend/dist/
+npm run dev       # Vite dev server → http://localhost:3000
+npm run build     # production build → frontend/dist/
 ```
+
+All `/api` calls are proxied to `https://localhost:7160` automatically — no CORS issues in development.
+
+### Desktop version (Electron)
+
+```bash
+npm run electron:dev    # starts Vite + Electron together (backend must be running separately)
+```
+
+The Electron window opens automatically once the Vite dev server is ready. The backend still needs to be started manually in development (same as the web version).
 
 ---
 
 ## 4. Full Stack — Start Everything
 
+### Web
+
 Open **two terminals**:
 
-**Terminal 1 — Backend:**
-
 ```bash
-cd GestioPro.Api
-dotnet run
+# Terminal 1 — Backend
+cd GestioPro.Api && dotnet run
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
 ```
 
-**Terminal 2 — Frontend:**
+Open **http://localhost:3000** in your browser.
+
+### Desktop
 
 ```bash
-cd frontend
-npm run dev
+# Terminal 1 — Backend
+cd GestioPro.Api && dotnet run
+
+# Terminal 2 — Electron
+cd frontend && npm run electron:dev
 ```
 
-Then open your browser at **http://localhost:3000**.
+The desktop window opens automatically.
 
 ---
 
-## 5. API Endpoints
+## 5. Build for Distribution (Desktop)
+
+First, publish the backend as a self-contained executable:
+
+```bash
+dotnet publish GestioPro.Api -c Release -r win-x64 --self-contained -o GestioPro.Api/bin/Release/net10.0/win-x64/publish
+```
+
+Then build and package the Electron app:
+
+```bash
+cd frontend
+npm run electron:build   # output in frontend/dist-electron/
+```
+
+This produces a Windows installer (`.exe`) in `frontend/dist-electron/`. The packaged app starts the backend automatically — no separate terminal needed.
+
+---
+
+## 6. Authentication
+
+Authentication uses **JWT Bearer tokens**.
+
+- `POST /api/v1/auth/register` — create a new account
+- `POST /api/v1/auth/login` — returns `{ token, user }`
+
+The token is stored in `localStorage` and sent automatically with every API call via `Authorization: Bearer <token>`. All protected endpoints require a valid token.
+
+---
+
+## 7. API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
+| POST | `/api/v1/auth/login` | Login, returns JWT token |
+| POST | `/api/v1/auth/register` | Register new account |
+| GET | `/api/v1/users/me` | Get current user (auth required) |
 | GET | `/api/v1/customers` | List all customers |
-| GET | `/api/v1/customers/{id}` | Get customer by ID |
 | POST | `/api/v1/customers` | Create customer |
 | PUT | `/api/v1/customers/{id}` | Update customer |
 | DELETE | `/api/v1/customers/{id}` | Delete customer |
@@ -171,53 +221,25 @@ Then open your browser at **http://localhost:3000**.
 | GET | `/api/v1/product-categories` | List product categories |
 | GET | `/api/v1/quotations` | List all quotations |
 | POST | `/api/v1/quotations` | Create quotation |
-| GET | `/api/v1/users` | List users |
-| GET | `/api/v1/settings` | List settings |
+| GET | `/api/v1/settings` | Get settings |
+| PUT | `/api/v1/settings` | Update settings |
 
 ---
 
-## 6. DI Registration (how it works)
+## 8. Dark Mode
 
-Services are registered in `GestioPro.Api/Program.cs`. As you implement each service, uncomment the corresponding line:
-
-```csharp
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IProductService, ProductService>();
-// ...
-```
-
-The controllers receive services via **constructor injection** (primary constructor syntax):
-```csharp
-public class CustomersController(ICustomerService customerService) : ControllerBase { }
-```
+The app supports light and dark mode. The toggle button is in the top bar on every page. The preference is saved in `localStorage` and applied immediately on page load (no flash).
 
 ---
 
-## 7. Implementation Guide (TODOs)
-
-The services and controllers contain `// TODO` comments to guide your implementation. Start from:
-
-1. `GestioPro.Common/Mappers/CustomerMapper.cs` — implement `ToResponseDto()` and `ToEntity()`
-2. `GestioPro.Infrastructure/Services/CustomerService.cs` — implement with LINQ + async/await + EF Core
-3. `GestioPro.Api/Controllers/CustomersController.cs` — implement action methods
-4. Uncomment `AddScoped<ICustomerService, CustomerService>()` in `Program.cs`
-5. Repeat for `Product`, `Quotation`, `User`, `Settings`
-
-**Key .NET concepts to practice:**
-- **LINQ**: `Where()`, `Select()`, `Include()`, `FirstOrDefaultAsync()`, `AnyAsync()`
-- **EF Core**: `context.Customers.ToListAsync()`, `context.SaveChangesAsync()`
-- **async/await**: all service and controller methods are already `async Task<>`
-- **DI**: `AddScoped` / `AddTransient` / `AddSingleton` in `Program.cs`
-- **TypeScript**: convert `frontend/src/*.ts` files (typed API calls, interfaces for DTOs)
-
----
-
-## 8. Tech Stack
+## 9. Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Backend | ASP.NET Core 10 Web API |
 | ORM | Entity Framework Core 10 |
 | Database | PostgreSQL 15 |
+| Auth | JWT Bearer (System.IdentityModel.Tokens.Jwt) |
 | Frontend | TypeScript + Vite |
+| Desktop | Electron |
 | Containerization | Docker Compose |

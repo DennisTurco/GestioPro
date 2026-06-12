@@ -1,4 +1,5 @@
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Enums;
 using GestioPro.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +52,22 @@ public class QuotationsController(IQuotationService quotationService) : Controll
     public async Task<IActionResult> Update(long id, [FromBody] QuotationRequestDTO dto)
     {
         var updated = await quotationService.UpdateAsync(id, dto);
+
+        if (updated is null)
+            return NotFound();
+
+        return Ok(updated);
+    }
+
+    /// <summary>
+    /// Update a quotation status
+    /// </summary>
+    /// <param name="id">Quotation ID</param>
+    /// <param name="status">New quotation status</param>
+    [HttpPatch("{id:long}/status")]
+    public async Task<IActionResult> UpdateStatus(long id, [FromBody] QuotationStatus status)
+    {
+        var updated = await quotationService.UpdateStatusAsync(id, status);
 
         if (updated is null)
             return NotFound();

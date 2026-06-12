@@ -1,19 +1,48 @@
 {
-  "name": "frontend",
+  "name": "gestiopro",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "GestioPro desktop & web",
+  "main": "electron/main.js",
   "scripts": {
-    "preview": "vite preview",
-    "build": "tsc && vite build",
-    "dev": "vite"
+    "dev":            "vite",
+    "build":          "vite build",
+    "preview":        "vite preview",
+    "electron:dev":   "concurrently \"vite\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "vite build && electron-builder"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "concurrently": "^10.0.3",
+    "electron": "^42.4.0",
+    "electron-builder": "^26.15.2",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "wait-on": "^9.0.10"
+  },
+  "build": {
+    "appId": "it.dotblue.gestiopro",
+    "productName": "GestioPro",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.svg"
+    },
+    "extraResources": [
+      {
+        "from": "../GestioPro.Api/bin/Release/net10.0/win-x64/publish/",
+        "to": "backend",
+        "filter": ["**/*"]
+      }
+    ]
   }
 }

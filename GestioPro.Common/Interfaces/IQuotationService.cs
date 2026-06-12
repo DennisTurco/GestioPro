@@ -1,4 +1,5 @@
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Enums;
 
 namespace GestioPro.Common.Interfaces;
 
@@ -8,5 +9,6 @@ public interface IQuotationService
     Task<QuotationResponseDTO?> GetByIdAsync(long id);
     Task CreateAsync(QuotationRequestDTO dto);
     Task<QuotationResponseDTO> UpdateAsync(long id, QuotationRequestDTO dto);
+    Task<QuotationResponseDTO> UpdateStatusAsync(long id, QuotationStatus status);
     Task DeleteAsync(long id);
 }
