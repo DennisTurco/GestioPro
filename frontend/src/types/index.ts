@@ -29,6 +29,13 @@ export interface User {
   createdDate: string
 }
 
+export interface UserRequest {
+    username: string
+    email: string
+    name: string
+    surname: string
+}
+
 export interface Customer {
   id: number
   customerType: CustomerType

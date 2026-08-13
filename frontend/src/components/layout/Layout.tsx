@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import Sidebar from './Sidebar'
 import ToastContainer from '../ui/Toast'
+import ErrorBoundary from '../ui/ErrorBoundary'
 
 const REPORT_BUG_URL      = 'https://github.com/DennisTurco/GestioPro/issues/new'
 const SUPPORT_PROJECT_URL = 'https://github.com/sponsors/DennisTurco'
@@ -39,7 +40,6 @@ export default function Layout() {
       <Sidebar />
       <div className="main-content">
         <header className="topbar">
-          <div className="topbar-title" id="topbar-title">GestioPro</div>
           <div className="topbar-actions">
             <a href={SUPPORT_PROJECT_URL} target="_blank" rel="noopener noreferrer"
                className="btn btn-ghost btn-sm btn-support" title="Supporta">
@@ -55,7 +55,9 @@ export default function Layout() {
           </div>
         </header>
         <main className="page-body">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
       <ToastContainer />

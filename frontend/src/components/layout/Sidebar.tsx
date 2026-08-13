@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { getInitials } from '../../utils/user'
 
 interface NavItem {
   path: string
@@ -20,25 +22,37 @@ const SYSTEM_ITEMS: NavItem[] = [
   { path: '/impostazioni', page: 'impostazioni', icon: 'fa-solid fa-gear', label: 'Impostazioni' },
 ]
 
-function getInitials(name: string, surname: string) {
-  return `${name?.[0] ?? ''}${surname?.[0] ?? ''}`.toUpperCase()
-}
-
 export default function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('sidebar-collapsed') === 'true')
 
   function isActive(path: string) {
     if (path === '/') return location.pathname === '/'
     return location.pathname.startsWith(path)
   }
 
+  function toggleCollapsed() {
+    setCollapsed(prev => {
+      const next = !prev
+      localStorage.setItem('sidebar-collapsed', String(next))
+      return next
+    })
+  }
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
       <div className="sidebar-logo">
         <div className="logo-icon"><img src="/icon.svg" alt="logo" /></div>
-        GestioPro
+        <span className="sidebar-logo-text">GestioPro</span>
+        <button
+          className="sidebar-toggle-btn"
+          onClick={toggleCollapsed}
+          title={collapsed ? 'Espandi sidebar' : 'Comprimi sidebar'}
+        >
+          <i className={`fa-solid ${collapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`} />
+        </button>
       </div>
 
       <nav className="sidebar-nav">
@@ -48,9 +62,10 @@ export default function Sidebar() {
             key={item.page}
             className={`nav-item${isActive(item.path) ? ' active' : ''}`}
             onClick={() => navigate(item.path)}
+            title={collapsed ? item.label : undefined}
           >
             <span className="nav-icon"><i className={item.icon} /></span>
-            {item.label}
+            <span className="nav-label">{item.label}</span>
           </div>
         ))}
 
@@ -60,22 +75,30 @@ export default function Sidebar() {
             key={item.page}
             className={`nav-item${isActive(item.path) ? ' active' : ''}`}
             onClick={() => navigate(item.path)}
+            title={collapsed ? item.label : undefined}
           >
             <span className="nav-icon"><i className={item.icon} /></span>
-            {item.label}
+            <span className="nav-label">{item.label}</span>
           </div>
         ))}
       </nav>
 
       <div className="sidebar-footer">
-        <div className="user-info">
+        <div className="user-info" title={collapsed ? `${user?.username ?? ''} — ${user?.email ?? ''}` : undefined}>
           <div className="user-avatar">{user ? getInitials(user.name, user.surname) : 'U'}</div>
-          <div>
+          <div className="user-details">
             <div className="font-medium user-username" style={{ color: '#E2E8F0', fontSize: 13 }}>
               {user?.username ?? ''}
             </div>
             <div style={{ fontSize: 11 }} className="user-email">{user?.email ?? ''}</div>
           </div>
+          <button
+            className="sidebar-profile-btn"
+            onClick={() => navigate('/profilo')}
+            title="Impostazioni profilo"
+          >
+            <i className="fa-solid fa-gear" />
+          </button>
         </div>
       </div>
     </aside>

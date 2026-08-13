@@ -40,7 +40,7 @@ public class UserService(AppDbContext context) : IUserService
         await context.SaveChangesAsync();
     }
 
-    public async Task<UserResponseDTO> UpdateAsync(Guid id, UserRequestDTO dto)
+    public async Task<UserResponseDTO> UpdateForceAsync(Guid id, UserRequestDTO dto)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
             ?? throw new KeyNotFoundException("Utente non trovato");
@@ -51,6 +51,38 @@ public class UserService(AppDbContext context) : IUserService
         user.Surname = dto.Surname;
         if (!string.IsNullOrWhiteSpace(dto.Password))
             user.Password = AuthService.HashPassword(dto.Password);
+
+        await context.SaveChangesAsync();
+        return MapToDto(user);
+    }
+
+    public async Task<UserResponseDTO> UpdateAsync(Guid id, UserUpdateDTO dto)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException("Utente non trovato");
+
+        user.Username = dto.Username;
+        user.Email = dto.Email;
+        user.Name = dto.Name;
+        user.Surname = dto.Surname;
+
+        await context.SaveChangesAsync();
+        return MapToDto(user);
+    }
+
+
+    public async Task<UserResponseDTO> UpdatePasswordAsync(Guid id, string oldPassword, string newPassword)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException("Utente non trovato");
+
+        if (!user.Password.Equals(AuthService.HashPassword(oldPassword)))
+            throw new BusinessException("La password vecchia non è corretta, impossibile aggiornare");
+
+        if (string.IsNullOrWhiteSpace(newPassword))
+            throw new BusinessException("La nuova password è vuota, impossibile aggiornare");
+
+        user.Password = AuthService.HashPassword(newPassword);
 
         await context.SaveChangesAsync();
         return MapToDto(user);

@@ -7,6 +7,8 @@ public interface IUserService
     Task<List<UserResponseDTO>> GetAllAsync();
     Task<UserResponseDTO?> GetByIdAsync(Guid id);
     Task CreateAsync(UserRequestDTO dto);
-    Task<UserResponseDTO> UpdateAsync(Guid id, UserRequestDTO dto);
+    Task<UserResponseDTO> UpdateForceAsync(Guid id, UserRequestDTO dto);
+    Task<UserResponseDTO> UpdateAsync(Guid id, UserUpdateDTO dto);
+    Task<UserResponseDTO> UpdatePasswordAsync(Guid id, string oldPassword, string newPassword);
     Task DeleteAsync(Guid id);
 }

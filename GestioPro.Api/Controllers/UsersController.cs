@@ -70,9 +70,43 @@ public class UsersController(IUserService userService) : ControllerBase
     /// <param name="id">User ID</param>
     /// <param name="dto">User information</param>
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDTO dto)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateDTO dto)
     {
         var updated = await userService.UpdateAsync(id, dto);
+
+        if (updated is null)
+            NotFound();
+
+        return Ok(updated);
+    }
+
+    /// <summary>
+    /// Update a user
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <param name="dto">User information</param>
+    [HttpPut("{id:guid}/force")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDTO dto)
+    {
+        var updated = await userService.UpdateForceAsync(id, dto);
+
+        if (updated is null)
+            NotFound();
+
+        return Ok(updated);
+    }
+
+    public record ChangePasswordRequest(string OldPassword, string NewPassword);
+
+    /// <summary>
+    /// Update user password
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <param name="changePasswordRequest">Old password and the new password</param>s
+    [HttpPut("{id:guid}/change-password")]
+    public async Task<IActionResult> UpdatePassword(Guid id, [FromBody] ChangePasswordRequest changePasswordRequest)
+    {
+        var updated = await userService.UpdatePasswordAsync(id, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
 
         if (updated is null)
             NotFound();

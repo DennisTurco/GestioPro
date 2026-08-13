@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { ClientiAPI, QuotationAPI } from '../services/api'
 import type { Customer, CustomerRequest, Quotation } from '../types'
 import { CustomerType, CUSTOMER_TYPE_LABEL } from '../types'
-import { formatDate } from '../utils/date'
 import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import EmptyState from '../components/ui/EmptyState'
+import { getInitials,  avatarColor } from '../utils/user'
+
 
 const COMPANY_TYPES = new Set<CustomerType>([
   CustomerType.Company,
@@ -31,15 +32,6 @@ const EMPTY_FORM: CustomerRequest = {
   address: '',
   landline: '',
   notes: '',
-}
-
-function getInitials(name: string, surname: string): string {
-  return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase()
-}
-
-function avatarColor(id: number): string {
-  const colors = ['#4f8ef7', '#e05c97', '#f59e0b', '#10b981', '#6366f1', '#ef4444', '#14b8a6', '#f97316']
-  return colors[id % colors.length]
 }
 
 export default function Clienti() {
@@ -151,8 +143,8 @@ export default function Clienti() {
         showToast('Cliente creato', 'success')
       }
       closeModal()
-    } catch {
-      showToast('Errore nel salvataggio', 'error')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore nel salvataggio', 'error')
     } finally {
       setSaving(false)
     }
@@ -166,8 +158,8 @@ export default function Clienti() {
       setCustomers(prev => prev.filter(c => c.id !== deleteId))
       showToast('Cliente eliminato', 'success')
       setDeleteId(null)
-    } catch {
-      showToast('Errore nell\'eliminazione', 'error')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Errore nell'eliminazione", 'error')
     } finally {
       setDeleting(false)
     }
