@@ -14,7 +14,7 @@ public class ProductService(AppDbContext context) : IProductService
             .Include(x => x.Category)
             .AsNoTracking()
             .Select(x => MapToDto(x))
-            .ToListAsync(); 
+            .ToListAsync();
 
     public async Task<ProductResponseDTO?> GetByIdAsync(long id)
     {
@@ -84,7 +84,7 @@ public class ProductService(AppDbContext context) : IProductService
     }
 
     private static ProductResponseDTO MapToDto(Product p)
-     => new (
+     => new(
             p.Id,
             p.CategoryId,
             p.Category.Name,

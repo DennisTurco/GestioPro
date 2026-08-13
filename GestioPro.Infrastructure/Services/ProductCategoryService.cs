@@ -76,7 +76,7 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
     }
 
     private static ProductCategoryResponseDTO MapToDto(ProductCategory p)
-        => new (
+        => new(
             p.Id,
             p.Name,
             p.Description,

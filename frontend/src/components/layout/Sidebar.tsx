@@ -1,0 +1,83 @@
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+
+interface NavItem {
+  path: string
+  page: string
+  icon: string
+  label: string
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { path: '/',            page: 'dashboard',   icon: 'fa-solid fa-chart-pie',      label: 'Dashboard'    },
+  { path: '/clienti',     page: 'clienti',     icon: 'fa-solid fa-users',          label: 'Clienti'      },
+  { path: '/preventivi',  page: 'preventivi',  icon: 'fa-solid fa-receipt',        label: 'Preventivi'   },
+  { path: '/prodotti',    page: 'prodotti',    icon: 'fa-solid fa-box',            label: 'Prodotti'     },
+  { path: '/categorie',   page: 'categorie',   icon: 'fa-solid fa-tags',           label: 'Categorie'    },
+]
+
+const SYSTEM_ITEMS: NavItem[] = [
+  { path: '/impostazioni', page: 'impostazioni', icon: 'fa-solid fa-gear', label: 'Impostazioni' },
+]
+
+function getInitials(name: string, surname: string) {
+  return `${name?.[0] ?? ''}${surname?.[0] ?? ''}`.toUpperCase()
+}
+
+export default function Sidebar() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { user } = useAuth()
+
+  function isActive(path: string) {
+    if (path === '/') return location.pathname === '/'
+    return location.pathname.startsWith(path)
+  }
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <div className="logo-icon"><img src="/icon.svg" alt="logo" /></div>
+        GestioPro
+      </div>
+
+      <nav className="sidebar-nav">
+        <div className="sidebar-section-label">Menu principale</div>
+        {NAV_ITEMS.map(item => (
+          <div
+            key={item.page}
+            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
+            onClick={() => navigate(item.path)}
+          >
+            <span className="nav-icon"><i className={item.icon} /></span>
+            {item.label}
+          </div>
+        ))}
+
+        <div className="sidebar-section-label">Sistema</div>
+        {SYSTEM_ITEMS.map(item => (
+          <div
+            key={item.page}
+            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
+            onClick={() => navigate(item.path)}
+          >
+            <span className="nav-icon"><i className={item.icon} /></span>
+            {item.label}
+          </div>
+        ))}
+      </nav>
+
+      <div className="sidebar-footer">
+        <div className="user-info">
+          <div className="user-avatar">{user ? getInitials(user.name, user.surname) : 'U'}</div>
+          <div>
+            <div className="font-medium user-username" style={{ color: '#E2E8F0', fontSize: 13 }}>
+              {user?.username ?? ''}
+            </div>
+            <div style={{ fontSize: 11 }} className="user-email">{user?.email ?? ''}</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  )
+}

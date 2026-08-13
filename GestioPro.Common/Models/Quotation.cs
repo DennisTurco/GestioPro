@@ -22,6 +22,10 @@ public class Quotation
     public string Number { get; set; } = string.Empty;
 
     [Required]
+    [MaxLength(200)]
+    public required string Title { get; set; }
+
+    [Required]
     [Range(0, float.MaxValue)]
     public float Amount { get; set; }
 
@@ -47,4 +51,7 @@ public class Quotation
 
     public DateOnly? IssueDate { get; set; }
     public DateOnly? ValidityDate { get; set; }
+
+    [Required]
+    public bool IsDisabled { get; set; }
 }

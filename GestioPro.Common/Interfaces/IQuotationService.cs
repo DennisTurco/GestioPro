@@ -10,5 +10,6 @@ public interface IQuotationService
     Task CreateAsync(QuotationRequestDTO dto);
     Task<QuotationResponseDTO> UpdateAsync(long id, QuotationRequestDTO dto);
     Task<QuotationResponseDTO> UpdateStatusAsync(long id, QuotationStatus status);
-    Task DeleteAsync(long id);
+    Task DisableAsync(long id);
+    Task<string> CalculateNextNumberAsync();
 }

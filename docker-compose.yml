@@ -6,7 +6,7 @@ services:
       POSTGRES_DB: gestiopro
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: Pa55w0rd
-      PGDARE: /data/postgres
+      PGDATA: /data/postgres
     volumes:
       - db:/data/postgres
     ports:

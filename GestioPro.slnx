@@ -1,5 +1,6 @@
 <Solution>
-  <Project Path="GestioPro.Api/GestioPro.Api.csproj" />
-  <Project Path="GestioPro.Common/GestioPro.Common.csproj" />
-  <Project Path="GestioPro.Infrastructure/GestioPro.Infrastructure.csproj" />
+  <Project Path="GestioPro.Api/GestioPro.Api.csproj"/>
+  <Project Path="GestioPro.Common/GestioPro.Common.csproj"/>
+  <Project Path="GestioPro.Infrastructure/GestioPro.Infrastructure.csproj"/>
+  <Project Path="GestioPro.InfrastructureTests/GestioPro.InfrastructureTests.csproj"/>
 </Solution>

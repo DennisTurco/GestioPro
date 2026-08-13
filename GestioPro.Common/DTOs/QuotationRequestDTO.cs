@@ -7,6 +7,7 @@ public record QuotationRequestDTO(
     long CustomerId,
     QuotationStatus QuotationStatus,
     [Required] string Number,
+    [MaxLength(200)] string Title,
     [Required, Range(0, float.MaxValue)] float Amount,
     [Required, Range(0, 100)] int VatPercentage,
     [Required, Range(0, 100)] int DiscountPercentage,

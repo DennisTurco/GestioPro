@@ -228,6 +228,26 @@ select.form-control { cursor: pointer; }
     gap: 16px;
 }
 
+/* ── FORM GRID ───────────────────────────────────── */
+.form-grid       { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.form-group-full { grid-column: 1 / -1; }
+.required        { color: var(--color-danger); }
+
+/* ── ACTION ROWS ─────────────────────────────────── */
+.action-btns, .action-buttons, .row-actions { display: flex; align-items: center; gap: 6px; }
+
+/* ── LOADING ─────────────────────────────────────── */
+.loading-wrapper, .loading-state, .loading-center { display: flex; align-items: center; justify-content: center; padding: 48px 20px; }
+
+/* ── BADGES ──────────────────────────────────────── */
+.badge-blue { background: var(--color-info-bg); color: #1E40AF; }
+
+/* ── CUSTOMER TABLE CELL ─────────────────────────── */
+.customer-cell    { display: flex; align-items: center; gap: 10px; }
+.customer-info    { display: flex; flex-direction: column; min-width: 0; }
+.customer-name    { font-weight: var(--font-weight-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.customer-company { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+
 /* ── SEARCH BAR ──────────────────────────────────── */
 .search-bar {
     position: relative;
@@ -368,6 +388,38 @@ select.form-control { cursor: pointer; }
     background: var(--color-border);
     margin: 16px 0;
 }
+
+/* ── LOGIN CARD (React SPA) ──────────────────────── */
+.login-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 40px;
+    width: min(420px, 95vw);
+}
+.login-logo {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.login-logo .logo-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--color-primary);
+    border-radius: var(--radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+.login-logo h1 { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: 4px; }
+.login-logo p  { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.btn-login     { width: 100%; justify-content: center; margin-top: 8px; padding: 10px 16px; }
+.login-error   { margin-top: 10px; padding: 10px 14px; background: var(--color-danger-bg); color: #991B1B; border-radius: var(--radius-sm); font-size: var(--font-size-sm); }
+.login-footer  { margin-top: 16px; text-align: center; font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.login-footer a { color: var(--color-primary); cursor: pointer; }
+.login-footer a:hover { text-decoration: underline; }
 
 /* ── LOGIN PAGE ──────────────────────────────────── */
 .login-shell {

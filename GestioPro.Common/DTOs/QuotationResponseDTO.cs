@@ -8,6 +8,7 @@ public record QuotationResponseDTO(
     string CustomerName,
     QuotationStatus QuotationStatus,
     string Number,
+    string Title,
     float Amount,
     int VatPercentage,
     int DiscountPercentage,
@@ -16,5 +17,6 @@ public record QuotationResponseDTO(
     DateTimeOffset CreationDate,
     DateTimeOffset LastUpdateDate,
     DateOnly? IssueDate,
-    DateOnly? ValidityDate
+    DateOnly? ValidityDate,
+    bool IsDisabled
 );

@@ -1,8 +1,10 @@
-using GestioPro.Infrastructure.Data;
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Enums;
 using GestioPro.Common.Exceptions;
+using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using GestioPro.Common.Models;
+using GestioPro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestioPro.Infrastructure.Services;
@@ -35,6 +37,10 @@ public class CustomerService(AppDbContext context) : ICustomerService
 
         if (exist)
             throw new BusinessException("Customer with this email already exists");
+
+        DataValidatorHelper.ThrowIfInvalidInformation(DataType.Email, dto.Email);
+        DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
+        DataValidatorHelper.ThrowIfInvalidInformation(DataType.VatNumber, dto.VatNumber);
 
         var entity = new Customer
         {
@@ -70,6 +76,10 @@ public class CustomerService(AppDbContext context) : ICustomerService
 
         if (entity is null)
             throw new BusinessException("Customer not found");
+
+        DataValidatorHelper.ThrowIfInvalidInformation(DataType.Email, dto.Email);
+        DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
+        DataValidatorHelper.ThrowIfInvalidInformation(DataType.VatNumber, dto.VatNumber);
 
         entity.CustomerType = dto.CustomerType;
         entity.Name = dto.Name;
@@ -107,7 +117,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
     }
 
     private static CustomerResponseDTO MapToDto(Customer c)
-        => new (
+        => new(
             c.Id,
             c.CustomerType = c.CustomerType,
             c.Name,
