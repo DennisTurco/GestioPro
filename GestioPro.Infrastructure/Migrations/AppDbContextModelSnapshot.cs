@@ -274,6 +274,9 @@ namespace GestioPro.Infrastructure.Migrations
                     b.Property<int>("DiscountPercentage")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsDisabled")
+                        .HasColumnType("boolean");
+
                     b.Property<DateOnly?>("IssueDate")
                         .HasColumnType("date");
 
@@ -290,6 +293,11 @@ namespace GestioPro.Infrastructure.Migrations
 
                     b.Property<byte>("QuotationStatus")
                         .HasColumnType("smallint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateOnly?>("ValidityDate")
                         .HasColumnType("date");

@@ -70,7 +70,7 @@ public class UserService(AppDbContext context) : IUserService
     }
 
     private static UserResponseDTO MapToDto(User u)
-        => new (
+        => new(
             u.Id,
             u.Username,
             u.Email,

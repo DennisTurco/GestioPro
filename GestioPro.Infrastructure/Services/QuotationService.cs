@@ -1,10 +1,10 @@
-using GestioPro.Infrastructure.Data;
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Enums;
 using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
-using GestioPro.Common.Enums;
+using GestioPro.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -30,7 +30,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
     public async Task CreateAsync(QuotationRequestDTO dto)
     {
         var existing = await context.Quotations
-            .FirstOrDefaultAsync(x => x.Number.Equals(x.Number));
+            .FirstOrDefaultAsync(x => x.Number.Equals(dto.Number));
 
         if (existing is not null)
             throw new BusinessException("Esiste già un preventivo con lo stesso numero");
@@ -41,6 +41,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
             CustomerId = dto.CustomerId,
             QuotationStatus = dto.QuotationStatus,
             Number = dto.Number,
+            Title = dto.Title,
             Amount = dto.Amount,
             VatPercentage = dto.VatPercentage,
             DiscountPercentage = dto.DiscountPercentage,
@@ -49,7 +50,8 @@ public class QuotationService(AppDbContext context) : IQuotationService
             CreationDate = now,
             LastUpdateDate = now,
             IssueDate = dto.IssueDate,
-            ValidityDate = dto.ValidityDate
+            ValidityDate = dto.ValidityDate,
+            IsDisabled = false,
         };
 
         await context.AddAsync(quotation);
@@ -65,22 +67,16 @@ public class QuotationService(AppDbContext context) : IQuotationService
         if (quotation is null)
             throw new BusinessException("Preventivo non trovato");
 
-        var quotationNumberExists = await context.Quotations
-            .Include(q => q.Customer)
-            .AnyAsync(x => x.Number.Equals(dto.Number));
-
-        if (quotationNumberExists)
-            throw new BusinessException("Esiste già un preventivo con lo stesso numero");
-
         quotation.CustomerId = dto.CustomerId;
         quotation.QuotationStatus = dto.QuotationStatus;
         quotation.Number = dto.Number;
+        quotation.Title = dto.Title;
         quotation.Amount = dto.Amount;
         quotation.VatPercentage = dto.VatPercentage;
         quotation.DiscountPercentage = dto.DiscountPercentage;
         quotation.Description = dto.Description;
         quotation.Notes = dto.Notes;
-        quotation.LastUpdateDate = DateTimeOffset.Now;
+        quotation.LastUpdateDate = DateTimeOffset.UtcNow;
         quotation.IssueDate = dto.IssueDate;
         quotation.ValidityDate = dto.ValidityDate;
 
@@ -98,14 +94,13 @@ public class QuotationService(AppDbContext context) : IQuotationService
             throw new BusinessException("Preventivo non trovato");
 
         quotation.QuotationStatus = status;
-        quotation.LastUpdateDate = DateTimeOffset.Now;
+        quotation.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
         return MapToDto(quotation);
     }
 
-
-    public async Task DeleteAsync(long id)
+    public async Task DisableAsync(long id)
     {
         var quotation = await context.Quotations
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -113,17 +108,38 @@ public class QuotationService(AppDbContext context) : IQuotationService
         if (quotation is null)
             throw new BusinessException("Preventivo non trovato");
 
-        context.Remove(quotation);
+        quotation.IsDisabled = true;
         await context.SaveChangesAsync();
+    }
+
+    public async Task<string> CalculateNextNumberAsync()
+    {
+        var lastQuotation = await context.Quotations
+            .OrderByDescending(x => x.Id)
+            .FirstOrDefaultAsync();
+
+        var year = DateTime.Today.Year;
+
+        if (lastQuotation == null)
+            return $"{year}-001";
+
+        var quotationNumber = lastQuotation.Number.Split('-');
+        if (int.Parse(quotationNumber[0]) != year)
+            return $"{year}-001";
+
+        var counter = int.Parse(quotationNumber[1].PadLeft(3, '0')) + 1;
+        string zeroes = "000".Substring(counter.ToString().Length);
+        return $"{year}-{zeroes}{counter}";
     }
 
     private static QuotationResponseDTO MapToDto(Quotation q)
         => new(
             q.Id,
             q.CustomerId,
-            q.Customer.Name.ToString(),
+            q.Customer.Name,
             q.QuotationStatus,
             q.Number,
+            q.Title,
             q.Amount,
             q.VatPercentage,
             q.DiscountPercentage,
@@ -132,6 +148,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
             q.CreationDate,
             q.LastUpdateDate,
             q.IssueDate,
-            q.ValidityDate
+            q.ValidityDate,
+            q.IsDisabled
         );
 }

@@ -76,13 +76,23 @@ public class QuotationsController(IQuotationService quotationService) : Controll
     }
 
     /// <summary>
-    /// Delete a quotation
+    /// Set the quotation to disabled status (delete, but the entry remains in the db -> soft-delete)
     /// </summary>
     /// <param name="id">Quotation ID</param>
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete(long id)
     {
-        await quotationService.DeleteAsync(id);
+        await quotationService.DisableAsync(id);
         return NoContent();
+    }
+
+    /// <summary>
+    /// Calculate newxt quotation number
+    /// </summary>
+    [HttpGet("next-number")]
+    public async Task<IActionResult> GetNextNumber()
+    {
+        var result = await quotationService.CalculateNextNumberAsync();
+        return Ok(result);
     }
 }
