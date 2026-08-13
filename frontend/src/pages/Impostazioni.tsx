@@ -54,8 +54,8 @@ export default function Impostazioni() {
       await Promise.all(changed.map(code => SettingsAPI.update(code, values[code] ?? '')))
       setOriginal({ ...values })
       showToast('Impostazioni salvate con successo', 'success')
-    } catch {
-      showToast('Errore durante il salvataggio', 'error')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore durante il salvataggio', 'error')
     } finally {
       setSaving(false)
     }
