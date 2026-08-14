@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using GestioPro.Common.Enums;
 
 namespace GestioPro.Common.Models;
 
@@ -8,6 +9,9 @@ public class User
 {
     [Key]
     public Guid Id { get; set; }
+
+    [Required]
+    public UserRole UserRole { get; set; }
 
     [Required]
     [MaxLength(50)]
@@ -31,4 +35,10 @@ public class User
 
     [Required]
     public DateTimeOffset CreatedDate { get; set; }
+
+    [Required]
+    public DateTimeOffset LastUpdateDate { get; set; }
+
+    [Required]
+    public bool IsDisabled {get; set; } = false; // soft delete
 }

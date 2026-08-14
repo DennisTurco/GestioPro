@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { UserAPI } from '../services/user.api'
 
 type Form = 'login' | 'register'
 
@@ -45,28 +44,29 @@ export default function Login() {
     }
   }
 
-  async function handleRegister(e: React.FormEvent) {
-    e.preventDefault()
-    setRegisterError('')
-    if (!regName || !regSurname || !regUsername || !regEmail || !regPassword || !regConfirmPassword) {
-      setRegisterError('Compila tutti i campi.')
-      return
-    }
-    if (regPassword !== regConfirmPassword) {
-      setRegisterError('Le password non coincidono.')
-      return
-    }
-    setLoading(true)
-    try {
-      await UserAPI.register({ username: regUsername, email: regEmail, name: regName, surname: regSurname, password: regPassword })
-      await auth.login(regUsername, regPassword)
-      navigate('/')
-    } catch (err: unknown) {
-      setRegisterError(err instanceof Error ? err.message : 'Errore durante la registrazione.')
-    } finally {
-      setLoading(false)
-    }
-  }
+//  Right now the Register has been disabled because a user could be created only throw an Admin user
+//   async function handleRegister(e: React.FormEvent) {
+//     e.preventDefault()
+//     setRegisterError('')
+//     if (!regName || !regSurname || !regUsername || !regEmail || !regPassword || !regConfirmPassword) {
+//       setRegisterError('Compila tutti i campi.')
+//       return
+//     }
+//     if (regPassword !== regConfirmPassword) {
+//       setRegisterError('Le password non coincidono.')
+//       return
+//     }
+//     setLoading(true)
+//     try {
+//       await UserAPI.register({ username: regUsername, email: regEmail, name: regName, surname: regSurname, password: regPassword })
+//       await auth.login(regUsername, regPassword)
+//       navigate('/')
+//     } catch (err: unknown) {
+//       setRegisterError(err instanceof Error ? err.message : 'Errore durante la registrazione.')
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -112,14 +112,15 @@ export default function Login() {
             {loginError && (
               <div id="login-error" className="login-error">{loginError}</div>
             )}
-            <div className="login-footer">
+            {/* <div className="login-footer">
               Non hai un account?{' '}
               <a onClick={() => { setLoginError(''); setForm('register') }}>Registrati</a>
-            </div>
+            </div> */}
           </form>
         )}
 
-        {form === 'register' && (
+        {/* Right now the Register has been disabled because a user could be created only throw an Admin user */}
+        {/* {form === 'register' && (
           <form onSubmit={handleRegister} noValidate>
             <div className="form-group">
               <label className="form-label" htmlFor="reg-name">Nome</label>
@@ -202,7 +203,7 @@ export default function Login() {
               <a onClick={() => { setRegisterError(''); setForm('login') }}>← Torna al login</a>
             </div>
           </form>
-        )}
+        )} */}
       </div>
     </div>
   )

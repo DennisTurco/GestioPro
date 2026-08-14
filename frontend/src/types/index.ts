@@ -19,6 +19,11 @@ export enum ProductStatus {
   Used = 2,
 }
 
+export enum UserRole {
+    Admin = 1,
+    Operator = 2
+}
+
 // Mirrors C# DTOs (ASP.NET Core serializes to camelCase)
 export interface User {
   id: string
@@ -27,6 +32,9 @@ export interface User {
   name: string
   surname: string
   createdDate: string
+  lastUpdateDate: string
+  isDisabled: boolean,
+  role: UserRole
 }
 
 export interface UserRequest {
@@ -34,6 +42,15 @@ export interface UserRequest {
     email: string
     name: string
     surname: string
+}
+
+export interface UserCreateRequest {
+  username: string
+  email: string
+  name: string
+  surname: string
+  password: string
+  role: UserRole
 }
 
 export interface Customer {

@@ -10,7 +10,6 @@ namespace GestioPro.Api.Controllers;
 [Route("api/v1/users")]
 public class UsersController(IUserService userService) : ControllerBase
 {
-
     [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
@@ -81,7 +80,7 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     /// <summary>
-    /// Update a user
+    /// Update a user by admin
     /// </summary>
     /// <param name="id">User ID</param>
     /// <param name="dto">User information</param>

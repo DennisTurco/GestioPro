@@ -12,6 +12,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { path: '/',            page: 'dashboard',   icon: 'fa-solid fa-chart-pie',      label: 'Dashboard'    },
+  { path: '/admin',       page: 'admin',       icon: 'fa-solid fa-users-gear',     label: 'Admin'        },
   { path: '/clienti',     page: 'clienti',     icon: 'fa-solid fa-users',          label: 'Clienti'      },
   { path: '/preventivi',  page: 'preventivi',  icon: 'fa-solid fa-receipt',        label: 'Preventivi'   },
   { path: '/prodotti',    page: 'prodotti',    icon: 'fa-solid fa-box',            label: 'Prodotti'     },

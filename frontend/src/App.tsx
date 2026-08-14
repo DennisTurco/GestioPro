@@ -12,6 +12,7 @@ import Categorie from './pages/Categorie'
 import Impostazioni from './pages/Impostazioni'
 import Task from './pages/Task'
 import Profilo from './pages/Profilo'
+import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -19,6 +20,8 @@ export default function App() {
       <ToastProvider>
         <BrowserRouter>
           <Routes>
+            {/* TEMP preview route, bypasses auth — remove before committing */}
+            <Route path="/admin-preview" element={<Admin />} />
             <Route path="/login" element={<Login />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
