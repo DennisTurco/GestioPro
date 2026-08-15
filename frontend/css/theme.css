@@ -4,59 +4,52 @@
  * ║  ✅ This is the ONLY file to modify when changing the client ║
  * ╚══════════════════════════════════════════════════════════════╝
  *
- * To customize for a new client:
- *   1. Change the colors in the "BRAND COLORS" section
- *   2. Change the font (import from Google Fonts if needed)
- *   3. Change --app-name if you want a different name in the sidebar
+ * Architettura colori:
+ *   - Tutti i colori sono token CSS su :root (light mode)
+ *   - Dark mode: [data-theme="dark"] + @media prefers-color-scheme
+ *   - I componenti usano SOLO token, mai hex diretti
  */
 
-/* ── Google Fonts (optional: replace to change the font) ── */
+/* ── Google Fonts ── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* ═══════════════════════════════════════════════════════
+   LIGHT MODE (default)
+   ═══════════════════════════════════════════════════════ */
 :root {
 
-    /* ═══════════════════════════════════════
-       BRAND COLORS  ← change here for each client
-       ═══════════════════════════════════════ */
-    --color-primary:        #2563EB;   /* main color (buttons, active links) */
-    --color-primary-dark:   #1D4ED8;   /* primary hover state */
-    --color-primary-light:  #EFF6FF;   /* light accent background */
-    --color-primary-rgb:    37, 99, 235; /* for rgba() usage */
+    /* ── Brand ── */
+    --color-primary:        #2563EB;
+    --color-primary-dark:   #1D4ED8;
+    --color-primary-light:  #EFF6FF;
+    --color-primary-rgb:    37, 99, 235;
 
-    --color-accent:         #10B981;   /* secondary accent (paid badges, success states) */
+    --color-accent:         #10B981;
     --color-accent-dark:    #059669;
 
-    /* ═══════════════════════════════════════
-       SIDEBAR
-       ═══════════════════════════════════════ */
-    --sidebar-bg:           #1E293B;   /* sidebar background */
-    --sidebar-text:         #94A3B8;   /* inactive menu item text */
-    --sidebar-text-hover:   #E2E8F0;   /* menu item hover text */
-    --sidebar-active-bg:    rgba(37, 99, 235, 0.18); /* active item background */
-    --sidebar-active-text:  #60A5FA;   /* active item text */
-    --sidebar-active-border:var(--color-primary); /* left border of active item */
+    /* ── Sidebar (sempre dark, indipendente dal tema) ── */
+    --sidebar-bg:           #1E293B;
+    --sidebar-text:         #94A3B8;
+    --sidebar-text-hover:   #E2E8F0;
+    --sidebar-active-bg:    rgba(37, 99, 235, 0.18);
+    --sidebar-active-text:  #60A5FA;
+    --sidebar-active-border:var(--color-primary);
     --sidebar-logo-color:   #FFFFFF;
     --sidebar-width:        240px;
 
-    /* ═══════════════════════════════════════
-       SURFACES & BACKGROUNDS
-       ═══════════════════════════════════════ */
-    --color-bg:             #F1F5F9;   /* page background */
-    --color-surface:        #FFFFFF;   /* cards, panels, inputs */
+    /* ── Superfici & sfondo ── */
+    --color-bg:             #F1F5F9;
+    --color-surface:        #FFFFFF;
     --color-surface-hover:  #F8FAFC;
     --color-border:         #E2E8F0;
     --color-border-focus:   var(--color-primary);
 
-    /* ═══════════════════════════════════════
-       TEXT
-       ═══════════════════════════════════════ */
+    /* ── Testo ── */
     --color-text:           #1E293B;
     --color-text-muted:     #64748B;
     --color-text-light:     #94A3B8;
 
-    /* ═══════════════════════════════════════
-       STATUS / BADGE
-       ═══════════════════════════════════════ */
+    /* ── Stato / Status ── */
     --color-success:        #10B981;
     --color-success-bg:     #D1FAE5;
     --color-warning:        #F59E0B;
@@ -66,9 +59,19 @@
     --color-info:           #3B82F6;
     --color-info-bg:        #DBEAFE;
 
-    /* ═══════════════════════════════════════
-       TYPOGRAPHY
-       ═══════════════════════════════════════ */
+    /* ── Testo badge (light) ── */
+    --badge-success-color:  #065F46;
+    --badge-warning-color:  #92400E;
+    --badge-danger-color:   #991B1B;
+    --badge-info-color:     #1E40AF;
+    --badge-muted-bg:       #F1F5F9;
+    --badge-muted-color:    #475569;
+
+    /* ── Skeleton / shimmer ── */
+    --skeleton-from:        #E2E8F0;
+    --skeleton-to:          #CBD5E1;
+
+    /* ── Tipografia ── */
     --font-family:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-size-xs:         11px;
     --font-size-sm:         12px;
@@ -82,51 +85,102 @@
     --font-weight-semibold: 600;
     --font-weight-bold:     700;
 
-    /* ═══════════════════════════════════════
-       GEOMETRY
-       ═══════════════════════════════════════ */
+    /* ── Geometria ── */
     --radius-sm:            6px;
     --radius:               10px;
     --radius-lg:            14px;
     --radius-xl:            20px;
     --radius-full:          9999px;
 
-    /* ═══════════════════════════════════════
-       SHADOWS
-       ═══════════════════════════════════════ */
+    /* ── Ombre ── */
     --shadow-sm:   0 1px 2px rgba(0,0,0,0.05);
     --shadow:      0 1px 4px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
     --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
     --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
 
-    /* ═══════════════════════════════════════
-       TRANSITIONS
-       ═══════════════════════════════════════ */
+    /* ── Transizioni ── */
     --transition:           0.18s ease;
     --transition-slow:      0.3s ease;
 }
 
-/* ── DARK MODE ───────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   DARK MODE — tramite toggle JS (data-theme="dark")
+   ═══════════════════════════════════════════════════════ */
 [data-theme="dark"] {
+    /* Superfici */
     --color-bg:             #0F172A;
     --color-surface:        #1E293B;
     --color-surface-hover:  #243147;
     --color-border:         #334155;
-    --color-border-focus:   var(--color-primary);
 
+    /* Testo */
     --color-text:           #E2E8F0;
     --color-text-muted:     #94A3B8;
-    --color-text-light:     #64748B;
+    --color-text-light:     #475569;
 
+    /* Primary accent */
     --color-primary-light:  rgba(37, 99, 235, 0.15);
 
+    /* Status backgrounds — traslucidi su dark */
     --color-success-bg:     rgba(16, 185, 129, 0.15);
-    --color-warning-bg:     rgba(245, 158, 11, 0.15);
-    --color-danger-bg:      rgba(239, 68, 68, 0.15);
-    --color-info-bg:        rgba(59, 130, 246, 0.15);
+    --color-warning-bg:     rgba(245, 158, 11,  0.15);
+    --color-danger-bg:      rgba(239, 68,  68,  0.15);
+    --color-info-bg:        rgba(59,  130, 246, 0.15);
 
+    /* Testo badge — chiari per leggibilità su bg traslucido scuro */
+    --badge-success-color:  #6EE7B7;
+    --badge-warning-color:  #FCD34D;
+    --badge-danger-color:   #FCA5A5;
+    --badge-info-color:     #93C5FD;
+    --badge-muted-bg:       rgba(100, 116, 139, 0.2);
+    --badge-muted-color:    #94A3B8;
+
+    /* Skeleton */
+    --skeleton-from:        #1E293B;
+    --skeleton-to:          #243147;
+
+    /* Ombre più intense in dark */
     --shadow-sm:   0 1px 2px rgba(0,0,0,0.3);
     --shadow:      0 1px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2);
     --shadow-md:   0 4px 16px rgba(0,0,0,0.4);
     --shadow-lg:   0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* ═══════════════════════════════════════════════════════
+   DARK MODE — preferenza di sistema (FOUC prevention)
+   Si attiva solo se l'utente non ha scelto "light" esplicitamente
+   ═══════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-bg:             #0F172A;
+        --color-surface:        #1E293B;
+        --color-surface-hover:  #243147;
+        --color-border:         #334155;
+
+        --color-text:           #E2E8F0;
+        --color-text-muted:     #94A3B8;
+        --color-text-light:     #475569;
+
+        --color-primary-light:  rgba(37, 99, 235, 0.15);
+
+        --color-success-bg:     rgba(16, 185, 129, 0.15);
+        --color-warning-bg:     rgba(245, 158, 11,  0.15);
+        --color-danger-bg:      rgba(239, 68,  68,  0.15);
+        --color-info-bg:        rgba(59,  130, 246, 0.15);
+
+        --badge-success-color:  #6EE7B7;
+        --badge-warning-color:  #FCD34D;
+        --badge-danger-color:   #FCA5A5;
+        --badge-info-color:     #93C5FD;
+        --badge-muted-bg:       rgba(100, 116, 139, 0.2);
+        --badge-muted-color:    #94A3B8;
+
+        --skeleton-from:        #1E293B;
+        --skeleton-to:          #243147;
+
+        --shadow-sm:   0 1px 2px rgba(0,0,0,0.3);
+        --shadow:      0 1px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2);
+        --shadow-md:   0 4px 16px rgba(0,0,0,0.4);
+        --shadow-lg:   0 8px 32px rgba(0,0,0,0.5);
+    }
 }
