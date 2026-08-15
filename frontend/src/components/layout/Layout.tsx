@@ -9,7 +9,9 @@ const REPORT_BUG_URL      = 'https://github.com/DennisTurco/GestioPro/issues/new
 const SUPPORT_PROJECT_URL = 'https://github.com/sponsors/DennisTurco'
 
 function getTheme() {
-  return localStorage.getItem('theme') ?? 'light'
+  const saved = localStorage.getItem('theme')
+  if (saved) return saved
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 export default function Layout() {

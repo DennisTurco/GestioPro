@@ -45,7 +45,7 @@ const emptyForm = (): FormState => ({
 });
 
 function statusBadgeCls(status: string): string {
-  return CONTRACT_STATUS_CLS[status] ?? "badge-gray";
+  return CONTRACT_STATUS_CLS[status] ?? "badge-muted";
 }
 
 export default function Contratti() {
@@ -285,23 +285,12 @@ export default function Contratti() {
   const statuses = [...new Set(contracts.map((c) => c.status))];
 
   return (
-    <div className="page-content">
-      <div className="page-header">
-        <h1 className="topbar-title">
-          {" "}
-          <i className="fa-solid fa-file-contract" /> Contratti
-        </h1>
-        <p className="page-subtitle">{contracts.length} contratti totali</p>
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
+        <h1 className="page-title"> <i className="fa-solid fa-file-contract" /> Contratti</h1>
         <div className="page-actions">
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={exportCsv}
-            title="Esporta CSV"
-          >
-            <i className="fa-solid fa-file-csv" /> Esporta CSV
-          </button>
           <button className="btn btn-primary btn-sm" onClick={openCreate}>
-            <i className="fa-solid fa-plus" /> Nuovo contratto
+            <i className="fa-solid fa-circle-plus" /> Nuovo contratto
           </button>
         </div>
       </div>
@@ -396,6 +385,11 @@ export default function Contratti() {
             </option>
           ))}
         </select>
+        <div className="toolbar-right">
+          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
+            <i className="fa-solid fa-download" /> Esporta
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -419,64 +413,69 @@ export default function Contratti() {
           }
         />
       ) : (
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>N°</th>
-                <th>Titolo</th>
-                <th>Tipo</th>
-                <th>Stato</th>
-                <th>Importo</th>
-                <th>Inizio</th>
-                <th>Fine</th>
-                <th>Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <code style={{ fontSize: 12 }}>{c.number}</code>
-                  </td>
-                  <td>
-                    <strong>{c.title}</strong>
-                  </td>
-                  <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? "—"}</td>
-                  <td>
-                    <Badge cls={statusBadgeCls(c.status)}>{c.status}</Badge>
-                  </td>
-                  <td>{formatCurrency(c.amount)}</td>
-                  <td>{formatDate(c.startDate)}</td>
-                  <td>
-                    {c.endDate ? (
-                      formatDate(c.endDate)
-                    ) : (
-                      <span className="text-muted">—</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="row-actions">
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        title="Modifica"
-                        onClick={() => openEdit(c)}
-                      >
-                        <i className="fa-solid fa-pen" />
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        title="Rinnova"
-                        onClick={() => setRenewTarget(c)}
-                      >
-                        <i className="fa-solid fa-rotate-right" />
-                      </button>
-                    </div>
-                  </td>
+        <div className="table-card">
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>N°</th>
+                  <th>Titolo</th>
+                  <th>Tipo</th>
+                  <th>Stato</th>
+                  <th>Importo</th>
+                  <th>Inizio</th>
+                  <th>Fine</th>
+                  <th>Azioni</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((c) => (
+                  <tr key={c.id}>
+                    <td>
+                      <code style={{ fontSize: 12 }}>{c.number}</code>
+                    </td>
+                    <td>
+                      <strong>{c.title}</strong>
+                    </td>
+                    <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? "—"}</td>
+                    <td>
+                      <Badge cls={statusBadgeCls(c.status)}>{c.status}</Badge>
+                    </td>
+                    <td>{formatCurrency(c.amount)}</td>
+                    <td>{formatDate(c.startDate)}</td>
+                    <td>
+                      {c.endDate ? (
+                        formatDate(c.endDate)
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          title="Modifica"
+                          onClick={() => openEdit(c)}
+                        >
+                          <i className="fa-solid fa-pen" />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          title="Rinnova"
+                          onClick={() => setRenewTarget(c)}
+                        >
+                          <i className="fa-solid fa-rotate-right" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="card-footer text-sm text-muted">
+            {filtered.length} contratti &middot; Totale: {formatCurrency(filtered.reduce((s, c) => s + (c.amount ?? 0), 0))}
+          </div>
         </div>
       )}
 

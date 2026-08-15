@@ -33,7 +33,7 @@ const PRIORITY_INFO: Record<Task['priorita'], { text: string; cls: string; order
 }
 
 const STATO_INFO: Record<Task['stato'], { text: string; cls: string }> = {
-  da_fare:    { text: 'Da fare',   cls: 'badge-secondary' },
+  da_fare:    { text: 'Da fare',   cls: 'badge-muted' },
   in_corso:   { text: 'In corso',  cls: 'badge-warning'   },
   completato: { text: 'Completato', cls: 'badge-success'  },
 }
@@ -220,8 +220,8 @@ export default function Task() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ margin: 0 }}>Task</h1>
-        <button className="btn btn-primary" onClick={openCreate}>
+        <h1 className="page-title">Task</h1>
+        <button className="btn btn-primary btn-sm" onClick={openCreate}>
           <i className="fa-solid fa-plus" style={{ marginRight: 6 }} />
           Nuovo task
         </button>
@@ -295,7 +295,7 @@ export default function Task() {
                               <Badge cls={sInfo.cls}>{sInfo.text}</Badge>
                               {t.scadenza && (
                                 <span
-                                  className={overdue ? 'badge badge-danger' : 'badge badge-secondary'}
+                                  className={overdue ? 'badge badge-danger' : 'badge badge-muted'}
                                   title="Scadenza"
                                 >
                                   <i className="fa-regular fa-calendar" style={{ marginRight: 4 }} />
@@ -303,7 +303,7 @@ export default function Task() {
                                 </span>
                               )}
                               {cName && (
-                                <span className="badge badge-secondary" title="Cliente">
+                                <span className="badge badge-muted" title="Cliente">
                                   <i className="fa-solid fa-user" style={{ marginRight: 4 }} />
                                   {cName}
                                 </span>
@@ -322,10 +322,9 @@ export default function Task() {
                               <i className="fa-solid fa-pen" />
                             </button>
                             <button
-                              className="btn btn-ghost btn-sm"
+                              className="btn btn-danger btn-sm"
                               onClick={() => promptDelete(t.id)}
                               title="Elimina"
-                              style={{ color: 'var(--danger)' }}
                             >
                               <i className="fa-solid fa-trash" />
                             </button>

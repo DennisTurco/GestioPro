@@ -33,7 +33,14 @@ public class SettingsService(AppDbContext context) : ISettingsService
         if (setting is null)
             throw new BusinessException("Impostazione non trovata");
 
-        DataValidatorHelper.ThrowIfInvalidInformation(DataValidatorHelper.GetTypeByCode(code), dto.Value);
+        try
+        {
+            DataValidatorHelper.ThrowIfInvalidInformation(DataValidatorHelper.GetTypeByCode(code), dto.Value);
+        }
+        catch (NotImplementedException)
+        {
+            // it's not a setting to validate
+        }
 
         setting.Value = dto.Value;
         setting.LastUpdateDate = DateTime.UtcNow;

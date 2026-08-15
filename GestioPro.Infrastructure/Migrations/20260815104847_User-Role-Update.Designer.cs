@@ -3,6 +3,7 @@ using System;
 using GestioPro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GestioPro.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260815104847_User-Role-Update")]
+    partial class UserRoleUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,92 +33,23 @@ namespace GestioPro.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<float>("Amount")
-                        .HasColumnType("real");
-
                     b.Property<byte>("ContractType")
                         .HasColumnType("smallint");
 
-                    b.Property<DateTimeOffset>("CreationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("FilePath")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("LastUpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("QuotationId")
+                    b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int>("VatPercentage")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Number")
-                        .IsUnique();
-
-                    b.HasIndex("QuotationId");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("contracts");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.ContractRenewal", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<float>("Amount")
-                        .HasColumnType("real");
-
-                    b.Property<long>("ContractId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTimeOffset>("RenewalDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("contract_renewals");
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Customer", b =>
@@ -509,24 +443,13 @@ namespace GestioPro.Infrastructure.Migrations
 
             modelBuilder.Entity("GestioPro.Common.Models.Contract", b =>
                 {
-                    b.HasOne("GestioPro.Common.Models.Quotation", "Quotation")
+                    b.HasOne("GestioPro.Common.Models.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("QuotationId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Quotation");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.ContractRenewal", b =>
-                {
-                    b.HasOne("GestioPro.Common.Models.Contract", "Contract")
-                        .WithMany("Renewals")
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("GestioPro.Common.Models.Invoice", b =>
@@ -560,11 +483,6 @@ namespace GestioPro.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("GestioPro.Common.Models.Contract", b =>
-                {
-                    b.Navigation("Renewals");
                 });
 #pragma warning restore 612, 618
         }

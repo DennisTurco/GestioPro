@@ -19,6 +19,11 @@ export enum ProductStatus {
   Used = 2,
 }
 
+export enum UserRole {
+    Admin = 1,
+    Operator = 2
+}
+
 // Mirrors C# DTOs (ASP.NET Core serializes to camelCase)
 export interface User {
   id: string
@@ -27,6 +32,9 @@ export interface User {
   name: string
   surname: string
   createdDate: string
+  lastUpdateDate: string
+  isDisabled: boolean
+  userRole: UserRole
 }
 
 export interface UserRequest {
@@ -34,6 +42,16 @@ export interface UserRequest {
     email: string
     name: string
     surname: string
+}
+
+export interface UserCreateRequest {
+  username: string
+  email: string
+  name: string
+  surname: string
+  password: string
+  isDisabled: boolean
+  userRole: UserRole
 }
 
 export interface Customer {
@@ -167,16 +185,16 @@ export const CUSTOMER_TYPE_LABEL: Record<CustomerType, string> = {
 }
 
 export const QUOTATION_STATUS_INFO: Record<QuotationStatus, { text: string; cls: string }> = {
-  [QuotationStatus.Draft]:    { text: 'Bozza',     cls: 'badge-gray'   },
-  [QuotationStatus.Sent]:     { text: 'Inviato',   cls: 'badge-blue'   },
-  [QuotationStatus.Accepted]: { text: 'Accettato', cls: 'badge-green'  },
-  [QuotationStatus.Rejected]: { text: 'Rifiutato', cls: 'badge-red'    },
-  [QuotationStatus.Expired]:  { text: 'Scaduto',   cls: 'badge-orange' },
+  [QuotationStatus.Draft]:    { text: 'Bozza',     cls: 'badge-muted'   },
+  [QuotationStatus.Sent]:     { text: 'Inviato',   cls: 'badge-info'    },
+  [QuotationStatus.Accepted]: { text: 'Accettato', cls: 'badge-success' },
+  [QuotationStatus.Rejected]: { text: 'Rifiutato', cls: 'badge-danger'  },
+  [QuotationStatus.Expired]:  { text: 'Scaduto',   cls: 'badge-warning' },
 }
 
 export const PRODUCT_STATUS_INFO: Record<ProductStatus, { text: string; cls: string }> = {
-  [ProductStatus.New]:  { text: 'Nuovo', cls: 'badge-green'  },
-  [ProductStatus.Used]: { text: 'Usato', cls: 'badge-orange' },
+  [ProductStatus.New]:  { text: 'Nuovo', cls: 'badge-success' },
+  [ProductStatus.Used]: { text: 'Usato', cls: 'badge-warning' },
 }
 
 export enum ContractType {
@@ -226,9 +244,9 @@ export const CONTRACT_TYPE_LABEL: Record<ContractType, string> = {
 }
 
 export const CONTRACT_STATUS_CLS: Record<string, string> = {
-  'Attivo':  'badge-green',
-  'In scadenza': 'badge-orange',
-  'Scaduto': 'badge-red',
+  'Attivo':       'badge-success',
+  'In scadenza':  'badge-warning',
+  'Scaduto':      'badge-danger',
 }
 
 export interface ContractRenewal {

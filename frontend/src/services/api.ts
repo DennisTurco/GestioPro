@@ -75,7 +75,7 @@ export const QuotationAPI = {
 
 export const SettingsAPI = {
     getAll: () => apiFetch<Setting[]>('/settings'),
-    update: (code: string, value: string) => apiFetch<null>(`/settings/${code}`, { method: 'PUT', body: JSON.stringify(value) }),
+    update: (code: string, value: string) => apiFetch<null>(`/settings/${code}`, { method: 'PUT', body: JSON.stringify({ value }) }),
 }
 
 export const ContractAPI = {

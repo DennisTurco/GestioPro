@@ -361,6 +361,8 @@ export default function SchedaCliente() {
     ? quotations
     : quotations.filter(q => q.quotationStatus === quotationFilter)
 
+  const filteredQuotationsTotal = filteredQuotations.reduce((s, q) => s + (q.amount ?? 0), 0)
+
   if (loading) {
     return (
       <div className="text-center" style={{ padding: '64px 0' }}>
@@ -458,7 +460,7 @@ export default function SchedaCliente() {
               )}
             </div>
           </div>
-          <Badge cls="badge-blue">{CUSTOMER_TYPE_LABEL[customer.customerType]}</Badge>
+          <Badge cls="badge-info">{CUSTOMER_TYPE_LABEL[customer.customerType]}</Badge>
         </div>
       </div>
 
@@ -530,6 +532,7 @@ export default function SchedaCliente() {
                 Nuovo Preventivo
               </button>
             </div>
+            <div className="table-card">
             <div className="table-wrapper">
               <table className="data-table">
                 <thead>
@@ -580,6 +583,11 @@ export default function SchedaCliente() {
                 </tbody>
               </table>
             </div>
+            <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="text-muted text-sm">{filteredQuotations.length} preventivi</span>
+              <span className="font-semibold">Totale: {formatCurrency(filteredQuotationsTotal)}</span>
+            </div>
+            </div>
           </div>
         )}
 
@@ -621,7 +629,7 @@ export default function SchedaCliente() {
                       <td><strong>{c.title}</strong></td>
                       <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? '—'}</td>
                       <td>
-                        <Badge cls={CONTRACT_STATUS_CLS[c.status] ?? 'badge-gray'}>{c.status}</Badge>
+                        <Badge cls={CONTRACT_STATUS_CLS[c.status] ?? 'badge-muted'}>{c.status}</Badge>
                       </td>
                       <td>{formatCurrency(c.amount)}</td>
                       <td>{formatDate(c.startDate)}</td>

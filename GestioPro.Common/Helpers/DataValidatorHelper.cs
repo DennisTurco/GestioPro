@@ -28,6 +28,6 @@ public static class DataValidatorHelper
             "Email" => DataType.Email,
             "VatNumber" => DataType.VatNumber,
             "FiscalNumber" => DataType.FiscalNumber,
-            _ => throw new Exception("Non è possibile convertire correttamente il codice fornito"),
+            _ => throw new NotImplementedException("Non è possibile convertire correttamente il codice fornito"),
         };
 }

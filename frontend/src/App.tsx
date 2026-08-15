@@ -12,6 +12,9 @@ import Categorie from './pages/Categorie'
 import Impostazioni from './pages/Impostazioni'
 import Task from './pages/Task'
 import Profilo from './pages/Profilo'
+import RequireRole from './components/RequireRole'
+import { UserRole } from './types'
+import Utenti from './pages/Utenti'
 import Contratti from './pages/Contracts'
 
 export default function App() {
@@ -23,6 +26,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/utenti" element={<RequireRole role={UserRole.Admin}><Utenti /></RequireRole>} />
               <Route path="/clienti" element={<Clienti />} />
               <Route path="/clienti/:id" element={<SchedaCliente />} />
               <Route path="/preventivi" element={<Preventivi />} />

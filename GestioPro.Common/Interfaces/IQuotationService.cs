@@ -7,7 +7,7 @@ public interface IQuotationService
 {
     Task<List<QuotationResponseDTO>> GetAllAsync();
     Task<QuotationResponseDTO?> GetByIdAsync(long id);
-    Task CreateAsync(QuotationRequestDTO dto);
+    Task<QuotationResponseDTO> CreateAsync(QuotationRequestDTO dto);
     Task<QuotationResponseDTO> UpdateAsync(long id, QuotationRequestDTO dto);
     Task<QuotationResponseDTO> UpdateStatusAsync(long id, QuotationStatus status);
     Task DisableAsync(long id);

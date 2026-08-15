@@ -121,7 +121,8 @@ curl -X POST https://localhost:7160/api/v1/auth/register \
 
 ```bash
 cd frontend
-npm install       # first time only
+npm install       # first time only — required, otherwise the editor/TS will report
+                  # "Cannot find module 'react'" and the app won't build or run
 ```
 
 ### Web version

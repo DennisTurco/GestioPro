@@ -2,15 +2,23 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getInitials } from '../../utils/user'
+import { UserRole } from '../../types'
 
 interface NavItem {
   path: string
   page: string
   icon: string
   label: string
+  disabled?: boolean
 }
 
-const NAV_ITEMS: NavItem[] = [
+const ADMIN_ITEMS: NavItem[] = [
+  { path: '/utenti',       page: 'utenti',       icon: 'fa-solid fa-users-gear',     label: 'Utenti'       },
+  { path: '/audit',        page: 'audit',        icon: 'fa-solid fa-scroll',         label: 'Audit',     disabled: true },
+  { path: '/ripristino',   page: 'ripristino',   icon: 'fa-solid fa-rotate-left',    label: 'Ripristino',  disabled: true },
+]
+
+const MAIN_ITEMS: NavItem[] = [
   { path: '/',            page: 'dashboard',   icon: 'fa-solid fa-chart-pie',      label: 'Dashboard'    },
   { path: '/clienti',     page: 'clienti',     icon: 'fa-solid fa-users',          label: 'Clienti'      },
   { path: '/preventivi',  page: 'preventivi',  icon: 'fa-solid fa-receipt',        label: 'Preventivi'   },
@@ -29,7 +37,7 @@ const SYSTEM_ITEMS: NavItem[] = [
 export default function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem('sidebar-collapsed') === 'true')
 
   function isActive(path: string) {
@@ -60,8 +68,24 @@ export default function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
+        {user?.userRole === UserRole.Admin && <>
+        <div className="sidebar-section-label">Amministrazione</div>
+        {ADMIN_ITEMS.map(item => (
+          <div
+            key={item.page}
+            className={`nav-item${isActive(item.path) && !item.disabled ? ' active' : ''}${item.disabled ? ' nav-item--disabled' : ''}`}
+            onClick={item.disabled ? undefined : () => navigate(item.path)}
+            title={item.disabled ? `${item.label} (coming soon)` : collapsed ? item.label : undefined}
+          >
+            <span className="nav-icon"><i className={item.icon} /></span>
+            <span className="nav-label">{item.label}</span>
+            {item.disabled && !collapsed && <span className="nav-soon">presto</span>}
+          </div>
+        ))}
+        </>}
+
         <div className="sidebar-section-label">Menu principale</div>
-        {NAV_ITEMS.map(item => (
+        {MAIN_ITEMS.map(item => (
           <div
             key={item.page}
             className={`nav-item${isActive(item.path) ? ' active' : ''}`}
@@ -115,6 +139,13 @@ export default function Sidebar() {
             title="Impostazioni profilo"
           >
             <i className="fa-solid fa-gear" />
+          </button>
+          <button
+            className="sidebar-profile-btn"
+            onClick={logout}
+            title="Logout"
+          >
+            <i className="fa-solid fa-right-from-bracket" />
           </button>
         </div>
       </div>

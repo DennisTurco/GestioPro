@@ -118,23 +118,17 @@ export default function Categorie() {
   const filtered = categories.filter(c => {
     const q = search.toLowerCase()
     return (
-      c.name.toLowerCase().includes(q) ||
+      (c.name ?? '').toLowerCase().includes(q) ||
       (c.description ?? '').toLowerCase().includes(q)
     )
   })
 
   return (
-    <div className="page">
-      <div className="page-header">
-        <div>
-          <h1 className="page-title"> <i className="fa-solid fa-tags" /> Categorie</h1>
-          <p className="page-subtitle">{categories.length} categorie totali</p>
-        </div>
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24}}>
+        <h1 className="page-title"> <i className="fa-solid fa-tags" /> Categorie</h1>
         <div className="page-actions">
-          <button className="btn btn-ghost" onClick={exportCsv} title="Esporta CSV">
-            <i className="fa-solid fa-file-csv" /> Esporta CSV
-          </button>
-          <button className="btn btn-primary" onClick={openCreate}>
+          <button className="btn btn-primary btn-sm" onClick={openCreate}>
             <i className="fa-solid fa-circle-plus" /> Nuova categoria
           </button>
         </div>
@@ -151,6 +145,11 @@ export default function Categorie() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        <div className="toolbar-right">
+          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
+            <i className="fa-solid fa-download" /> Esporta
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -164,7 +163,8 @@ export default function Categorie() {
           onAction={!search ? openCreate : undefined}
         />
       ) : (
-        <div className="table-wrapper">
+        <div className="table-card">
+          <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>
@@ -198,7 +198,7 @@ export default function Categorie() {
                         <i className="fa-solid fa-pen" />
                       </button>
                       <button
-                        className="btn btn-ghost btn-sm btn-danger-hover"
+                        className="btn btn-danger btn-sm"
                         title="Elimina"
                         onClick={() => setDeleteTarget(cat)}
                       >
@@ -210,6 +210,10 @@ export default function Categorie() {
               ))}
             </tbody>
           </table>
+          </div>
+          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="text-muted text-sm">{filtered.length} categorie</span>
+          </div>
         </div>
       )}
 

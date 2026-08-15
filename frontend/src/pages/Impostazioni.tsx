@@ -165,7 +165,7 @@ export default function Impostazioni() {
 
         <div className="card mb-24">
           <div className="card-header">
-            <i className="fa-solid fa-receipt" /> Preventivi
+            <i className="fa-solid fa-sliders" /> Generale
           </div>
           <div className="card-body">
             <div className="form-group">
@@ -180,7 +180,16 @@ export default function Impostazioni() {
                 min={0}
                 max={100}
               />
+              <span className="form-hint">Applicata di default a preventivi e contratti.</span>
             </div>
+          </div>
+        </div>
+
+        <div className="card mb-24">
+          <div className="card-header">
+            <i className="fa-solid fa-receipt" /> Preventivi
+          </div>
+          <div className="card-body">
             <div className="form-group">
               <label className="form-label" htmlFor="sett-ExpirationDays">Giorni di validita</label>
               <input
