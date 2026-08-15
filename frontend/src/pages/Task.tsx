@@ -263,7 +263,7 @@ export default function Task() {
             return (
               <div key={priorita}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <Badge text={pInfo.text} cls={pInfo.cls} />
+                  <Badge cls={pInfo.cls}>{pInfo.text}</Badge>
                   <span className="text-muted" style={{ fontSize: '0.85em' }}>{items.length} task</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -292,7 +292,7 @@ export default function Task() {
                               <strong style={{ textDecoration: t.stato === 'completato' ? 'line-through' : 'none' }}>
                                 {t.titolo}
                               </strong>
-                              <Badge text={sInfo.text} cls={sInfo.cls} />
+                              <Badge cls={sInfo.cls}>{sInfo.text}</Badge>
                               {t.scadenza && (
                                 <span
                                   className={overdue ? 'badge badge-danger' : 'badge badge-secondary'}

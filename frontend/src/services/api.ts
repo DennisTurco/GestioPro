@@ -1,4 +1,4 @@
-import type { Customer, CustomerRequest, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting } from '../types'
+import type { Customer, CustomerRequest, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest } from '../types'
 
 const API_BASE = window.location.protocol === 'file:'
     ? 'https://localhost:7160/api/v1'
@@ -76,5 +76,20 @@ export const QuotationAPI = {
 export const SettingsAPI = {
     getAll: () => apiFetch<Setting[]>('/settings'),
     update: (code: string, value: string) => apiFetch<null>(`/settings/${code}`, { method: 'PUT', body: JSON.stringify(value) }),
+}
+
+export const ContractAPI = {
+    getAll: ()                              => apiFetch<Contract[]>('/contracts'),
+    getById: (id: number)                   => apiFetch<Contract>(`/contracts/${id}`),
+    create: (data: ContractRequest)         => apiFetch<Contract>('/contracts', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: number, data: ContractRequest) => apiFetch<Contract>(`/contracts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    getNextNumber: (quotationId: number, quotationNumber: string) => apiFetch<string>(`/contracts/next-number?quotationId=${quotationId}&quotationNumber=${encodeURIComponent(quotationNumber)}`),
+    renewal: (id: number)                   => apiFetch<Contract>(`/contracts/renewal?contractId=${id}`),
+}
+
+export const ContractRenewalAPI = {
+    getByContractId: (contractId: number)           => apiFetch<ContractRenewal[]>(`/contract-renewals/${contractId}`),
+    create: (data: ContractRenewalRequest)           => apiFetch<ContractRenewal>('/contract-renewals', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: number)                             => apiFetch<null>(`/contract-renewals/${id}`, { method: 'DELETE' }),
 }
 

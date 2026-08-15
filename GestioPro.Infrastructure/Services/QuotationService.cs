@@ -1,6 +1,7 @@
 using GestioPro.Common.DTOs;
 using GestioPro.Common.Enums;
 using GestioPro.Common.Exceptions;
+using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using GestioPro.Common.Models;
 using GestioPro.Infrastructure.Data;
@@ -126,10 +127,8 @@ public class QuotationService(AppDbContext context) : IQuotationService
         var quotationNumber = lastQuotation.Number.Split('-');
         if (int.Parse(quotationNumber[0]) != year)
             return $"{year}-001";
-
-        var counter = int.Parse(quotationNumber[1].PadLeft(3, '0')) + 1;
-        string zeroes = "000".Substring(counter.ToString().Length);
-        return $"{year}-{zeroes}{counter}";
+        
+        return $"{year}-{quotationNumber[1].GetNext()}";
     }
 
     private static QuotationResponseDTO MapToDto(Quotation q)

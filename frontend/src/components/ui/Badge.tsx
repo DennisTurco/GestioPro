@@ -1,8 +1,8 @@
 interface BadgeProps {
-  text: string
   cls: string
+  children: React.ReactNode
 }
 
-export default function Badge(badge: BadgeProps) {
-  return <span className={`badge ${badge.cls}`}>{badge.text}</span>
+export default function Badge({ cls, children }: BadgeProps) {
+  return <span className={`badge ${cls}`}>{children}</span>
 }

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI } from '../services/api'
-import type { Customer, CustomerRequest, Quotation, QuotationRequest } from '../types'
-import { QuotationStatus, QUOTATION_STATUS_INFO, CustomerType, CUSTOMER_TYPE_LABEL } from '../types'
+import { ClientiAPI, QuotationAPI, ContractAPI } from '../services/api'
+import type { Contract, ContractRequest, Customer, CustomerRequest, Quotation, QuotationRequest } from '../types'
+import { QuotationStatus, QUOTATION_STATUS_INFO, CUSTOMER_TYPE_LABEL, CONTRACT_TYPE_LABEL, CONTRACT_STATUS_CLS } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { formatDate } from '../utils/date'
 import { useToast } from '../context/ToastContext'
@@ -10,7 +10,7 @@ import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import Badge from '../components/ui/Badge'
 
-type Tab = 'preventivi' | 'note'
+type Tab = 'preventivi' | 'contratti' | 'note'
 type QuotationFilter = 'all' | QuotationStatus
 
 export default function SchedaCliente() {
@@ -20,6 +20,7 @@ export default function SchedaCliente() {
 
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [quotations, setQuotations] = useState<Quotation[]>([])
+  const [contracts, setContracts] = useState<Contract[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('preventivi')
   const [quotationFilter, setQuotationFilter] = useState<QuotationFilter>('all')
@@ -44,14 +45,30 @@ export default function SchedaCliente() {
   const [deletingQuotationId, setDeletingQuotationId] = useState<number | null>(null)
   const [deleteQuotationLoading, setDeleteQuotationLoading] = useState(false)
 
+  const [renewTarget, setRenewTarget] = useState<Contract | null>(null)
+  const [renewing, setRenewing] = useState(false)
+
+  const [contractEditTarget, setContractEditTarget] = useState<Contract | null>(null)
+  const [contractEditOpen, setContractEditOpen] = useState(false)
+  const [contractEditForm, setContractEditForm] = useState({ title: '', amount: '', vatPercentage: '', description: '', notes: '' })
+  const [contractEditSaving, setContractEditSaving] = useState(false)
+
+  const [contractCreateOpen, setContractCreateOpen] = useState(false)
+  const [contractCreateForm, setContractCreateForm] = useState({ quotationId: 0, number: '', title: '', amount: '', vatPercentage: '22', description: '', notes: '', contractType: '2', startDate: new Date().toISOString().slice(0, 10) })
+  const [contractCreateSaving, setContractCreateSaving] = useState(false)
+  const [contractNumberLoading, setContractNumberLoading] = useState(false)
+
   useEffect(() => {
     if (!id) return
     const numId = Number(id)
     setLoading(true)
-    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll()])
-      .then(([c, qs]) => {
+    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll()])
+      .then(([c, qs, cs]) => {
+        const customerQuotations = qs.filter(q => q.customerId === numId)
+        const quotationIds = new Set(customerQuotations.map(q => q.id))
         setCustomer(c)
-        setQuotations(qs.filter(q => q.customerId === numId))
+        setQuotations(customerQuotations)
+        setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
         setNote(c.notes ?? '')
         document.title = `${c.name} ${c.surname} - GestioPro`
       })
@@ -239,6 +256,107 @@ export default function SchedaCliente() {
     }
   }
 
+  async function handleRenewal() {
+    if (!renewTarget) return
+    setRenewing(true)
+    try {
+      const renewed = await ContractAPI.renewal(renewTarget.id)
+      setContracts(prev => prev.map(c => c.id === renewTarget.id ? renewed : c))
+      showToast('Contratto rinnovato', 'success')
+      setRenewTarget(null)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore nel rinnovo', 'error')
+    } finally {
+      setRenewing(false)
+    }
+  }
+
+  function openEditContract(c: Contract) {
+    setContractEditTarget(c)
+    setContractEditForm({
+      title: c.title,
+      amount: String(c.amount),
+      vatPercentage: String(c.vatPercentage),
+      description: c.description ?? '',
+      notes: c.notes ?? '',
+    })
+    setContractEditOpen(true)
+  }
+
+  async function handleContractSave() {
+    if (!contractEditTarget) return
+    setContractEditSaving(true)
+    try {
+      const payload: ContractRequest = {
+        quotationId: contractEditTarget.quotationId,
+        contractType: contractEditTarget.contractType,
+        number: contractEditTarget.number,
+        title: contractEditForm.title.trim(),
+        amount: Number(contractEditForm.amount),
+        vatPercentage: Number(contractEditForm.vatPercentage),
+        startDate: contractEditTarget.startDate,
+        description: contractEditForm.description || undefined,
+        notes: contractEditForm.notes || undefined,
+      }
+      const updated = await ContractAPI.update(contractEditTarget.id, payload)
+      setContracts(prev => prev.map(c => c.id === contractEditTarget.id ? updated : c))
+      showToast('Contratto aggiornato', 'success')
+      setContractEditOpen(false)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore nel salvataggio', 'error')
+    } finally {
+      setContractEditSaving(false)
+    }
+  }
+
+  async function handleContractQuotationChange(quotationId: number) {
+    setContractCreateForm(f => ({ ...f, quotationId }))
+    if (!quotationId) return
+    const q = quotations.find(q => q.id === quotationId)
+    if (q) setContractCreateForm(f => ({ ...f, title: f.title || q.title, amount: f.amount || String(q.amount) }))
+    setContractNumberLoading(true)
+    try {
+      const num = await ContractAPI.getNextNumber(quotationId, q?.number ?? '')
+      setContractCreateForm(f => ({ ...f, number: num }))
+    } catch {
+      showToast('Numero non generato automaticamente, inseriscilo a mano', 'warning')
+    } finally {
+      setContractNumberLoading(false)
+    }
+  }
+
+  async function handleContractCreate() {
+    if (!contractCreateForm.quotationId) { showToast('Seleziona il preventivo', 'warning'); return }
+    if (!contractCreateForm.number.trim() || !contractCreateForm.title.trim()) { showToast('Numero e titolo obbligatori', 'warning'); return }
+    if (!contractCreateForm.amount || Number(contractCreateForm.amount) <= 0) { showToast('Importo non valido', 'warning'); return }
+    setContractCreateSaving(true)
+    try {
+      await ContractAPI.create({
+        quotationId: contractCreateForm.quotationId,
+        contractType: Number(contractCreateForm.contractType),
+        number: contractCreateForm.number.trim(),
+        title: contractCreateForm.title.trim(),
+        amount: Number(contractCreateForm.amount),
+        vatPercentage: Number(contractCreateForm.vatPercentage),
+        startDate: contractCreateForm.startDate,
+        description: contractCreateForm.description || undefined,
+        notes: contractCreateForm.notes || undefined,
+      })
+      const cs = await ContractAPI.getAll()
+      const numId = Number(id)
+      const quotationIds = new Set(quotations.map(q => q.id))
+      setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
+      showToast('Contratto creato', 'success')
+      setContractCreateOpen(false)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore nel salvataggio', 'error')
+    } finally {
+      setContractCreateSaving(false)
+    }
+  }
+
+  const acceptedQuotations = quotations.filter(q => q.quotationStatus === QuotationStatus.Accepted)
+
   const filteredQuotations = quotationFilter === 'all'
     ? quotations
     : quotations.filter(q => q.quotationStatus === quotationFilter)
@@ -340,7 +458,7 @@ export default function SchedaCliente() {
               )}
             </div>
           </div>
-          <Badge text={CUSTOMER_TYPE_LABEL[customer.customerType]} cls="badge-blue" />
+          <Badge cls="badge-blue">{CUSTOMER_TYPE_LABEL[customer.customerType]}</Badge>
         </div>
       </div>
 
@@ -366,8 +484,19 @@ export default function SchedaCliente() {
             }}
             onClick={() => setActiveTab('preventivi')}
           >
-            <i className="fa-solid fa-file-contract" style={{ marginRight: 6 }} />
+            <i className="fa-solid fa-file-invoice" style={{ marginRight: 6 }} />
             Preventivi ({quotations.length})
+          </button>
+          <button
+            className="btn btn-ghost"
+            style={{
+              borderRadius: 0,
+              borderBottom: activeTab === 'contratti' ? '2px solid var(--accent)' : '2px solid transparent',
+            }}
+            onClick={() => setActiveTab('contratti')}
+          >
+            <i className="fa-solid fa-file-contract" style={{ marginRight: 6 }} />
+            Contratti ({contracts.length})
           </button>
           <button
             className="btn btn-ghost"
@@ -426,7 +555,7 @@ export default function SchedaCliente() {
                         <td><strong>{q.number}</strong></td>
                         <td>{q.title}</td>
                         <td>{formatCurrency(q.amount)}</td>
-                        <td><Badge text={si.text} cls={si.cls} /></td>
+                        <td><Badge cls={si.cls}>{si.text}</Badge></td>
                         <td>
                           <div style={{ display: 'flex', gap: 4 }}>
                             <button
@@ -448,6 +577,67 @@ export default function SchedaCliente() {
                       </tr>
                     )
                   })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'contratti' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 20px 12px' }}>
+              <button className="btn btn-primary btn-sm" onClick={() => {
+                setContractCreateForm({ quotationId: 0, number: '', title: '', amount: '', vatPercentage: '22', description: '', notes: '', contractType: '2', startDate: new Date().toISOString().slice(0, 10) })
+                setContractCreateOpen(true)
+              }}>
+                <i className="fa-solid fa-plus" style={{ marginRight: 6 }} />
+                Nuovo contratto
+              </button>
+            </div>
+            <div className="table-wrapper">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Titolo</th>
+                    <th>Tipo</th>
+                    <th>Stato</th>
+                    <th>Importo</th>
+                    <th>Inizio</th>
+                    <th>Fine</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contracts.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="text-center text-muted" style={{ padding: '32px 0' }}>
+                        Nessun contratto trovato
+                      </td>
+                    </tr>
+                  ) : contracts.map(c => (
+                    <tr key={c.id}>
+                      <td><code style={{ fontSize: 12 }}>{c.number}</code></td>
+                      <td><strong>{c.title}</strong></td>
+                      <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? '—'}</td>
+                      <td>
+                        <Badge cls={CONTRACT_STATUS_CLS[c.status] ?? 'badge-gray'}>{c.status}</Badge>
+                      </td>
+                      <td>{formatCurrency(c.amount)}</td>
+                      <td>{formatDate(c.startDate)}</td>
+                      <td>{c.endDate ? formatDate(c.endDate) : <span className="text-muted">—</span>}</td>
+                      <td>
+                        <div className="row-actions">
+                          <button className="btn btn-ghost btn-sm" title="Rinnova" onClick={() => setRenewTarget(c)}>
+                            <i className="fa-solid fa-rotate-right" />
+                          </button>
+                          <button className="btn btn-ghost btn-sm" title="Modifica" onClick={() => openEditContract(c)}>
+                            <i className="fa-solid fa-pen" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -731,6 +921,121 @@ export default function SchedaCliente() {
         message={`Sei sicuro di voler eliminare il cliente ${customer.name} ${customer.surname}? Tutti i dati associati verranno rimossi.`}
         loading={deleteLoading}
       />
+
+      {/* ── RINNOVO CONTRATTO ── */}
+      <ConfirmModal
+        isOpen={renewTarget !== null}
+        onClose={() => setRenewTarget(null)}
+        onConfirm={handleRenewal}
+        loading={renewing}
+        message={renewTarget ? `Rinnova il contratto "${renewTarget.title}"? La data di fine verrà estesa in base al tipo (${CONTRACT_TYPE_LABEL[renewTarget.contractType]}).` : ''}
+      />
+
+      {/* ── MODIFICA CONTRATTO ── */}
+      <Modal
+        isOpen={contractEditOpen}
+        onClose={() => setContractEditOpen(false)}
+        title="Modifica contratto"
+        icon="fa-solid fa-file-contract"
+        footer={
+          <>
+            <button className="btn btn-ghost" onClick={() => setContractEditOpen(false)} disabled={contractEditSaving}>Annulla</button>
+            <button className="btn btn-primary" onClick={handleContractSave} disabled={contractEditSaving}>
+              {contractEditSaving ? <span className="spinner" /> : 'Salva'}
+            </button>
+          </>
+        }
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Titolo <span className="required">*</span></label>
+            <input type="text" className="form-control" value={contractEditForm.title} onChange={e => setContractEditForm(f => ({ ...f, title: e.target.value }))} maxLength={200} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Importo (€) <span className="required">*</span></label>
+            <input type="number" className="form-control" value={contractEditForm.amount} onChange={e => setContractEditForm(f => ({ ...f, amount: e.target.value }))} min={0} step={0.01} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">IVA %</label>
+            <input type="number" className="form-control" value={contractEditForm.vatPercentage} onChange={e => setContractEditForm(f => ({ ...f, vatPercentage: e.target.value }))} min={0} max={100} />
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Descrizione</label>
+            <textarea className="form-control" rows={3} value={contractEditForm.description} onChange={e => setContractEditForm(f => ({ ...f, description: e.target.value }))} maxLength={2000} />
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Note</label>
+            <textarea className="form-control" rows={2} value={contractEditForm.notes} onChange={e => setContractEditForm(f => ({ ...f, notes: e.target.value }))} maxLength={1000} />
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── NUOVO CONTRATTO ── */}
+      <Modal
+        isOpen={contractCreateOpen}
+        onClose={() => setContractCreateOpen(false)}
+        title="Nuovo contratto"
+        icon="fa-solid fa-file-contract"
+        footer={
+          <>
+            <button className="btn btn-ghost" onClick={() => setContractCreateOpen(false)} disabled={contractCreateSaving}>Annulla</button>
+            <button className="btn btn-primary" onClick={handleContractCreate} disabled={contractCreateSaving}>
+              {contractCreateSaving ? <span className="spinner" /> : 'Crea'}
+            </button>
+          </>
+        }
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Preventivo accettato <span className="required">*</span></label>
+            <select className="form-control" value={contractCreateForm.quotationId} onChange={e => handleContractQuotationChange(Number(e.target.value))}>
+              <option value={0}>— Seleziona preventivo —</option>
+              {acceptedQuotations.map(q => (
+                <option key={q.id} value={q.id}>#{q.number} — {q.title}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">
+              Numero <span className="required">*</span>
+              {contractNumberLoading && <span className="spinner" style={{ marginLeft: 8, width: 12, height: 12 }} />}
+            </label>
+            <input type="text" className="form-control" value={contractCreateForm.number} onChange={e => setContractCreateForm(f => ({ ...f, number: e.target.value }))} placeholder="es. 2024-001-001" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Tipo contratto</label>
+            <select className="form-control" value={contractCreateForm.contractType} onChange={e => setContractCreateForm(f => ({ ...f, contractType: e.target.value }))}>
+              {Object.entries(CONTRACT_TYPE_LABEL).map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Titolo <span className="required">*</span></label>
+            <input type="text" className="form-control" value={contractCreateForm.title} onChange={e => setContractCreateForm(f => ({ ...f, title: e.target.value }))} maxLength={200} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Data inizio <span className="required">*</span></label>
+            <input type="date" className="form-control" value={contractCreateForm.startDate} onChange={e => setContractCreateForm(f => ({ ...f, startDate: e.target.value }))} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Importo (€) <span className="required">*</span></label>
+            <input type="number" className="form-control" value={contractCreateForm.amount} onChange={e => setContractCreateForm(f => ({ ...f, amount: e.target.value }))} min={0} step={0.01} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">IVA %</label>
+            <input type="number" className="form-control" value={contractCreateForm.vatPercentage} onChange={e => setContractCreateForm(f => ({ ...f, vatPercentage: e.target.value }))} min={0} max={100} />
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Descrizione</label>
+            <textarea className="form-control" rows={3} value={contractCreateForm.description} onChange={e => setContractCreateForm(f => ({ ...f, description: e.target.value }))} maxLength={2000} />
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Note</label>
+            <textarea className="form-control" rows={2} value={contractCreateForm.notes} onChange={e => setContractCreateForm(f => ({ ...f, notes: e.target.value }))} maxLength={1000} />
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

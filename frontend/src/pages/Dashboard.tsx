@@ -67,8 +67,8 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ margin: 0 }}>Dashboard</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
+        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-chart-pie" /> Dashboard</h1>
         <button className="btn btn-primary btn-sm" onClick={() => setQuickActionOpen(true)}>
           <i className="fa-solid fa-bolt" style={{ marginRight: 6 }} />
           Azione rapida
@@ -205,7 +205,7 @@ export default function Dashboard() {
                       <td>{formatDate(q.issueDate)}</td>
                       <td>{formatDate(q.validityDate)}</td>
                       <td>
-                        <Badge text={statusInfo.text} cls={statusInfo.cls} />
+                        <Badge cls={statusInfo.cls}>{statusInfo.text}</Badge>
                       </td>
                     </tr>
                   )
@@ -234,8 +234,15 @@ export default function Dashboard() {
             className="btn btn-primary"
             onClick={() => { setQuickActionOpen(false); navigate('/preventivi') }}
           >
-            <i className="fa-solid fa-file-contract" style={{ marginRight: 8 }} />
+            <i className="fa-solid fa-file-receipt" style={{ marginRight: 8 }} />
             Nuovo preventivo
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={() => { setQuickActionOpen(false); navigate('/contratti') }}
+          >
+            <i className="fa-solid fa-file-contract" style={{ marginRight: 8 }} />
+            Nuovo contratto
           </button>
           <button
             className="btn btn-primary"
