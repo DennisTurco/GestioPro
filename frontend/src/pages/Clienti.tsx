@@ -194,14 +194,14 @@ export default function Clienti() {
 
   return (
     <div className="page-content">
-      <div className="page-header">
-        <h1 className="topbar-title">Clienti</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
+        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-users" /> Clienti</h1>
         <div className="page-actions">
           <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
             <i className="fa-solid fa-file-csv" /> Esporta CSV
           </button>
           <button className="btn btn-primary btn-sm" onClick={openCreate}>
-            <i className="fa-solid fa-plus" /> Nuovo cliente
+            <i className="fa-solid fa-circle-plus" /> Nuovo cliente
           </button>
         </div>
       </div>

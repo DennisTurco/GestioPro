@@ -127,7 +127,7 @@ export default function Categorie() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Categorie</h1>
+          <h1 className="page-title"> <i className="fa-solid fa-tags" /> Categorie</h1>
           <p className="page-subtitle">{categories.length} categorie totali</p>
         </div>
         <div className="page-actions">
@@ -135,7 +135,7 @@ export default function Categorie() {
             <i className="fa-solid fa-file-csv" /> Esporta CSV
           </button>
           <button className="btn btn-primary" onClick={openCreate}>
-            <i className="fa-solid fa-plus" /> Nuova categoria
+            <i className="fa-solid fa-circle-plus" /> Nuova categoria
           </button>
         </div>
       </div>

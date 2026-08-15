@@ -178,3 +178,72 @@ export const PRODUCT_STATUS_INFO: Record<ProductStatus, { text: string; cls: str
   [ProductStatus.New]:  { text: 'Nuovo', cls: 'badge-green'  },
   [ProductStatus.Used]: { text: 'Usato', cls: 'badge-orange' },
 }
+
+export enum ContractType {
+  Monthly   = 0,
+  Quarterly = 1,
+  Semestral = 2,
+  Annual    = 3,
+}
+
+export interface Contract {
+  id: number
+  quotationId: number
+  contractType: ContractType
+  number: string
+  title: string
+  amount: number
+  totalAmount: number
+  vatPercentage: number
+  description?: string
+  notes?: string
+  startDate: string
+  endDate: string
+  filePath?: string
+  creationDate: string
+  lastUpdateDate: string
+  status: string
+}
+
+export interface ContractRequest {
+  quotationId: number
+  contractType: ContractType
+  number: string
+  title: string
+  amount: number
+  vatPercentage: number
+  description?: string
+  notes?: string
+  filePath?: string
+  startDate: string
+}
+
+export const CONTRACT_TYPE_LABEL: Record<ContractType, string> = {
+  [ContractType.Monthly]:   'Mensile',
+  [ContractType.Quarterly]: 'Trimestrale',
+  [ContractType.Semestral]: 'Semestrale',
+  [ContractType.Annual]:    'Annuale',
+}
+
+export const CONTRACT_STATUS_CLS: Record<string, string> = {
+  'Attivo':  'badge-green',
+  'In scadenza': 'badge-orange',
+  'Scaduto': 'badge-red',
+}
+
+export interface ContractRenewal {
+  id: number
+  contractId: number
+  amount: number
+  startDate: string
+  endDate: string
+  renewalDate: string
+  notes?: string
+}
+
+export interface ContractRenewalRequest {
+  contractId: number
+  amount: number
+  startDate: string
+  notes?: string
+}

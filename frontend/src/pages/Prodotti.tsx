@@ -179,22 +179,21 @@ export default function Prodotti() {
 
   return (
     <div className="page">
-      <div className="page-header">
-        <h1 className="page-title">
-          <i className="fa-solid fa-box" /> Prodotti
-        </h1>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
+        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-box" /> Prodotti</h1>
         <div className="page-actions">
           <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
             <i className="fa-solid fa-file-csv" /> Esporta CSV
           </button>
           <button className="btn btn-primary" onClick={openCreate}>
-            <i className="fa-solid fa-plus" /> Nuovo prodotto
+            <i className="fa-solid fa-circle-plus" /> Nuovo prodotto
           </button>
         </div>
       </div>
 
-      <div className="filter-bar">
-        <div className="search-bar">
+      <div className="toolbar">
+        <div className="search-bar" style={{ flex: 1 }}>
           <i className="fa-solid fa-search search-icon" />
           <input
             type="text"
@@ -206,6 +205,7 @@ export default function Prodotti() {
         </div>
         <select
           className="form-control"
+          style={{ width: 200 }}
           value={categoryFilter}
           onChange={e => setCategoryFilter(e.target.value === '' ? '' : Number(e.target.value))}
         >
@@ -216,6 +216,7 @@ export default function Prodotti() {
         </select>
         <select
           className="form-control"
+          style={{ width: 140 }}
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value === '' ? '' : Number(e.target.value) as ProductStatus)}
         >
@@ -260,10 +261,9 @@ export default function Prodotti() {
                   </td>
                   <td>{p.categoryName}</td>
                   <td>
-                    <Badge
-                      text={PRODUCT_STATUS_INFO[p.productStatus].text}
-                      cls={PRODUCT_STATUS_INFO[p.productStatus].cls}
-                    />
+                    <Badge cls={PRODUCT_STATUS_INFO[p.productStatus].cls}>
+                      {PRODUCT_STATUS_INFO[p.productStatus].text}
+                    </Badge>
                   </td>
                   <td>{p.quantity ?? '—'}</td>
                   <td>{p.vatPercentage}%</td>
