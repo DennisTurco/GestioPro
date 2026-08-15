@@ -5,11 +5,12 @@ interface ConfirmModalProps {
   onClose: () => void
   onConfirm: () => void
   title?: string
+  buttonText?: string
   message: string
   loading?: boolean
 }
 
-export default function ConfirmModal({ isOpen, onClose, onConfirm, title = 'Conferma eliminazione', message, loading }: ConfirmModalProps) {
+export default function ConfirmModal({ isOpen, onClose, onConfirm, title = 'Conferma eliminazione', buttonText = 'Elimina', message, loading }: ConfirmModalProps) {
   return (
     <Modal
       isOpen={isOpen}
@@ -20,7 +21,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title = 'Conf
         <>
           <button className="btn btn-ghost" onClick={onClose} disabled={loading}>Annulla</button>
           <button className="btn btn-danger" onClick={onConfirm} disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Elimina'}
+            {loading ? <span className="spinner" /> : buttonText}
           </button>
         </>
       }

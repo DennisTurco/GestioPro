@@ -4,21 +4,13 @@ import { QuotationAPI, ClientiAPI, SettingsAPI } from "../services/api";
 import type { Quotation, QuotationRequest, Customer, Setting } from "../types";
 import { QuotationStatus, QUOTATION_STATUS_INFO } from "../types";
 import { formatCurrency } from "../utils/currency";
-import { formatDate } from "../utils/date";
+import { formatDate, toDateInput } from "../utils/date";
 import { useToast } from "../context/ToastContext";
 import Modal from "../components/ui/Modal";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import Badge from "../components/ui/Badge";
 import EmptyState from "../components/ui/EmptyState";
-
-function toDateInput(iso: string | undefined | null): string {
-  if (!iso) return "";
-  return iso.slice(0, 10);
-}
-
-function getSettingValue(settings: Setting[], code: string): string | null {
-  return settings.find((s) => s.code === code)?.value ?? null;
-}
+import { getSettingValue } from "../utils/settings";
 
 interface FormState {
   number: string;
@@ -102,20 +94,22 @@ export default function Preventivi() {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return quotations.filter((p) => {
-      if (
-        q &&
-        !p.number.toLowerCase().includes(q) &&
-        !p.title.toLowerCase().includes(q) &&
-        !p.customerName.toLowerCase().includes(q)
-      )
-        return false;
-      if (statusFilter && p.quotationStatus !== Number(statusFilter))
-        return false;
-      if (customerFilter && p.customerId !== Number(customerFilter))
-        return false;
-      return true;
-    });
+    return quotations
+      .filter((p) => {
+        if (
+          q &&
+          !p.number.toLowerCase().includes(q) &&
+          !p.title.toLowerCase().includes(q) &&
+          !p.customerName.toLowerCase().includes(q)
+        )
+          return false;
+        if (statusFilter && p.quotationStatus !== Number(statusFilter))
+          return false;
+        if (customerFilter && p.customerId !== Number(customerFilter))
+          return false;
+        return true;
+      })
+      .sort((a, b) => b.number.localeCompare(a.number, undefined, { numeric: true }));
   }, [quotations, search, statusFilter, customerFilter]);
 
   function kpiFor(status: QuotationStatus) {
@@ -419,15 +413,8 @@ export default function Preventivi() {
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 24,
-        }}
-      >
-        <h1 style={{ margin: 0 }}>Preventivi</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
+        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-receipt" /> Preventivi</h1>
         <button className="btn btn-primary btn-sm" onClick={openNew}>
           <i className="fa-solid fa-circle-plus" style={{ marginRight: 6 }} />
           Nuovo preventivo
@@ -616,10 +603,7 @@ export default function Preventivi() {
                         <td>{formatDate(q.validityDate)}</td>
                         <td>
                           {statusInfo && (
-                            <Badge
-                              text={statusInfo.text}
-                              cls={statusInfo.cls}
-                            />
+                            <Badge cls={statusInfo.cls}>{statusInfo.text}</Badge>
                           )}
                         </td>
                         <td>

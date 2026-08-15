@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Quotation> Quotations => Set<Quotation>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Contract> Contracts => Set<Contract>();
+    public DbSet<ContractRenewal> ContractRenewals => Set<ContractRenewal>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Settings> Settings => Set<Settings>();
 
@@ -29,6 +30,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasIndex(p => p.Code).IsUnique();
 
         modelBuilder.Entity<Quotation>()
+            .HasIndex(q => q.Number).IsUnique();
+
+        modelBuilder.Entity<Contract>()
             .HasIndex(q => q.Number).IsUnique();
 
         // default values

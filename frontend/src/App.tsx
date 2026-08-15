@@ -15,6 +15,7 @@ import Profilo from './pages/Profilo'
 import RequireRole from './components/RequireRole'
 import { UserRole } from './types'
 import Utenti from './pages/Utenti'
+import Contratti from './pages/Contracts'
 
 export default function App() {
   return (
@@ -29,11 +30,13 @@ export default function App() {
               <Route path="/clienti" element={<Clienti />} />
               <Route path="/clienti/:id" element={<SchedaCliente />} />
               <Route path="/preventivi" element={<Preventivi />} />
+              <Route path="/contratti" element={<Contratti />} />
               <Route path="/prodotti" element={<Prodotti />} />
               <Route path="/categorie" element={<Categorie />} />
               <Route path="/impostazioni" element={<Impostazioni />} />
               <Route path="/task" element={<Task />} />
               <Route path="/profilo" element={<Profilo />} />
+              <Route path="/contratti" element={<Contratti />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
