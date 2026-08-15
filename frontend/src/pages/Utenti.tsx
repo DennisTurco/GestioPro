@@ -13,10 +13,11 @@ const EMPTY_FORM: UserCreateRequest = {
     username: '',
     email: '',
     password: '',
-    role: UserRole.Operator
+    isDisabled: false,
+    userRole: UserRole.Operator,
 }
 
-export default function Admin() {
+export default function Utenti() {
   const { showToast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
@@ -24,11 +25,12 @@ export default function Admin() {
   const [error, _] = useState(false);
 
   const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState<UserRole | ''>('')
 
     const [modalOpen, setModalOpen] = useState(false)
+    const [modalPasswordOpen, setPasswordModalOpen] = useState(false)
     const [editTarget, setEditTarget] = useState<User | null>(null)
     const [form, setForm] = useState<UserCreateRequest>(EMPTY_FORM)
-    const [role, setRole] = useState<'Admin' | 'Operator'>('Operator')
     const [saving, setSaving] = useState(false)
 
     const [deleteTarget, setDeleteTarget] = useState<User | null>(null)
@@ -40,7 +42,7 @@ export default function Admin() {
     })
 
   useEffect(() => {
-    document.title = "Admin - GestioPro";
+    document.title = "Utenti - GestioPro";
     loadUsers();
   }, []);
 
@@ -80,28 +82,31 @@ export default function Admin() {
   function openCreate() {
     setEditTarget(null);
     setForm(EMPTY_FORM);
-    setRole('Operator');
+    setPwForm({ pwd: '', confirm: '' });
     setModalOpen(true);
   }
 
   function openEdit(user: User) {
     setEditTarget(user);
-    setForm({ role: user.role, name: user.name, surname: user.surname, email: user.email, username: user.username, password: '' });
-    setRole('Operator');
+    setForm({ userRole: user.userRole, name: user.name, surname: user.surname, email: user.email, username: user.username, password: '', isDisabled: user.isDisabled });
     setModalOpen(true);
   }
 
   function openPasswordReset(user: User) {
     setEditTarget(user);
-    setForm({ role: user.role, name: user.name, surname: user.surname, email: user.email, username: user.username, password: '' });
-    setModalOpen(true);
+    setPwForm({ pwd: '', confirm: '' });
+    setPasswordModalOpen(true);
   }
 
   function closeModal() {
     setModalOpen(false);
     setEditTarget(null);
     setForm(EMPTY_FORM);
-    setRole('Operator');
+    setPwForm({ pwd: '', confirm: '' });
+  }
+
+  function closeModalPassword() {
+    setPasswordModalOpen(false);
   }
 
   async function handleSave() {
@@ -121,18 +126,24 @@ export default function Admin() {
       showToast("Lo username è obbligatorio", "warning");
       return;
     }
-    passwordValidation();
+    if (!editTarget) {
+      const valid = await passwordValidation();
+      if (!valid) return;
+    }
+    const payload = editTarget
+      ? form
+      : { ...form, password: pwForm.pwd };
     setSaving(true);
     try {
       if (editTarget) {
-        const updated = await UserAPI.updateProfile(editTarget.id, form);
+        const updated = await UserAPI.updateForced(editTarget.id, payload);
         setUsers((prev) =>
           prev.map((c) => (c.id === editTarget.id ? updated : c)),
         );
         showToast("Utente aggiornato", "success");
       } else {
-        const created = await UserAPI.create(form);
-        setUsers((prev) => [...prev, created]);
+        await UserAPI.create(payload);
+        await loadUsers();
         showToast("Utente creato", "success");
       }
       closeModal();
@@ -147,14 +158,17 @@ export default function Admin() {
   }
 
   async function handlePasswordReset() {
-    passwordValidation();
+    const valid = await passwordValidation();
+    if (!valid) return;
+    if (!editTarget) return;
+    setSaving(true);
     try {
-        const updated = await UserAPI.updatePswForced(editTarget.id, pwForm.pwd);
-        setUsers((prev) =>
-          prev.map((c) => (c.id === editTarget.id ? updated : c)),
-        );
-        showToast("Password aggiornata", "success");
-      closeModal();
+      const updated = await UserAPI.updatePswForced(editTarget.id, pwForm.pwd);
+      setUsers((prev) =>
+        prev.map((c) => (c.id === editTarget.id ? updated : c)),
+      );
+      showToast("Password aggiornata", "success");
+      closeModalPassword();
     } catch (err: unknown) {
       showToast(
         err instanceof Error ? err.message : "Errore durante il salvataggio",
@@ -202,7 +216,7 @@ export default function Admin() {
   function exportCsv() {
     const header = ["Ruolo", "Nome", "Cognome", "Username", "Email", "DataCreazione", "DataUltimaModifica", "Attivo"];
     const rows = filtered.map((u) => [
-      `"${u.role.toString().replace(/"/g, '""')}"`,
+      `"${u.userRole.toString().replace(/"/g, '""')}"`,
       `"${u.name.replace(/"/g, '""')}"`,
       `"${u.surname.replace(/"/g, '""')}"`,
       `"${u.username.replace(/"/g, '""')}"`,
@@ -223,6 +237,7 @@ export default function Admin() {
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
+    if (roleFilter !== '' && u.userRole !== roleFilter) return false;
     return (
       u.name.toLowerCase().includes(q) ||
       u.surname.toLowerCase().includes(q) ||
@@ -256,13 +271,13 @@ export default function Admin() {
         <div className="kpi-card">
           <div className="kpi-icon"><i className="fa-solid fa-user-tie" /></div>
           <div className="kpi-label">Amministratori attivi</div>
-          <div className="kpi-value">{users.filter(x => x.role === UserRole.Admin && !x.isDisabled).length}</div>
+          <div className="kpi-value">{users.filter(x => x.userRole === UserRole.Admin && !x.isDisabled).length}</div>
           <div className="kpi-delta">&nbsp;</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-icon"><i className="fa-solid fa-user-shield" /></div>
           <div className="kpi-label">Operatori attivi</div>
-          <div className="kpi-value">{users.filter(x => x.role === UserRole.Operator && !x.isDisabled).length}</div>
+          <div className="kpi-value">{users.filter(x => x.userRole === UserRole.Operator && !x.isDisabled).length}</div>
           <div className="kpi-delta">&nbsp;</div>
         </div>
       </div>
@@ -278,6 +293,16 @@ export default function Admin() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <select
+          className="form-control"
+          style={{ width: 160 }}
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value === '' ? '' : Number(e.target.value) as UserRole)}
+        >
+          <option value="">Tutti i ruoli</option>
+          <option value={UserRole.Admin}>Admin</option>
+          <option value={UserRole.Operator}>Operatore</option>
+        </select>
       </div>
 
       {loading ? (
@@ -293,71 +318,75 @@ export default function Admin() {
           onAction={!search ? openCreate : undefined}
         />
       ) : (
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Ruolo</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Nome</th>
-                <th>Cognome</th>
-                <th>Data creazione</th>
-                <th>Data modifica</th>
-                <th>Attivo</th>
-                <th>Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((usr) => (
-                <tr key={usr.id}>
-                  <td>
-                    <i className={usr.role == UserRole.Admin ? "fa-solid fa-user-tie" : "fa-solid fa-user-shield"}></i> {usr.role}
-                  </td>
-                  <td>
-                    <strong>{usr.username}</strong>
-                  </td>
-                  <td>{usr.email}</td>
-                  <td>{usr.name}</td>
-                  <td>{usr.username}</td>
-                  <td>
-                    <i className={usr.isDisabled ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-check"}></i>
-                  </td>
-
-                  <td>{formatDate(usr.createdDate)}</td>
-                  <td>{formatDate(usr.lastUpdateDate)}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        title="Modifica"
-                        disabled={usr.role == UserRole.Admin}
-                        onClick={() => openEdit(usr)}
-                      >
-                        <i className="fa-solid fa-pen" />
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm btn-warning-hover"
-                        title="Resetta la password"
-                        disabled={usr.role == UserRole.Admin}
-                        onClick={() => openPasswordReset(usr)}
-                      >
-                        <i className="fa-solid fa-pen" />
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm btn-danger-hover"
-                        title="Elimina"
-                        disabled={usr.role == UserRole.Admin}
-                        onClick={() => setDeleteTarget(usr)}
-                      >
-                        <i className="fa-solid fa-trash" />
-                      </button>
-                    </div>
-                  </td>
+        <div className="table-card">
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Ruolo</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Nome</th>
+                  <th>Cognome</th>
+                  <th>Data creazione</th>
+                  <th>Data modifica</th>
+                  <th>Attivo</th>
+                  <th>Azioni</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((usr) => (
+                  <tr key={usr.id}>
+                    <td>
+                      <i className={usr.userRole == UserRole.Admin ? "fa-solid fa-user-tie" : "fa-solid fa-user-shield"}></i>
+                    </td>
+                    <td>
+                      <strong>{usr.username}</strong>
+                    </td>
+                    <td>{usr.email}</td>
+                    <td>{usr.name}</td>
+                    <td>{usr.surname}</td>
+                    <td>{formatDate(usr.createdDate)}</td>
+                    <td>{formatDate(usr.lastUpdateDate)}</td>
+                    <td>
+                      <i className={usr.isDisabled ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-check"}></i>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          title="Modifica"
+                          disabled={usr.userRole == UserRole.Admin}
+                          onClick={() => openEdit(usr)}
+                        >
+                          <i className="fa-solid fa-pen" />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm btn-warning-hover"
+                          title="Resetta la password"
+                          disabled={usr.userRole == UserRole.Admin}
+                          onClick={() => openPasswordReset(usr)}
+                        >
+                          <i className="fa-solid fa-key" />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm btn-danger-hover"
+                          title="Elimina"
+                          disabled={usr.userRole == UserRole.Admin}
+                          onClick={() => setDeleteTarget(usr)}
+                        >
+                          <i className="fa-solid fa-trash" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="text-muted text-sm">{filtered.length} utenti</span>
+          </div>
         </div>
       )}
 
@@ -441,10 +470,10 @@ export default function Admin() {
             id="usr-surname"
             type="text"
             className="form-control"
-            placeholder="Nome categoria"
+            placeholder="Cognome utente"
             maxLength={50}
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            value={form.surname}
+            onChange={(e) => setForm((f) => ({ ...f, surname: e.target.value }))}
           />
         </div>
         <div className="form-group">
@@ -454,14 +483,24 @@ export default function Admin() {
           <select
             id="usr-role"
             className="form-control"
-            value={role}
-            onChange={(e) => setRole(e.target.value as 'Admin' | 'Operator')}
+            value={form.userRole}
+            onChange={(e) => setForm((f) => ({ ...f, userRole: Number(e.target.value) as UserRole }))}
           >
-            <option value="Admin">Admin</option>
-            <option value="Operator">Operatore</option>
+            <option value={UserRole.Admin}>Admin</option>
+            <option value={UserRole.Operator}>Operatore</option>
           </select>
         </div>
         <div className="form-group">
+          <label className="form-label">
+            <input
+              type="checkbox"
+              checked={form.isDisabled}
+              onChange={(e) => setForm((f) => ({ ...f, isDisabled: e.target.checked }))}
+            />
+            {' '}Disabilitato
+          </label>
+        </div>
+        <div className="form-group" style={{ display: !editTarget ? 'block' : 'none' }}>
           <label className="form-label" htmlFor="usr-password">
             Password
           </label>
@@ -471,14 +510,11 @@ export default function Admin() {
             className="form-control"
             placeholder="••••••••"
             maxLength={50}
-            disabled={editTarget ? true : false}
             value={pwForm.pwd}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, password: e.target.value }))
-            }
+            onChange={(e) => setPwForm((f) => ({ ...f, pwd: e.target.value }))}
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ display: !editTarget ? 'block' : 'none' }}>
           <label className="form-label" htmlFor="usr-password-repeat">
             Ripeti la Password
           </label>
@@ -488,75 +524,62 @@ export default function Admin() {
             className="form-control"
             placeholder="••••••••"
             maxLength={50}
-            disabled={editTarget ? true : false}
             value={pwForm.confirm}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, password: e.target.value }))
-            }
+            onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
           />
         </div>
       </Modal>
 
       <Modal
-        isOpen={modalOpen}
-        onClose={closeModal}
+        isOpen={modalPasswordOpen}
+        onClose={closeModalPassword}
         title={"Modifica forzatamente la password"}
         icon={"fa-solid fa-pen"}
         footer={
           <>
             <button
               className="btn btn-ghost"
-              onClick={closeModal}
+              onClick={closeModalPassword}
               disabled={saving}
             >
               Annulla
             </button>
             <button
               className="btn btn-primary"
-              onClick={handleSave}
+              onClick={handlePasswordReset}
               disabled={saving}
             >
-              {saving ? (
-                <span className="spinner" />
-              ) : editTarget ? (
-                "Salva modifiche"
-              ) : (
-                "Resetta la password"
-              )}
+              {saving ? <span className="spinner" /> : "Resetta la password"}
             </button>
           </>
         }
       >
         <div className="form-group">
-          <label className="form-label" htmlFor="usr-password">
-            Password
+          <label className="form-label" htmlFor="usr-pwd-reset">
+            Nuova Password
           </label>
           <input
-            id="usr-password"
+            id="usr-pwd-reset"
             type="password"
             className="form-control"
             placeholder="••••••••"
             maxLength={50}
             value={pwForm.pwd}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, password: e.target.value }))
-            }
+            onChange={(e) => setPwForm((f) => ({ ...f, pwd: e.target.value }))}
           />
         </div>
         <div className="form-group">
-          <label className="form-label" htmlFor="usr-password-repeat">
+          <label className="form-label" htmlFor="usr-pwd-reset-repeat">
             Ripeti la Password
           </label>
           <input
-            id="usr-password-repeat"
+            id="usr-pwd-reset-repeat"
             type="password"
             className="form-control"
             placeholder="••••••••"
             maxLength={50}
-            value={form.password}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, password: e.target.value }))
-            }
+            value={pwForm.confirm}
+            onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))}
           />
         </div>
       </Modal>

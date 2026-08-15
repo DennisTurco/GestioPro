@@ -230,7 +230,8 @@ export default function Clienti() {
           onAction={search ? undefined : openCreate}
         />
       ) : (
-        <div className="table-wrapper">
+        <div className="table-card">
+          <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>
@@ -304,6 +305,10 @@ export default function Clienti() {
               ))}
             </tbody>
           </table>
+          </div>
+          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="text-muted text-sm">{filtered.length} clienti</span>
+          </div>
         </div>
       )}
 

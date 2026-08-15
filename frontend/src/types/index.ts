@@ -33,8 +33,8 @@ export interface User {
   surname: string
   createdDate: string
   lastUpdateDate: string
-  isDisabled: boolean,
-  role: UserRole
+  isDisabled: boolean
+  userRole: UserRole
 }
 
 export interface UserRequest {
@@ -50,7 +50,8 @@ export interface UserCreateRequest {
   name: string
   surname: string
   password: string
-  role: UserRole
+  isDisabled: boolean
+  userRole: UserRole
 }
 
 export interface Customer {

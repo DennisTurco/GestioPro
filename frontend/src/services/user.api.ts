@@ -21,12 +21,13 @@ export const UserAPI = {
     //     body: JSON.stringify(data),
     //     }),
     create: (data: UserCreateRequest) =>
-        apiFetch<User>('/auth/create', {
+        apiFetch<User>('/users', {
             method: 'POST',
             body: JSON.stringify(data),
         }),
     disable: (id: string) => apiFetch<null>(`/users/${id}`, { method: 'DELETE' }),
     updateProfile: (id: string, data: UserRequest) => apiFetch<User>(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    updateForced: (id: string, data: UserCreateRequest) => apiFetch<User>(`/users/${id}/force`, { method: 'PUT', body: JSON.stringify(data) }),
     updateProfilePsw: (id: string, oldPsw: string, newPsw: string) => apiFetch<null>(`/users/${id}/change-password`, { method: 'PUT', body: JSON.stringify({ oldPassword: oldPsw, newPassword: newPsw }) }),
-    updatePswForced: (id: string, pws: string) => apiFetch<null>(`/users/${id}/change-password-forced`, { method: 'PUT', body: JSON.stringify(pws) }),
+    updatePswForced: (id: string, pws: string) => apiFetch<User>(`/users/${id}/change-password-forced`, { method: 'PUT', body: JSON.stringify(pws) }),
 }

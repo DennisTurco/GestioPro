@@ -7,7 +7,7 @@ public record UserRequestDTO(
     [Required] UserRole UserRole,
     [Required, MaxLength(50)] string Username,
     [Required, EmailAddress, MaxLength(50)] string Email,
-    [Required] string Password,
+    string? Password,
     [Required, MaxLength(50)] string Name,
     [Required, MaxLength(50)] string Surname,
     bool IsDisabled = false

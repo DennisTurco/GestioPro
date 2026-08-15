@@ -1,4 +1,5 @@
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Enums;
 using GestioPro.Common.Interfaces;
 using GestioPro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -23,13 +24,13 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
 
         if (user is null) return null;
 
-        var token = GenerateToken(user.Id, user.Username);
+        var token = GenerateToken(user.Id, user.Username, user.UserRole);
 
-        var userDto = new UserResponseDTO(user.Id, user.Username, user.Email, user.Name, user.Surname, user.CreatedDate);
+        var userDto = new UserResponseDTO(user.Id, user.UserRole, user.Username, user.Email, user.Name, user.Surname, user.IsDisabled, user.CreatedDate, user.LastUpdateDate);
         return new LoginResponseDTO(token, userDto);
     }
 
-    private string GenerateToken(Guid userId, string username)
+    private string GenerateToken(Guid userId, string username, UserRole role)
     {
         var secret = config["Jwt:Secret"]!;
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
@@ -40,6 +41,7 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Role, role.ToString())
         };
 
         var token = new JwtSecurityToken(

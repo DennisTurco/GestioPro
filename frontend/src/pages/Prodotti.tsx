@@ -74,6 +74,8 @@ export default function Prodotti() {
     })
   }, [products, search, categoryFilter, statusFilter])
 
+  const filteredTotal = filtered.reduce((s, p) => s + p.price, 0)
+
   function openCreate() {
     setEditingProduct(null)
     setForm({ ...EMPTY_FORM, categoryId: categories[0]?.id ?? 0 })
@@ -236,7 +238,8 @@ export default function Prodotti() {
           onAction={openCreate}
         />
       ) : (
-        <div className="table-wrapper">
+        <div className="table-card">
+          <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>
@@ -290,6 +293,11 @@ export default function Prodotti() {
               ))}
             </tbody>
           </table>
+          </div>
+          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="text-muted text-sm">{filtered.length} prodotti</span>
+            <span className="font-semibold">Totale: {formatCurrency(filteredTotal)}</span>
+          </div>
         </div>
       )}
 

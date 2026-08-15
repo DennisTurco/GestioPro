@@ -29,6 +29,9 @@ public class UserService(AppDbContext context) : IUserService
 
     public async Task CreateAsync(UserRequestDTO dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Password))
+            throw new BusinessException("La password è obbligatoria");
+
         DateTimeOffset now = DateTimeOffset.UtcNow;
         var user = new User
         {
@@ -105,6 +108,23 @@ public class UserService(AppDbContext context) : IUserService
         return MapToDto(user);
     }
 
+    public async Task<UserResponseDTO> UpdatePasswordForcedAsync(Guid id, string password)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException("Utente non trovato");
+
+        if (user.IsDisabled)
+            throw new BusinessException("Impossibile aggiornare la password, l'utente è stato disattivato da uno degli amministratori");
+
+        if (string.IsNullOrWhiteSpace(password))
+            throw new BusinessException("La nuova password è vuota, impossibile aggiornare");
+
+        user.Password = AuthService.HashPassword(password);
+        user.LastUpdateDate = DateTimeOffset.UtcNow;
+
+        await context.SaveChangesAsync();
+        return MapToDto(user);
+    }
 
     public async Task DeleteAsync(Guid id)
     {

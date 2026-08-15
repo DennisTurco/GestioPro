@@ -84,6 +84,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// </summary>
     /// <param name="id">User ID</param>
     /// <param name="dto">User information</param>
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:guid}/force")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserRequestDTO dto)
     {
@@ -98,7 +99,7 @@ public class UsersController(IUserService userService) : ControllerBase
     public record ChangePasswordRequest(string OldPassword, string NewPassword);
 
     /// <summary>
-    /// Update user password
+    /// Update user password - SImple password change from the user
     /// </summary>
     /// <param name="id">User ID</param>
     /// <param name="changePasswordRequest">Old password and the new password</param>s
@@ -106,6 +107,23 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IActionResult> UpdatePassword(Guid id, [FromBody] ChangePasswordRequest changePasswordRequest)
     {
         var updated = await userService.UpdatePasswordAsync(id, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
+
+        if (updated is null)
+            NotFound();
+
+        return Ok(updated);
+    }
+
+    /// <summary>
+    /// Update user password - Forced admin update
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <param name="password">New password</param>s
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id:guid}/change-password-forced")]
+    public async Task<IActionResult> UpdatePasswordForced(Guid id, [FromBody] string password)
+    {
+        var updated = await userService.UpdatePasswordForcedAsync(id, password);
 
         if (updated is null)
             NotFound();

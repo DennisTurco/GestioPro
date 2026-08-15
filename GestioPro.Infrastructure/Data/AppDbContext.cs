@@ -31,9 +31,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Quotation>()
             .HasIndex(q => q.Number).IsUnique();
 
-        modelBuilder.Entity<Contract>()
-            .HasIndex(ct => ct.Number).IsUnique();
-
         // default values
         modelBuilder.Entity<Settings>().HasData(
             new Settings
