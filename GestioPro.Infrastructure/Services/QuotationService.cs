@@ -28,7 +28,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
         return quotation is null ? null : MapToDto(quotation);
     }
 
-    public async Task CreateAsync(QuotationRequestDTO dto)
+    public async Task<QuotationResponseDTO> CreateAsync(QuotationRequestDTO dto)
     {
         var existing = await context.Quotations
             .FirstOrDefaultAsync(x => x.Number.Equals(dto.Number));
@@ -57,6 +57,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
 
         await context.AddAsync(quotation);
         await context.SaveChangesAsync();
+        return (await GetByIdAsync(quotation.Id))!;
     }
 
     public async Task<QuotationResponseDTO> UpdateAsync(long id, QuotationRequestDTO dto)

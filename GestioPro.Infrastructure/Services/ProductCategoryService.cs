@@ -26,7 +26,7 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
         return entity is null ? null : MapToDto(entity);
     }
 
-    public async Task CreateAsync(ProductCategoryRequestDTO dto)
+    public async Task<ProductCategoryResponseDTO> CreateAsync(ProductCategoryRequestDTO dto)
     {
         var existing = await context.ProductCategories
             .AnyAsync(x => x.Name.Trim().ToLower().Equals(dto.Name.Trim().ToLower()));
@@ -45,6 +45,7 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
 
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
+        return MapToDto(entity);
     }
 
     public async Task<ProductCategoryResponseDTO> UpdateAsync(long id, ProductCategoryRequestDTO dto)

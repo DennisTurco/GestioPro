@@ -59,14 +59,6 @@
     --color-info:           #3B82F6;
     --color-info-bg:        #DBEAFE;
 
-    /* ── Testo badge (light) ── */
-    --badge-success-color:  #065F46;
-    --badge-warning-color:  #92400E;
-    --badge-danger-color:   #991B1B;
-    --badge-info-color:     #1E40AF;
-    --badge-muted-bg:       #F1F5F9;
-    --badge-muted-color:    #475569;
-
     /* ── Skeleton / shimmer ── */
     --skeleton-from:        #E2E8F0;
     --skeleton-to:          #CBD5E1;
@@ -127,14 +119,6 @@
     --color-danger-bg:      rgba(239, 68,  68,  0.15);
     --color-info-bg:        rgba(59,  130, 246, 0.15);
 
-    /* Testo badge — chiari per leggibilità su bg traslucido scuro */
-    --badge-success-color:  #6EE7B7;
-    --badge-warning-color:  #FCD34D;
-    --badge-danger-color:   #FCA5A5;
-    --badge-info-color:     #93C5FD;
-    --badge-muted-bg:       rgba(100, 116, 139, 0.2);
-    --badge-muted-color:    #94A3B8;
-
     /* Skeleton */
     --skeleton-from:        #1E293B;
     --skeleton-to:          #243147;
@@ -167,13 +151,6 @@
         --color-warning-bg:     rgba(245, 158, 11,  0.15);
         --color-danger-bg:      rgba(239, 68,  68,  0.15);
         --color-info-bg:        rgba(59,  130, 246, 0.15);
-
-        --badge-success-color:  #6EE7B7;
-        --badge-warning-color:  #FCD34D;
-        --badge-danger-color:   #FCA5A5;
-        --badge-info-color:     #93C5FD;
-        --badge-muted-bg:       rgba(100, 116, 139, 0.2);
-        --badge-muted-color:    #94A3B8;
 
         --skeleton-from:        #1E293B;
         --skeleton-to:          #243147;

@@ -460,7 +460,7 @@ export default function SchedaCliente() {
               )}
             </div>
           </div>
-          <Badge cls="badge-blue">{CUSTOMER_TYPE_LABEL[customer.customerType]}</Badge>
+          <Badge cls="badge-info">{CUSTOMER_TYPE_LABEL[customer.customerType]}</Badge>
         </div>
       </div>
 
@@ -629,7 +629,7 @@ export default function SchedaCliente() {
                       <td><strong>{c.title}</strong></td>
                       <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? '—'}</td>
                       <td>
-                        <Badge cls={CONTRACT_STATUS_CLS[c.status] ?? 'badge-gray'}>{c.status}</Badge>
+                        <Badge cls={CONTRACT_STATUS_CLS[c.status] ?? 'badge-muted'}>{c.status}</Badge>
                       </td>
                       <td>{formatCurrency(c.amount)}</td>
                       <td>{formatDate(c.startDate)}</td>

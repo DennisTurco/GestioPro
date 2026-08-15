@@ -68,7 +68,7 @@ export default function Dashboard() {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
-        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-chart-pie" /> Dashboard</h1>
+        <h1 className="page-title"> <i className="fa-solid fa-chart-pie" /> Dashboard</h1>
         <button className="btn btn-primary btn-sm" onClick={() => setQuickActionOpen(true)}>
           <i className="fa-solid fa-bolt" style={{ marginRight: 6 }} />
           Azione rapida
@@ -234,7 +234,7 @@ export default function Dashboard() {
             className="btn btn-primary"
             onClick={() => { setQuickActionOpen(false); navigate('/preventivi') }}
           >
-            <i className="fa-solid fa-file-receipt" style={{ marginRight: 8 }} />
+            <i className="fa-solid fa-file-invoice" style={{ marginRight: 8 }} />
             Nuovo preventivo
           </button>
           <button

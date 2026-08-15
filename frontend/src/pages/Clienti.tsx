@@ -195,11 +195,8 @@ export default function Clienti() {
   return (
     <div className="page-content">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
-        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-users" /> Clienti</h1>
+        <h1 className="page-title"> <i className="fa-solid fa-users" /> Clienti</h1>
         <div className="page-actions">
-          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
-            <i className="fa-solid fa-file-csv" /> Esporta CSV
-          </button>
           <button className="btn btn-primary btn-sm" onClick={openCreate}>
             <i className="fa-solid fa-circle-plus" /> Nuovo cliente
           </button>
@@ -216,6 +213,11 @@ export default function Clienti() {
             onChange={e => setSearch(e.target.value)}
             className="form-control"
           />
+        </div>
+        <div className="toolbar-right">
+          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
+            <i className="fa-solid fa-download" /> Esporta
+          </button>
         </div>
       </div>
 
@@ -272,7 +274,7 @@ export default function Clienti() {
                   <td>{c.phone || '-'}</td>
                   <td>{c.city || '-'}</td>
                   <td>
-                    <span className="badge badge-blue">
+                    <span className="badge badge-info">
                       {quotationCounts[c.id] ?? 0}
                     </span>
                   </td>
@@ -293,7 +295,7 @@ export default function Clienti() {
                         <i className="fa-solid fa-pen" />
                       </button>
                       <button
-                        className="btn btn-ghost btn-sm btn-danger"
+                        className="btn btn-danger btn-sm"
                         title="Elimina"
                         onClick={() => setDeleteId(c.id)}
                       >

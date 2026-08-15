@@ -166,13 +166,12 @@
     letter-spacing: 0.02em;
     white-space: nowrap;
 }
-.badge-success { background: var(--color-success-bg); color: var(--badge-success-color); }
-.badge-warning { background: var(--color-warning-bg); color: var(--badge-warning-color); }
-.badge-danger  { background: var(--color-danger-bg);  color: var(--badge-danger-color); }
-.badge-info    { background: var(--color-info-bg);    color: var(--badge-info-color); }
-.badge-blue    { background: var(--color-info-bg);    color: var(--badge-info-color); }
+.badge-success { background: var(--color-success); color: #fff; }
+.badge-warning { background: var(--color-warning); color: #fff; }
+.badge-danger  { background: var(--color-danger);  color: #fff; }
+.badge-info    { background: var(--color-info);    color: #fff; }
 .badge-muted,
-.badge-neutral { background: var(--badge-muted-bg);   color: var(--badge-muted-color); }
+.badge-neutral { background: var(--color-text-muted); color: #fff; }
 
 /* ── TABELLE ─────────────────────────────────────── */
 .table-wrapper {
@@ -224,6 +223,12 @@
     font-weight: var(--font-weight-medium);
     color: var(--color-text);
     margin-bottom: 6px;
+}
+.form-hint {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-top: 4px;
 }
 .form-control {
     width: 100%;

@@ -183,12 +183,9 @@ export default function Prodotti() {
     <div className="page">
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
-        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-box" /> Prodotti</h1>
+        <h1 className="page-title"> <i className="fa-solid fa-box" /> Prodotti</h1>
         <div className="page-actions">
-          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
-            <i className="fa-solid fa-file-csv" /> Esporta CSV
-          </button>
-          <button className="btn btn-primary" onClick={openCreate}>
+          <button className="btn btn-primary btn-sm" onClick={openCreate}>
             <i className="fa-solid fa-circle-plus" /> Nuovo prodotto
           </button>
         </div>
@@ -226,6 +223,11 @@ export default function Prodotti() {
           <option value={ProductStatus.New}>Nuovo</option>
           <option value={ProductStatus.Used}>Usato</option>
         </select>
+        <div className="toolbar-right">
+          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
+            <i className="fa-solid fa-download" /> Esporta
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -281,7 +283,7 @@ export default function Prodotti() {
                         <i className="fa-solid fa-pen" />
                       </button>
                       <button
-                        className="btn btn-ghost btn-sm btn-danger-ghost"
+                        className="btn btn-danger btn-sm"
                         title="Elimina"
                         onClick={() => setDeleteTarget(p)}
                       >

@@ -15,6 +15,21 @@ public class UserService(AppDbContext context) : IUserService
             .Select(u => MapToDto(u))
             .ToListAsync();
 
+    public async Task<UserResponseDTO?> LoginByIdAsync(Guid id)
+    {
+        var user = await context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user is null)
+            return null;
+
+        if (user.IsDisabled)
+            throw new BusinessException("L'utente è stato disattivato. Se ritenuto un errore, si praga di contattare l'amministrazione");
+
+        return MapToDto(user);
+    }
+
     public async Task<UserResponseDTO?> GetByIdAsync(Guid id)
     {
         var user = await context.Users

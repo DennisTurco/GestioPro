@@ -5,6 +5,7 @@ namespace GestioPro.Common.Interfaces;
 public interface IUserService
 {
     Task<List<UserResponseDTO>> GetAllAsync();
+    Task<UserResponseDTO?> LoginByIdAsync(Guid id);
     Task<UserResponseDTO?> GetByIdAsync(Guid id);
     Task CreateAsync(UserRequestDTO dto);
     Task<UserResponseDTO> UpdateForceAsync(Guid id, UserRequestDTO dto);

@@ -414,7 +414,7 @@ export default function Preventivi() {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
-        <h1 style={{ margin: 0 }}> <i className="fa-solid fa-receipt" /> Preventivi</h1>
+        <h1 className="page-title"> <i className="fa-solid fa-receipt" /> Preventivi</h1>
         <button className="btn btn-primary btn-sm" onClick={openNew}>
           <i className="fa-solid fa-circle-plus" style={{ marginRight: 6 }} />
           Nuovo preventivo
@@ -619,6 +619,7 @@ export default function Preventivi() {
                               className="btn btn-ghost btn-sm btn-icon"
                               title="Segna accettato"
                               onClick={() => handleMarkAccepted(q)}
+                              style={{ color: 'var(--color-success)' }}
                             >
                               <i className="fa-solid fa-calendar-check" />
                             </button>
@@ -626,6 +627,7 @@ export default function Preventivi() {
                               className="btn btn-ghost btn-sm btn-icon"
                               title="Segna rifiutato"
                               onClick={() => handleMarkRejected(q)}
+                              style={{ color: 'var(--color-danger)' }}
                             >
                               <i className="fa-solid fa-calendar-xmark" />
                             </button>
@@ -633,11 +635,12 @@ export default function Preventivi() {
                               className="btn btn-ghost btn-sm btn-icon"
                               title="Genera PDF"
                               onClick={() => generatePdf(q)}
+                              style={{ color: 'var(--color-primary)' }}
                             >
                               <i className="fa-solid fa-file-pdf" />
                             </button>
                             <button
-                              className="btn btn-ghost btn-sm btn-icon"
+                              className="btn btn-danger btn-sm btn-icon"
                               title="Elimina"
                               onClick={() => setDeleteTarget(q)}
                             >

@@ -28,7 +28,7 @@ public class QuotationsController(IQuotationService quotationService) : Controll
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
-        var result = quotationService.GetByIdAsync(id);
+        var result = await quotationService.GetByIdAsync(id);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -39,8 +39,8 @@ public class QuotationsController(IQuotationService quotationService) : Controll
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] QuotationRequestDTO dto)
     {
-        await quotationService.CreateAsync(dto);
-        return StatusCode(StatusCodes.Status201Created);
+        var created = await quotationService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>

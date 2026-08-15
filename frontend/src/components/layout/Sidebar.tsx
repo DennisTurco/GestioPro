@@ -9,10 +9,13 @@ interface NavItem {
   page: string
   icon: string
   label: string
+  disabled?: boolean
 }
 
 const ADMIN_ITEMS: NavItem[] = [
-  { path: '/utenti',       page: 'utenti',       icon: 'fa-solid fa-users-gear',     label: 'Utenti'        },
+  { path: '/utenti',       page: 'utenti',       icon: 'fa-solid fa-users-gear',     label: 'Utenti'       },
+  { path: '/audit',        page: 'audit',        icon: 'fa-solid fa-scroll',         label: 'Audit',     disabled: true },
+  { path: '/ripristino',   page: 'ripristino',   icon: 'fa-solid fa-rotate-left',    label: 'Ripristino',  disabled: true },
 ]
 
 const MAIN_ITEMS: NavItem[] = [
@@ -70,12 +73,13 @@ export default function Sidebar() {
         {ADMIN_ITEMS.map(item => (
           <div
             key={item.page}
-            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
-            title={collapsed ? item.label : undefined}
+            className={`nav-item${isActive(item.path) && !item.disabled ? ' active' : ''}${item.disabled ? ' nav-item--disabled' : ''}`}
+            onClick={item.disabled ? undefined : () => navigate(item.path)}
+            title={item.disabled ? `${item.label} (coming soon)` : collapsed ? item.label : undefined}
           >
             <span className="nav-icon"><i className={item.icon} /></span>
             <span className="nav-label">{item.label}</span>
+            {item.disabled && !collapsed && <span className="nav-soon">presto</span>}
           </div>
         ))}
         </>}

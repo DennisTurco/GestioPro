@@ -21,7 +21,7 @@ public class UsersController(IUserService userService) : ControllerBase
         if (!Guid.TryParse(userId, out var guid))
             return Unauthorized();
 
-        var user = await userService.GetByIdAsync(guid);
+        var user = await userService.LoginByIdAsync(guid);
 
         if (user is null)
             return NotFound();
