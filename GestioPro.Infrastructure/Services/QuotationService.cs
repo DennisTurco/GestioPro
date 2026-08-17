@@ -15,6 +15,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
         => await context.Quotations
             .Include(q => q.Customer)
             .AsNoTracking()
+            .Where(q => !q.IsDisabled)
             .Select(x => MapToDto(x))
             .ToListAsync();
 
@@ -52,7 +53,6 @@ public class QuotationService(AppDbContext context) : IQuotationService
             LastUpdateDate = now,
             IssueDate = dto.IssueDate,
             ValidityDate = dto.ValidityDate,
-            IsDisabled = false,
         };
 
         await context.AddAsync(quotation);

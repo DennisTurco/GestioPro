@@ -13,9 +13,36 @@ public class CustomerService(AppDbContext context) : ICustomerService
 {
     public async Task<List<CustomerResponseDTO>> GetAllAsync()
     {
+        var activeThreshold = DateOnly.FromDateTime(DateTime.Today).AddDays(14);
+
         return await context.Customers
             .AsNoTracking()
-            .Select(c => MapToDto(c))
+            .Where(c => !c.IsDisabled)
+            .Select(c => new CustomerResponseDTO(
+                c.Id,
+                c.CustomerType,
+                c.Name,
+                c.Surname,
+                c.Email,
+                c.Phone,
+                c.Country,
+                c.Region,
+                c.City,
+                c.Province,
+                c.Address,
+                c.VatNumber,
+                c.CompanyName,
+                c.TaxCode,
+                c.Landline,
+                c.Lat,
+                c.Lon,
+                c.Notes,
+                c.InsertDate,
+                c.LastUpdateDate,
+                c.IsDisabled,
+                context.Quotations.Count(q => q.CustomerId == c.Id && !q.IsDisabled),
+                context.Contracts.Count(ct => ct.Quotation.CustomerId == c.Id && ct.EndDate >= activeThreshold)
+            ))
             .ToListAsync();
     }
 
@@ -25,13 +52,13 @@ public class CustomerService(AppDbContext context) : ICustomerService
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
 
-        return customer is null ? null : MapToDto(customer);
+        if (customer is null) return null;
+        var (qCount, cCount) = await GetCountsAsync(id);
+        return MapToDto(customer, qCount, cCount);
     }
 
     public async Task CreateAsync(CustomerRequestDTO dto)
     {
-        DateTimeOffset now = DateTimeOffset.UtcNow;
-
         var exist = await context.Customers
             .AnyAsync(x => x.Email.Equals(dto.Email));
 
@@ -42,6 +69,7 @@ public class CustomerService(AppDbContext context) : ICustomerService
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.VatNumber, dto.VatNumber);
 
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         var entity = new Customer
         {
             CustomerType = dto.CustomerType,
@@ -101,7 +129,8 @@ public class CustomerService(AppDbContext context) : ICustomerService
         entity.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
-        return MapToDto(entity);
+        var (qCount, cCount) = await GetCountsAsync(id);
+        return MapToDto(entity, qCount, cCount);
     }
 
     public async Task DeleteAsync(long id)
@@ -112,14 +141,24 @@ public class CustomerService(AppDbContext context) : ICustomerService
         if (entity is null)
             throw new BusinessException("Customer not found");
 
-        context.Customers.Remove(entity);
+        entity.IsDisabled = true;
+        entity.LastUpdateDate = DateTimeOffset.UtcNow;
+
         await context.SaveChangesAsync();
     }
 
-    private static CustomerResponseDTO MapToDto(Customer c)
+    private async Task<(int QuotationCount, int ContractCount)> GetCountsAsync(long customerId)
+    {
+        var activeThreshold = DateOnly.FromDateTime(DateTime.Today).AddDays(14);
+        var qCount = await context.Quotations.CountAsync(q => q.CustomerId == customerId && !q.IsDisabled);
+        var cCount = await context.Contracts.CountAsync(ct => ct.Quotation.CustomerId == customerId && ct.EndDate >= activeThreshold);
+        return (qCount, cCount);
+    }
+
+    private static CustomerResponseDTO MapToDto(Customer c, int quotationCount = 0, int contractCount = 0)
         => new(
             c.Id,
-            c.CustomerType = c.CustomerType,
+            c.CustomerType,
             c.Name,
             c.Surname,
             c.Email,
@@ -137,6 +176,9 @@ public class CustomerService(AppDbContext context) : ICustomerService
             c.Lon,
             c.Notes,
             c.InsertDate,
-            c.LastUpdateDate
+            c.LastUpdateDate,
+            c.IsDisabled,
+            quotationCount,
+            contractCount
         );
 }

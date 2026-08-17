@@ -319,21 +319,21 @@ export default function Utenti() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Ruolo</th>
+                  <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Ruolo</th>
                   <th>Username</th>
                   <th>Email</th>
                   <th>Nome</th>
                   <th>Cognome</th>
                   <th>Data creazione</th>
                   <th>Data modifica</th>
-                  <th>Attivo</th>
+                  <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Attivo</th>
                   <th>Azioni</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((usr) => (
                   <tr key={usr.id}>
-                    <td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                       <i className={usr.userRole == UserRole.Admin ? "fa-solid fa-user-tie" : "fa-solid fa-user-shield"}></i>
                     </td>
                     <td>
@@ -344,7 +344,7 @@ export default function Utenti() {
                     <td>{usr.surname}</td>
                     <td>{formatDate(usr.createdDate)}</td>
                     <td>{formatDate(usr.lastUpdateDate)}</td>
-                    <td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                       <i className={usr.isDisabled ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-check"} style={{ color: usr.isDisabled ? 'var(--color-danger)' : 'var(--color-success)'}} />
                     </td>
                     <td>

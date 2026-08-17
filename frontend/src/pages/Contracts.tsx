@@ -170,6 +170,7 @@ export default function Contratti() {
         quotationId,
         title: f.title || q.title,
         amount: f.amount || String(q.amount),
+        description: f.description || (q.description ?? ""),
       }));
     }
 
@@ -258,7 +259,7 @@ export default function Contratti() {
 
   function exportCsv() {
     const rows = [
-      ["N°", "Titolo", "Tipo", "Stato", "Importo", "IVA%", "Inizio", "Fine"],
+      ["N&#176;", "Titolo", "Tipo", "Stato", "Importo", "IVA%", "Inizio", "Fine"],
       ...filtered.map((c) => [
         c.number,
         c.title,
@@ -418,7 +419,7 @@ export default function Contratti() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>N°</th>
+                  <th>N&#176;</th>
                   <th>Titolo</th>
                   <th>Tipo</th>
                   <th>Stato</th>
@@ -549,7 +550,6 @@ export default function Contratti() {
               onChange={(e) =>
                 setForm((f) => ({ ...f, number: e.target.value }))
               }
-              placeholder="es. 2024-001-001"
               disabled={true}
             />
           </div>

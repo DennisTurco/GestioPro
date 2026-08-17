@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI, ProductAPI } from '../services/api'
-import type { Customer, Quotation, Product } from '../types'
+import { ClientiAPI, QuotationAPI, ProductAPI, ContractAPI } from '../services/api'
+import type { Customer, Quotation, Product, Contract } from '../types'
 import { QUOTATION_STATUS_INFO } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { formatDate } from '../utils/date'
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [quotations, setQuotations] = useState<Quotation[]>([])
+  const [contracts, setContracts] = useState<Contract[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [quickActionOpen, setQuickActionOpen] = useState(false)
@@ -32,11 +33,13 @@ export default function Dashboard() {
       ClientiAPI.getAll(),
       ProductAPI.getAll(),
       QuotationAPI.getAll(),
+      ContractAPI.getAll(),
     ])
-      .then(([c, p, q]) => {
+      .then(([c, p, q, co]) => {
         setCustomers(c)
         setProducts(p)
         setQuotations(q)
+        setContracts(co)
       })
       .catch(() => {
         setError(true)
@@ -44,6 +47,8 @@ export default function Dashboard() {
       })
       .finally(() => setLoading(false))
   }, [])
+
+  const activeContractsCount = contracts.filter(c => c.status === 'Attivo').length
 
   const recentCustomers = [...customers].reverse().slice(0, 5)
   const recentProducts = [...products].reverse().slice(0, 5)
@@ -75,23 +80,23 @@ export default function Dashboard() {
         </button>
       </div>
 
-      <div className="grid-4 mb-24">
+      <div className="grid-3 mb-24">
         <div className="kpi-card">
           <div className="kpi-icon"><i className="fa-solid fa-users" /></div>
           <div className="kpi-label">Clienti totali</div>
           <div className="kpi-value">{customers.length}</div>
           <div className="kpi-delta">&nbsp;</div>
         </div>
-        <div className="kpi-card">
+        {/* <div className="kpi-card">
           <div className="kpi-icon"><i className="fa-solid fa-euro-sign" /></div>
           <div className="kpi-label">Fatturato mese</div>
           <div className="kpi-value">{formatCurrency(0)}</div>
           <div className="kpi-delta">&nbsp;</div>
-        </div>
+        </div> */}
         <div className="kpi-card">
           <div className="kpi-icon"><i className="fa-solid fa-file-invoice" /></div>
-          <div className="kpi-label">Fatture aperte</div>
-          <div className="kpi-value">0</div>
+          <div className="kpi-label">Contratti attivi</div>
+          <div className="kpi-value">{activeContractsCount}</div>
           <div className="kpi-delta">&nbsp;</div>
         </div>
         <div className="kpi-card">
@@ -184,7 +189,7 @@ export default function Dashboard() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>N° Preventivo</th>
+                  <th>N&#176; Preventivo</th>
                   <th>Titolo</th>
                   <th>Cliente</th>
                   <th>Importo</th>
@@ -198,7 +203,7 @@ export default function Dashboard() {
                   const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus]
                   return (
                     <tr key={q.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/preventivi')}>
-                      <td><strong>{q.number}</strong></td>
+                      <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
                       <td>{q.title}</td>
                       <td>{q.customerName}</td>
                       <td>{formatCurrency(q.amount)}</td>

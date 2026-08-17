@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { ProductAPI, ProductCategoryAPI } from '../services/api'
-import type { Product, ProductRequest, ProductCategory } from '../types'
+import { ProductAPI, ProductCategoryAPI, SettingsAPI } from '../services/api'
+import type { Product, ProductRequest, ProductCategory, Setting } from '../types'
 import { ProductStatus, PRODUCT_STATUS_INFO } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { useToast } from '../context/ToastContext'
@@ -8,6 +8,7 @@ import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import Badge from '../components/ui/Badge'
 import EmptyState from '../components/ui/EmptyState'
+import { getSettingValue } from '../utils/settings'
 
 const EMPTY_FORM: ProductRequest = {
   categoryId: 0,
@@ -26,6 +27,7 @@ export default function Prodotti() {
 
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<ProductCategory[]>([])
+  const [settings, setSettings] = useState<Setting[]>([])
   const [loading, setLoading] = useState(true)
 
   const [search, setSearch] = useState('')
@@ -48,12 +50,14 @@ export default function Prodotti() {
   async function loadData() {
     setLoading(true)
     try {
-      const [prods, cats] = await Promise.all([
+      const [prods, cats, sett] = await Promise.all([
         ProductAPI.getAll(),
         ProductCategoryAPI.getAll(),
+        SettingsAPI.getAll(),
       ])
       setProducts(prods)
       setCategories(cats)
+      setSettings(sett)
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Errore nel caricamento', 'error')
     } finally {
@@ -78,7 +82,12 @@ export default function Prodotti() {
 
   function openCreate() {
     setEditingProduct(null)
-    setForm({ ...EMPTY_FORM, categoryId: categories[0]?.id ?? 0 })
+    const vatDefault = getSettingValue(settings, "VatPercentage") ?? 22;
+    setForm({
+        ...EMPTY_FORM,
+        categoryId: categories[0]?.id ?? 0,
+        vatPercentage: Number(vatDefault)
+    })
     setModalOpen(true)
   }
 

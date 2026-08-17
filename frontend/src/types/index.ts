@@ -75,6 +75,8 @@ export interface Customer {
   notes?: string
   insertDate: string
   lastUpdateDate: string
+  quotationCount: number
+  contractCount: number
 }
 
 export interface CustomerRequest {

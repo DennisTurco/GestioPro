@@ -53,5 +53,5 @@ public class Quotation
     public DateOnly? ValidityDate { get; set; }
 
     [Required]
-    public bool IsDisabled { get; set; }
+    public bool IsDisabled { get; set; } = false; // soft delete
 }

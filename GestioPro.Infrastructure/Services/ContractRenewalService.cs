@@ -12,7 +12,7 @@ public class ContractRenewalService(AppDbContext context) : IContractRenewalServ
     public async Task<List<ContractRenewalResponseDTO>> GetByContractIdAsync(long contractId)
         => await context.ContractRenewals
             .AsNoTracking()
-            .Where(r => r.ContractId == contractId)
+            .Where(r => r.ContractId == contractId && !r.IsDisabled)
             .OrderByDescending(r => r.RenewalDate)
             .Select(r => MapToDto(r))
             .ToListAsync();
@@ -23,7 +23,7 @@ public class ContractRenewalService(AppDbContext context) : IContractRenewalServ
             .FirstOrDefaultAsync(r => r.Id == id)
             ?? throw new BusinessException("Rinnovo non trovato");
 
-        context.ContractRenewals.Remove(renewal);
+        renewal.IsDisabled = true;
         await context.SaveChangesAsync();
     }
 

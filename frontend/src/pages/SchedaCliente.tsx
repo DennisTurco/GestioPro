@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI, ContractAPI } from '../services/api'
-import type { Contract, ContractRequest, Customer, CustomerRequest, Quotation, QuotationRequest } from '../types'
-import { QuotationStatus, QUOTATION_STATUS_INFO, CUSTOMER_TYPE_LABEL, CONTRACT_TYPE_LABEL, CONTRACT_STATUS_CLS } from '../types'
+import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI } from '../services/api'
+import type { Contract, ContractRequest, Customer, CustomerRequest, Quotation, QuotationRequest, Setting } from '../types'
+import { QuotationStatus, ContractType, QUOTATION_STATUS_INFO, CUSTOMER_TYPE_LABEL, CONTRACT_TYPE_LABEL, CONTRACT_STATUS_CLS } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { formatDate } from '../utils/date'
 import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import Badge from '../components/ui/Badge'
+import { getSettingValue } from '../utils/settings'
 
 type Tab = 'preventivi' | 'contratti' | 'note'
 type QuotationFilter = 'all' | QuotationStatus
@@ -21,6 +22,7 @@ export default function SchedaCliente() {
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [quotations, setQuotations] = useState<Quotation[]>([])
   const [contracts, setContracts] = useState<Contract[]>([])
+  const [settings, setSettings] = useState<Setting[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('preventivi')
   const [quotationFilter, setQuotationFilter] = useState<QuotationFilter>('all')
@@ -54,7 +56,7 @@ export default function SchedaCliente() {
   const [contractEditSaving, setContractEditSaving] = useState(false)
 
   const [contractCreateOpen, setContractCreateOpen] = useState(false)
-  const [contractCreateForm, setContractCreateForm] = useState({ quotationId: 0, number: '', title: '', amount: '', vatPercentage: '22', description: '', notes: '', contractType: '2', startDate: new Date().toISOString().slice(0, 10) })
+  const [contractCreateForm, setContractCreateForm] = useState<Partial<ContractRequest>>({})
   const [contractCreateSaving, setContractCreateSaving] = useState(false)
   const [contractNumberLoading, setContractNumberLoading] = useState(false)
 
@@ -62,13 +64,14 @@ export default function SchedaCliente() {
     if (!id) return
     const numId = Number(id)
     setLoading(true)
-    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll()])
-      .then(([c, qs, cs]) => {
+    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll(), SettingsAPI.getAll()])
+      .then(([c, qs, cs, se]) => {
         const customerQuotations = qs.filter(q => q.customerId === numId)
         const quotationIds = new Set(customerQuotations.map(q => q.id))
         setCustomer(c)
         setQuotations(customerQuotations)
         setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
+        setSettings(se)
         setNote(c.notes ?? '')
         document.title = `${c.name} ${c.surname} - GestioPro`
       })
@@ -77,6 +80,9 @@ export default function SchedaCliente() {
   }, [id])
 
   function openNewQuotation() {
+    const vatDefault = getSettingValue(settings, "VatPercentage") ?? "22";
+    const descDefault = getSettingValue(settings, "QuotationNotes") ?? "";
+
     QuotationAPI.getNextNumber()
       .then(num => {
         setEditingQuotation(null)
@@ -86,10 +92,10 @@ export default function SchedaCliente() {
           issueDate: new Date().toISOString().slice(0, 10),
           validityDate: '',
           amount: 0,
-          vatPercentage: 22,
+          vatPercentage: Number(vatDefault),
           discountPercentage: 0,
           title: '',
-          description: '',
+          description: descDefault,
           notes: '',
           customerId: Number(id),
         })
@@ -271,6 +277,23 @@ export default function SchedaCliente() {
     }
   }
 
+  function openNewContract() {
+    const vatDefault = getSettingValue(settings, "VatPercentage") ?? "22";
+
+    setContractCreateForm({
+      quotationId: 0,
+      number: '',
+      title: '',
+      amount: 0,
+      vatPercentage: Number(vatDefault),
+      description: '',
+      notes: '',
+      contractType: ContractType.Semestral,
+      startDate: new Date().toISOString().slice(0, 10)
+    })
+    setContractCreateOpen(true)
+  }
+
   function openEditContract(c: Contract) {
     setContractEditTarget(c)
     setContractEditForm({
@@ -313,7 +336,7 @@ export default function SchedaCliente() {
     setContractCreateForm(f => ({ ...f, quotationId }))
     if (!quotationId) return
     const q = quotations.find(q => q.id === quotationId)
-    if (q) setContractCreateForm(f => ({ ...f, title: f.title || q.title, amount: f.amount || String(q.amount) }))
+    if (q) setContractCreateForm(f => ({ ...f, title: f.title || q.title, amount: f.amount || q.amount, description: f.description || (q.description ?? '') }))
     setContractNumberLoading(true)
     try {
       const num = await ContractAPI.getNextNumber(quotationId, q?.number ?? '')
@@ -327,23 +350,22 @@ export default function SchedaCliente() {
 
   async function handleContractCreate() {
     if (!contractCreateForm.quotationId) { showToast('Seleziona il preventivo', 'warning'); return }
-    if (!contractCreateForm.number.trim() || !contractCreateForm.title.trim()) { showToast('Numero e titolo obbligatori', 'warning'); return }
-    if (!contractCreateForm.amount || Number(contractCreateForm.amount) <= 0) { showToast('Importo non valido', 'warning'); return }
+    if (!contractCreateForm.number?.trim() || !contractCreateForm.title?.trim()) { showToast('Numero e titolo obbligatori', 'warning'); return }
+    if (!contractCreateForm.amount || contractCreateForm.amount <= 0) { showToast('Importo non valido', 'warning'); return }
     setContractCreateSaving(true)
     try {
       await ContractAPI.create({
         quotationId: contractCreateForm.quotationId,
-        contractType: Number(contractCreateForm.contractType),
+        contractType: contractCreateForm.contractType ?? ContractType.Semestral,
         number: contractCreateForm.number.trim(),
         title: contractCreateForm.title.trim(),
-        amount: Number(contractCreateForm.amount),
-        vatPercentage: Number(contractCreateForm.vatPercentage),
-        startDate: contractCreateForm.startDate,
+        amount: contractCreateForm.amount,
+        vatPercentage: contractCreateForm.vatPercentage ?? 22,
+        startDate: contractCreateForm.startDate ?? new Date().toISOString().slice(0, 10),
         description: contractCreateForm.description || undefined,
         notes: contractCreateForm.notes || undefined,
       })
       const cs = await ContractAPI.getAll()
-      const numId = Number(id)
       const quotationIds = new Set(quotations.map(q => q.id))
       setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
       showToast('Contratto creato', 'success')
@@ -362,6 +384,8 @@ export default function SchedaCliente() {
     : quotations.filter(q => q.quotationStatus === quotationFilter)
 
   const filteredQuotationsTotal = filteredQuotations.reduce((s, q) => s + (q.amount ?? 0), 0)
+
+  const contractsTotal = contracts.reduce((s, q) => s + (q.amount ?? 0), 0)
 
   if (loading) {
     return (
@@ -537,7 +561,7 @@ export default function SchedaCliente() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>N°</th>
+                    <th>N&#176;</th>
                     <th>Titolo</th>
                     <th>Importo</th>
                     <th>Stato</th>
@@ -555,7 +579,7 @@ export default function SchedaCliente() {
                     const si = QUOTATION_STATUS_INFO[q.quotationStatus]
                     return (
                       <tr key={q.id}>
-                        <td><strong>{q.number}</strong></td>
+                        <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
                         <td>{q.title}</td>
                         <td>{formatCurrency(q.amount)}</td>
                         <td><Badge cls={si.cls}>{si.text}</Badge></td>
@@ -594,10 +618,7 @@ export default function SchedaCliente() {
         {activeTab === 'contratti' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 20px 12px' }}>
-              <button className="btn btn-primary btn-sm" onClick={() => {
-                setContractCreateForm({ quotationId: 0, number: '', title: '', amount: '', vatPercentage: '22', description: '', notes: '', contractType: '2', startDate: new Date().toISOString().slice(0, 10) })
-                setContractCreateOpen(true)
-              }}>
+              <button className="btn btn-primary btn-sm" onClick={openNewContract}>
                 <i className="fa-solid fa-plus" style={{ marginRight: 6 }} />
                 Nuovo contratto
               </button>
@@ -606,7 +627,7 @@ export default function SchedaCliente() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>N°</th>
+                    <th>N&#176;</th>
                     <th>Titolo</th>
                     <th>Tipo</th>
                     <th>Stato</th>
@@ -625,7 +646,7 @@ export default function SchedaCliente() {
                     </tr>
                   ) : contracts.map(c => (
                     <tr key={c.id}>
-                      <td><code style={{ fontSize: 12 }}>{c.number}</code></td>
+                      <td className="font-medium"><code style={{ fontSize: 12 }}>{c.number}</code></td>
                       <td><strong>{c.title}</strong></td>
                       <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? '—'}</td>
                       <td>
@@ -648,6 +669,10 @@ export default function SchedaCliente() {
                   ))}
                 </tbody>
               </table>
+              <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="text-muted text-sm">{contracts.length} contratti</span>
+              <span className="font-semibold">Totale: {formatCurrency(contractsTotal)}</span>
+            </div>
             </div>
           </div>
         )}
@@ -702,12 +727,13 @@ export default function SchedaCliente() {
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div className="form-group">
-            <label className="form-label">N° Preventivo</label>
+            <label className="form-label">N&#176; Preventivo</label>
             <input
               type="text"
               className="form-control"
               value={quotationForm.number ?? ''}
               onChange={e => setQuotationForm(f => ({ ...f, number: e.target.value }))}
+              disabled={true}
             />
           </div>
           <div className="form-group">
@@ -996,7 +1022,7 @@ export default function SchedaCliente() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Preventivo accettato <span className="required">*</span></label>
-            <select className="form-control" value={contractCreateForm.quotationId} onChange={e => handleContractQuotationChange(Number(e.target.value))}>
+            <select className="form-control" value={contractCreateForm.quotationId ?? 0} onChange={e => handleContractQuotationChange(Number(e.target.value))}>
               <option value={0}>— Seleziona preventivo —</option>
               {acceptedQuotations.map(q => (
                 <option key={q.id} value={q.id}>#{q.number} — {q.title}</option>
@@ -1008,11 +1034,11 @@ export default function SchedaCliente() {
               Numero <span className="required">*</span>
               {contractNumberLoading && <span className="spinner" style={{ marginLeft: 8, width: 12, height: 12 }} />}
             </label>
-            <input type="text" className="form-control" value={contractCreateForm.number} onChange={e => setContractCreateForm(f => ({ ...f, number: e.target.value }))} placeholder="es. 2024-001-001" />
+            <input type="text" className="form-control" disabled={true} value={contractCreateForm.number ?? ''} onChange={e => setContractCreateForm(f => ({ ...f, number: e.target.value }))} placeholder="es. 2024-001-001" />
           </div>
           <div className="form-group">
             <label className="form-label">Tipo contratto</label>
-            <select className="form-control" value={contractCreateForm.contractType} onChange={e => setContractCreateForm(f => ({ ...f, contractType: e.target.value }))}>
+            <select className="form-control" value={contractCreateForm.contractType ?? ContractType.Semestral} onChange={e => setContractCreateForm(f => ({ ...f, contractType: Number(e.target.value) as ContractType }))}>
               {Object.entries(CONTRACT_TYPE_LABEL).map(([val, label]) => (
                 <option key={val} value={val}>{label}</option>
               ))}
@@ -1020,27 +1046,27 @@ export default function SchedaCliente() {
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Titolo <span className="required">*</span></label>
-            <input type="text" className="form-control" value={contractCreateForm.title} onChange={e => setContractCreateForm(f => ({ ...f, title: e.target.value }))} maxLength={200} />
+            <input type="text" className="form-control" value={contractCreateForm.title ?? ''} onChange={e => setContractCreateForm(f => ({ ...f, title: e.target.value }))} maxLength={200} />
           </div>
           <div className="form-group">
             <label className="form-label">Data inizio <span className="required">*</span></label>
-            <input type="date" className="form-control" value={contractCreateForm.startDate} onChange={e => setContractCreateForm(f => ({ ...f, startDate: e.target.value }))} />
+            <input type="date" className="form-control" value={contractCreateForm.startDate ?? ''} onChange={e => setContractCreateForm(f => ({ ...f, startDate: e.target.value }))} />
           </div>
           <div className="form-group">
             <label className="form-label">Importo (€) <span className="required">*</span></label>
-            <input type="number" className="form-control" value={contractCreateForm.amount} onChange={e => setContractCreateForm(f => ({ ...f, amount: e.target.value }))} min={0} step={0.01} />
+            <input type="number" className="form-control" value={contractCreateForm.amount ?? 0} onChange={e => setContractCreateForm(f => ({ ...f, amount: Number(e.target.value) }))} min={0} step={0.01} />
           </div>
           <div className="form-group">
             <label className="form-label">IVA %</label>
-            <input type="number" className="form-control" value={contractCreateForm.vatPercentage} onChange={e => setContractCreateForm(f => ({ ...f, vatPercentage: e.target.value }))} min={0} max={100} />
+            <input type="number" className="form-control" value={contractCreateForm.vatPercentage ?? 22} onChange={e => setContractCreateForm(f => ({ ...f, vatPercentage: Number(e.target.value) }))} min={0} max={100} />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Descrizione</label>
-            <textarea className="form-control" rows={3} value={contractCreateForm.description} onChange={e => setContractCreateForm(f => ({ ...f, description: e.target.value }))} maxLength={2000} />
+            <textarea className="form-control" rows={3} value={contractCreateForm.description ?? ''} onChange={e => setContractCreateForm(f => ({ ...f, description: e.target.value }))} maxLength={2000} />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Note</label>
-            <textarea className="form-control" rows={2} value={contractCreateForm.notes} onChange={e => setContractCreateForm(f => ({ ...f, notes: e.target.value }))} maxLength={1000} />
+            <textarea className="form-control" rows={2} value={contractCreateForm.notes ?? ''} onChange={e => setContractCreateForm(f => ({ ...f, notes: e.target.value }))} maxLength={1000} />
           </div>
         </div>
       </Modal>

@@ -47,4 +47,7 @@ public class Customer
 
     [MaxLength(1000)]
     public string? Notes { get; set; }
+
+    [Required]
+    public bool IsDisabled { get; set; } = false; // soft delete
 }

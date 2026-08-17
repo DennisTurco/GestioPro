@@ -13,6 +13,7 @@ public class ProductService(AppDbContext context) : IProductService
         => await context.Products
             .Include(x => x.Category)
             .AsNoTracking()
+            .Where(x => !x.IsDisabled)
             .Select(x => MapToDto(x))
             .ToListAsync();
 
@@ -66,6 +67,9 @@ public class ProductService(AppDbContext context) : IProductService
         entity.Description = dto.Description;
         entity.Price = dto.Price;
         entity.VatPercentage = dto.VatPercentage;
+        entity.Ean = dto.Ean;
+        entity.Quantity = dto.Quantity;
+        entity.CategoryId = dto.CategoryId;
 
         await context.SaveChangesAsync();
         return MapToDto(entity);
@@ -79,7 +83,8 @@ public class ProductService(AppDbContext context) : IProductService
         if (entity is null)
             throw new BusinessException("Prodotto non trovato");
 
-        context.Products.Remove(entity);
+        entity.IsDisabled = true;
+
         await context.SaveChangesAsync();
     }
 
@@ -95,6 +100,7 @@ public class ProductService(AppDbContext context) : IProductService
             p.Description,
             p.Quantity,
             p.VatPercentage,
-            p.Price
+            p.Price,
+            p.IsDisabled
         );
 }

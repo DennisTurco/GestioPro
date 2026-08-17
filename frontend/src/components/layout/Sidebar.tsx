@@ -132,6 +132,9 @@ export default function Sidebar() {
               {user?.username ?? ''}
             </div>
             <div style={{ fontSize: 11 }} className="user-email">{user?.email ?? ''}</div>
+            <div style={{ fontSize: 10, marginTop: 2, color: '#93C5FD', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {user?.userRole === UserRole.Admin ? 'Admin' : 'Operator'}
+            </div>
           </div>
           <button
             className="sidebar-profile-btn"

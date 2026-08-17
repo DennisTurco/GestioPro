@@ -5,5 +5,6 @@ public record ProductCategoryResponseDTO(
     string Name,
     string? Description,
     DateTimeOffset CreationDate,
-    DateTimeOffset LastUpdateDate
+    DateTimeOffset LastUpdateDate,
+    bool IsDisabled
 );

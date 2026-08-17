@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI } from '../services/api'
-import type { Customer, CustomerRequest, Quotation } from '../types'
+import { ClientiAPI } from '../services/api'
+import type { Customer, CustomerRequest } from '../types'
 import { CustomerType, CUSTOMER_TYPE_LABEL } from '../types'
 import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
@@ -9,11 +9,11 @@ import ConfirmModal from '../components/ui/ConfirmModal'
 import EmptyState from '../components/ui/EmptyState'
 import { getInitials,  avatarColor } from '../utils/user'
 
-
 const COMPANY_TYPES = new Set<CustomerType>([
   CustomerType.Company,
   CustomerType.PublicAdmin,
   CustomerType.Freelancer,
+  CustomerType.Private
 ])
 
 const EMPTY_FORM: CustomerRequest = {
@@ -39,7 +39,6 @@ export default function Clienti() {
   const { showToast } = useToast()
 
   const [customers, setCustomers] = useState<Customer[]>([])
-  const [quotationCounts, setQuotationCounts] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
@@ -59,16 +58,10 @@ export default function Clienti() {
   async function loadData() {
     setLoading(true)
     try {
-      const [cList, qList] = await Promise.all([
-        ClientiAPI.getAll(),
-        QuotationAPI.getAll(),
+      const [cList] = await Promise.all([
+        ClientiAPI.getAll()
       ])
       setCustomers(cList)
-      const counts: Record<number, number> = {}
-      qList.forEach((q: Quotation) => {
-        counts[q.customerId] = (counts[q.customerId] ?? 0) + 1
-      })
-      setQuotationCounts(counts)
     } catch {
       showToast('Errore nel caricamento dei clienti', 'error')
     } finally {
@@ -167,15 +160,20 @@ export default function Clienti() {
 
   function exportCsv() {
     const rows = [
-      ['ID', 'Nome', 'Cognome', 'Email', 'Telefono', 'Città', 'Tipo'],
+      ['ID', 'Nome', 'Cognome', 'Email', 'Telefono', 'Tipo', 'ContrattiAttivi', 'Preventivi', 'Paese', 'Provincia', 'Città', 'Indirizzo'],
       ...filtered.map(c => [
         String(c.id),
         c.name,
         c.surname,
         c.email,
         c.phone ?? '',
-        c.city ?? '',
         CUSTOMER_TYPE_LABEL[c.customerType] ?? '',
+        String(c.contractCount),
+        String(c.quotationCount),
+        c.country ?? '',
+        c.province ?? '',
+        c.city ?? '',
+        c.address ?? '',
       ]),
     ]
     const csv = rows.map(r => r.map(v => `"${v.replace(/"/g, '""')}"`).join(',')).join('\r\n')
@@ -242,7 +240,8 @@ export default function Clienti() {
                 <th>Email</th>
                 <th>Telefono</th>
                 <th>Città</th>
-                <th>Preventivi</th>
+                <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Contratti Attivi</th>
+                <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Preventivi</th>
                 <th>Azioni</th>
               </tr>
             </thead>
@@ -273,9 +272,12 @@ export default function Clienti() {
                   <td>{c.email}</td>
                   <td>{c.phone || '-'}</td>
                   <td>{c.city || '-'}</td>
-                  <td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                      <i className={c.contractCount > 0 ? "fa-solid fa-circle-check" : ""} style={{color: 'var(--color-success)'}}></i>
+                  </td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                     <span className="badge badge-info">
-                      {quotationCounts[c.id] ?? 0}
+                      {c.quotationCount ?? '0'}
                     </span>
                   </td>
                   <td onClick={e => e.stopPropagation()}>
