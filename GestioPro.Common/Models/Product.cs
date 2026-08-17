@@ -39,4 +39,7 @@ public class Product
     [Required]
     [Range(0, double.MaxValue)]
     public float Price { get; set; }
+
+    [Required]
+    public bool IsDisabled { get; set; } = false; // soft delete
 }

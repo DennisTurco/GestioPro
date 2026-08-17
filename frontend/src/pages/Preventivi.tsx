@@ -300,7 +300,7 @@ export default function Preventivi() {
       return;
     }
     const header = [
-      "N°",
+      "N&#176;",
       "Titolo",
       "Cliente",
       "Importo",
@@ -593,7 +593,7 @@ export default function Preventivi() {
                     const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus];
                     return (
                       <tr key={q.id}>
-                        <td className="font-medium">{q.number}</td>
+                        <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
                         <td>{q.title}</td>
                         <td>{q.customerName}</td>
                         <td className="font-semibold">
@@ -707,28 +707,16 @@ export default function Preventivi() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Numero preventivo *</label>
-              {editingQuotation ? (
-                <input
-                  type="text"
-                  className="form-control"
-                  value={form.number}
-                  readOnly
-                  style={{
-                    background: "var(--color-bg)",
-                    cursor: "not-allowed",
-                  }}
-                />
-              ) : (
+              <label className="form-label">Numero preventivo</label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder={numberLoading ? "Generazione…" : "2025-001"}
                   value={form.number}
                   readOnly={numberLoading}
+                  disabled={true}
                   onChange={(e) => setField("number", e.target.value)}
                 />
-              )}
             </div>
             <div className="form-group">
               <label className="form-label">Cliente *</label>

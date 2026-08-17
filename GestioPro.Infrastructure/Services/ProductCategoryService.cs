@@ -13,6 +13,7 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
     {
         return await context.ProductCategories
             .AsNoTracking()
+            .Where(c => !c.IsDisabled)
             .Select(c => MapToDto(c))
             .ToListAsync();
     }
@@ -72,7 +73,8 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
         if (entity is null)
             throw new BusinessException("Categoria prodotto non trovata");
 
-        context.ProductCategories.Remove(entity);
+        entity.IsDisabled = true;
+        entity.LastUpdateDate = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync();
     }
 
@@ -82,6 +84,7 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
             p.Name,
             p.Description,
             p.CreationDate,
-            p.LastUpdateDate
+            p.LastUpdateDate,
+            p.IsDisabled
         );
 }

@@ -13,5 +13,6 @@ public record ProductResponseDTO(
     string? Description,
     int? Quantity,
     int VatPercentage,
-    float Price
+    float Price,
+    bool IsDisabled
 );

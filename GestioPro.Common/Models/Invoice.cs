@@ -34,4 +34,7 @@ public class Invoice
     [Required]
     [Range(0, 100)]
     public int VatPercentage { get; set; } = 22;
+
+    [Required]
+    public bool IsDisabled { get; set; } = false; // soft delete
 }

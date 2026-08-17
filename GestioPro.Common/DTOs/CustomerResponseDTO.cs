@@ -22,5 +22,8 @@ public record CustomerResponseDTO(
     double? Lon,
     string? Notes,
     DateTimeOffset InsertDate,
-    DateTimeOffset LastUpdateDate
+    DateTimeOffset LastUpdateDate,
+    bool IsDisabled,
+    int QuotationCount,
+    int ContractCount
 );

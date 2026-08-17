@@ -21,4 +21,7 @@ public class ProductCategory
 
     [Required]
     public DateTimeOffset LastUpdateDate { get; set; }
+
+    [Required]
+    public bool IsDisabled { get; set; } = false; // soft delete
 }
