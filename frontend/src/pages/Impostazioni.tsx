@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { SettingsAPI, ClientiAPI } from '../services/api'
-import type { Setting } from '../types'
+import { UserRole, type Setting } from '../types'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
 
@@ -14,7 +14,20 @@ const SETTING_CODES = [
   'VatPercentage',
   'ExpirationDays',
   'QuotationNotes',
+  'CompanyLogo',
 ]
+
+const LOGO_ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp']
+const LOGO_MAX_SIZE_BYTES = 1024 * 1024 // 1MB
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+}
 
 export default function Impostazioni() {
   const { showToast } = useToast()
@@ -45,6 +58,32 @@ export default function Impostazioni() {
 
   function handleChange(code: string, value: string) {
     setValues(prev => ({ ...prev, [code]: value }))
+  }
+
+  async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+
+    if (!LOGO_ALLOWED_TYPES.includes(file.type)) {
+      showToast('Formato non supportato. Usa PNG, JPG, SVG o WEBP', 'warning')
+      return
+    }
+    if (file.size > LOGO_MAX_SIZE_BYTES) {
+      showToast('Immagine troppo grande, dimensione massima 1MB', 'warning')
+      return
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file)
+      handleChange('CompanyLogo', dataUrl)
+    } catch {
+      showToast("Errore nella lettura dell'immagine", 'error')
+    }
+  }
+
+  function handleLogoRemove() {
+    handleChange('CompanyLogo', '')
   }
 
   async function handleSave() {
@@ -95,11 +134,72 @@ export default function Impostazioni() {
           </div>
           <div className="card-body">
             <div className="form-group">
+              <label className="form-label">Logo aziendale</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 12,
+                    border: '1px solid var(--color-border, #e5e7eb)',
+                    background: 'var(--color-surface-hover)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                  }}
+                >
+                  {field('CompanyLogo') ? (
+                    <img
+                      src={field('CompanyLogo')}
+                      alt="Logo aziendale"
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <i className="fa-solid fa-image" style={{ color: 'var(--text-secondary)' }} />
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <label
+                    className="btn btn-secondary btn-sm"
+                    style={{
+                      cursor: UserRole.Operator == user?.userRole ? 'not-allowed' : 'pointer',
+                      opacity: UserRole.Operator == user?.userRole ? 0.6 : 1,
+                      width: 'fit-content',
+                    }}
+                  >
+                    <i className="fa-solid fa-upload" /> Carica logo
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                      style={{ display: 'none' }}
+                      disabled={UserRole.Operator == user?.userRole}
+                      onChange={handleLogoChange}
+                    />
+                  </label>
+                  {field('CompanyLogo') && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      style={{ width: 'fit-content' }}
+                      disabled={UserRole.Operator == user?.userRole}
+                      onClick={handleLogoRemove}
+                    >
+                      <i className="fa-solid fa-trash" /> Rimuovi
+                    </button>
+                  )}
+                </div>
+              </div>
+              <span className="form-hint">PNG, JPG, SVG o WEBP, max 1MB. Usato nell'intestazione dei PDF dei preventivi.</span>
+            </div>
+            <div className="form-group">
               <label className="form-label" htmlFor="sett-CompanyName">Nome azienda</label>
               <input
                 id="sett-CompanyName"
                 type="text"
                 className="form-control"
+                disabled={UserRole.Operator == user?.userRole}
                 value={field('CompanyName')}
                 onChange={e => handleChange('CompanyName', e.target.value)}
                 placeholder="Nome o ragione sociale"
@@ -111,6 +211,7 @@ export default function Impostazioni() {
                 id="sett-VatNumber"
                 type="text"
                 className="form-control"
+                disabled={UserRole.Operator == user?.userRole}
                 value={field('VatNumber')}
                 onChange={e => handleChange('VatNumber', e.target.value)}
                 placeholder="IT01234567890"
@@ -122,6 +223,7 @@ export default function Impostazioni() {
                 id="sett-Email"
                 type="email"
                 className="form-control"
+                disabled={UserRole.Operator == user?.userRole}
                 value={field('Email')}
                 onChange={e => handleChange('Email', e.target.value)}
                 placeholder="azienda@esempio.it"
@@ -133,6 +235,7 @@ export default function Impostazioni() {
                 id="sett-Phone"
                 type="text"
                 className="form-control"
+                disabled={UserRole.Operator == user?.userRole}
                 value={field('Phone')}
                 onChange={e => handleChange('Phone', e.target.value)}
                 placeholder="+39 333 000 0000"
@@ -144,6 +247,7 @@ export default function Impostazioni() {
                 id="sett-Address"
                 type="text"
                 className="form-control"
+                disabled={UserRole.Operator == user?.userRole}
                 value={field('Address')}
                 onChange={e => handleChange('Address', e.target.value)}
                 placeholder="Via Roma 1, Milano"
@@ -155,6 +259,7 @@ export default function Impostazioni() {
                 id="sett-Website"
                 type="text"
                 className="form-control"
+                disabled={UserRole.Operator == user?.userRole}
                 value={field('Website')}
                 onChange={e => handleChange('Website', e.target.value)}
                 placeholder="https://www.esempio.it"

@@ -9,7 +9,6 @@ public class Settings
     [Key]
     public string Code { get; set; } = string.Empty;
 
-    [MaxLength(100)]
     public string? Value { get; set; }
 
     [MaxLength(455)]

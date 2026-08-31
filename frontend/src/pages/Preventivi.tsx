@@ -342,7 +342,7 @@ export default function Preventivi() {
 
     const descHtml = q.description ? await marked.parse(q.description) : "";
     const notesHtml = q.notes
-      ? `<p style="font-size:12px;color:#6b7280;margin-top:8px">${q.notes}</p>`
+      ? `<p style="font-size:11px;color:#6b7280;margin-top:8px">${q.notes}</p>`
       : "";
 
     const net = q.amount * (1 - (q.discountPercentage ?? 0) / 100);
@@ -351,28 +351,76 @@ export default function Preventivi() {
 
     const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus];
 
+    const companyName = getSettingValue(settings, "CompanyName") || "";
+    const companyAddress = getSettingValue(settings, "Address") || "";
+    const companyVat = getSettingValue(settings, "VatNumber") || "";
+    const companyEmail = getSettingValue(settings, "Email") || "";
+    const companyPhone = getSettingValue(settings, "Phone") || "";
+    const companyWebsite = getSettingValue(settings, "Website") || "";
+    const companyLogo = getSettingValue(settings, "CompanyLogo") || "";
+
+    const logoHtml = companyLogo
+      ? `<img src="${companyLogo}" style="width:52px;height:52px;object-fit:contain;border-radius:10px;border:1px solid #e5e7eb;background:#fff" />`
+      : `<div style="width:52px;height:52px;background:#2563eb;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700">${(companyName || "P").charAt(0).toUpperCase()}</div>`;
+
+    const footerParts = [
+      companyName,
+      companyAddress,
+      companyVat ? `P.IVA ${companyVat}` : "",
+      companyEmail,
+      companyPhone,
+      companyWebsite,
+    ].filter(Boolean);
+
+    const footerHtml = footerParts.length
+      ? `<div style="margin-top:14mm;padding-top:4mm;border-top:1px solid #e5e7eb;text-align:center;font-size:10px;color:#9ca3af">
+          ${footerParts.join(" &nbsp;&bull;&nbsp; ")}
+        </div>`
+      : "";
+
+    const signaturesHtml = `
+      <div style="margin-top:16mm">
+        <div style="font-size:11px;color:#374151;margin-bottom:10mm">Data: __________________</div>
+        <div style="display:flex;justify-content:space-between;gap:24px">
+          <div style="width:45%;text-align:center">
+            <div style="border-bottom:1px solid #9ca3af;height:14mm"></div>
+            <div style="font-size:11px;color:#6b7280;margin-top:4px">${companyName ? `${companyName} — ` : ""}Firma per accettazione</div>
+          </div>
+          <div style="width:45%;text-align:center">
+            <div style="border-bottom:1px solid #9ca3af;height:14mm"></div>
+            <div style="font-size:11px;color:#6b7280;margin-top:4px">${q.customerName} — Firma per accettazione</div>
+          </div>
+        </div>
+      </div>`;
+
     const html = `
-      <div style="margin:5px 10px 10px;padding:10mm;font-family:Arial,sans-serif;color:#111;background:#fff">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm">
-          <div style="display:flex;gap:12px;align-items:center">
-            <div style="width:42px;height:42px;background:#2563eb;border-radius:10px"></div>
+      <div style="margin:5px 10px 10px;padding:10mm;font-family:Arial,sans-serif;color:#111827;background:#fff">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm">
+          <div style="display:flex;gap:14px;align-items:center">
+            ${logoHtml}
             <div>
-              <div style="font-size:20px;font-weight:700">Preventivo ${q.number}</div>
-              <div style="font-size:12px;color:#6b7280">${q.title || ""}</div>
+              ${companyName ? `<div style="font-size:14px;font-weight:700;color:#111827">${companyName}</div>` : ""}
+              <div style="font-size:11px;color:#6b7280">${[companyAddress, companyVat ? `P.IVA ${companyVat}` : ""].filter(Boolean).join(" · ")}</div>
             </div>
           </div>
-          <div style="text-align:right;font-size:12px;color:#374151">
-            <div><strong>Data emissione:</strong> ${formatDate(q.issueDate)}</div>
-            <div><strong>Scadenza:</strong> ${formatDate(q.validityDate)}</div>
-            <div style="margin-top:6px"><span style="background:#dbeafe;color:#1e40af;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600">${statusInfo?.text ?? ""}</span></div>
+          <div style="text-align:right">
+            <div style="font-size:20px;font-weight:700;color:#111827">Preventivo ${q.number}</div>
+            <div style="font-size:12px;color:#6b7280;margin-bottom:6px">${q.title || ""}</div>
+            <span style="background:#dbeafe;color:#1e40af;padding:3px 12px;border-radius:99px;font-size:11px;font-weight:600">${statusInfo?.text ?? ""}</span>
           </div>
         </div>
 
         <div style="height:1px;background:#e5e7eb;margin:0 0 8mm"></div>
 
-        <div style="margin-bottom:8mm">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:4px">Cliente</div>
-          <div style="font-size:15px;font-weight:600">${q.customerName}</div>
+        <div style="display:flex;justify-content:space-between;gap:24px;margin-bottom:8mm">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:4px">Cliente</div>
+            <div style="font-size:15px;font-weight:600">${q.customerName}</div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:#374151">
+            <div><strong>Data emissione:</strong> ${formatDate(q.issueDate)}</div>
+            <div><strong>Scadenza:</strong> ${formatDate(q.validityDate)}</div>
+          </div>
         </div>
 
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8mm">
@@ -386,12 +434,14 @@ export default function Preventivi() {
             <td style="padding:8px 12px;border:1px solid #e5e7eb">${formatCurrency(q.amount)}</td>
             <td style="padding:8px 12px;border:1px solid #e5e7eb">${formatCurrency(vat)}</td>
             <td style="padding:8px 12px;border:1px solid #e5e7eb">${q.discountPercentage ?? 0}%</td>
-            <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:right;font-weight:700;font-size:15px">${formatCurrency(total)}</td>
+            <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:right;font-weight:700;font-size:15px;background:#f9fafb">${formatCurrency(total)}</td>
           </tr>
         </table>
 
         ${descHtml ? `<div style="height:1px;background:#e5e7eb;margin:0 0 6mm"></div><div style="font-size:12px;line-height:1.6">${descHtml}</div>` : ""}
         ${notesHtml}
+        ${signaturesHtml}
+        ${footerHtml}
       </div>`;
 
     const container = document.createElement("div");

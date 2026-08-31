@@ -106,6 +106,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Value = "",
                 Description = "default quotation notes",
                 LastUpdateDate = null
+            },
+            new Settings
+            {
+                Code = "CompanyLogo",
+                Value = null,
+                Description = "company logo, stored as a base64 data URL",
+                LastUpdateDate = null
             }
         );
     }
