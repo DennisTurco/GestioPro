@@ -18,5 +18,6 @@ public record QuotationResponseDTO(
     DateTimeOffset LastUpdateDate,
     DateOnly? IssueDate,
     DateOnly? ValidityDate,
-    bool IsDisabled
+    bool IsDisabled,
+    List<QuotationProductResponseDTO> Products
 );

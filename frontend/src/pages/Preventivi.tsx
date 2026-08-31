@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { marked } from "marked";
-import { QuotationAPI, ClientiAPI, SettingsAPI } from "../services/api";
-import type { Quotation, QuotationRequest, Customer, Setting } from "../types";
+import { QuotationAPI, ClientiAPI, SettingsAPI, ProductAPI } from "../services/api";
+import type { Quotation, QuotationRequest, Customer, Setting, Product } from "../types";
 import { QuotationStatus, QUOTATION_STATUS_INFO } from "../types";
 import { formatCurrency } from "../utils/currency";
 import { formatDate, toDateInput } from "../utils/date";
@@ -10,6 +10,7 @@ import Modal from "../components/ui/Modal";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import Badge from "../components/ui/Badge";
 import EmptyState from "../components/ui/EmptyState";
+import QuotationProductsPicker, { type QuotationProductFormItem } from "../components/quotations/QuotationProductsPicker";
 import { getSettingValue } from "../utils/settings";
 
 interface FormState {
@@ -46,6 +47,7 @@ export default function Preventivi() {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [settings, setSettings] = useState<Setting[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
@@ -57,6 +59,7 @@ export default function Preventivi() {
     null,
   );
   const [form, setForm] = useState<FormState>(emptyForm());
+  const [formItems, setFormItems] = useState<QuotationProductFormItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [numberLoading, setNumberLoading] = useState(false);
 
@@ -73,11 +76,13 @@ export default function Preventivi() {
       QuotationAPI.getAll(),
       ClientiAPI.getAll(),
       SettingsAPI.getAll(),
+      ProductAPI.getAll(),
     ])
-      .then(([q, c, s]) => {
+      .then(([q, c, s, p]) => {
         setQuotations(q);
         setCustomers(c);
         setSettings(s);
+        setProducts(p);
       })
       .catch(() => showToast("Errore nel caricamento dei dati", "error"))
       .finally(() => setLoading(false));
@@ -134,6 +139,13 @@ export default function Preventivi() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function handleItemsChange(next: QuotationProductFormItem[]) {
+    setFormItems(next);
+    if (next.length === 0) return;
+    const total = next.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    setField("amount", total.toFixed(2));
+  }
+
   async function openNew() {
     const today = new Date();
     const todayStr = today.toISOString().slice(0, 10);
@@ -157,6 +169,7 @@ export default function Preventivi() {
       quotationStatus: String(QuotationStatus.Draft),
       description: descDefault,
     });
+    setFormItems([]);
     setModalOpen(true);
 
     setNumberLoading(true);
@@ -188,6 +201,13 @@ export default function Preventivi() {
       quotationStatus: String(q.quotationStatus),
       notes: q.notes ?? "",
     });
+    setFormItems(q.products.map((p) => ({
+      productId: p.productId,
+      quantity: p.quantity,
+      productName: p.productName,
+      productCode: p.productCode,
+      unitPrice: p.unitPrice,
+    })));
     setModalOpen(true);
   }
 
@@ -227,6 +247,7 @@ export default function Preventivi() {
       validityDate: form.validityDate || undefined,
       quotationStatus: parseInt(form.quotationStatus) as QuotationStatus,
       notes: form.notes.trim() || undefined,
+      products: formItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
     };
 
     setSaving(true);
@@ -814,6 +835,15 @@ export default function Preventivi() {
             />
           </div>
 
+          <div className="form-group">
+            <label className="form-label">Prodotti associati</label>
+            <QuotationProductsPicker
+              items={formItems}
+              onChange={handleItemsChange}
+              availableProducts={products}
+            />
+          </div>
+
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Importo (€) *</label>
@@ -824,6 +854,8 @@ export default function Preventivi() {
                 step="0.01"
                 min="0"
                 value={form.amount}
+                disabled={formItems.length > 0}
+                title={formItems.length > 0 ? "Calcolato automaticamente dai prodotti associati" : undefined}
                 onChange={(e) => setField("amount", e.target.value)}
               />
             </div>

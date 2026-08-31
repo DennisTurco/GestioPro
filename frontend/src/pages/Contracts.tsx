@@ -15,6 +15,7 @@ import ConfirmModal from "../components/ui/ConfirmModal";
 import EmptyState from "../components/ui/EmptyState";
 import Badge from "../components/ui/Badge";
 import { getSettingValue } from "../utils/settings";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface FormState {
   quotationId: number;
@@ -49,6 +50,7 @@ function statusBadgeCls(status: string): string {
 }
 
 export default function Contratti() {
+  const navigate = useNavigate()
   const { showToast } = useToast();
 
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -431,7 +433,7 @@ export default function Contratti() {
               </thead>
               <tbody>
                 {filtered.map((c) => (
-                  <tr key={c.id}>
+                  <tr key={c.id} onClick={() => navigate(`/rinnovi/${c.id}`)} style={{ cursor: 'pointer' }}>
                     <td>
                       <code style={{ fontSize: 12 }}>{c.number}</code>
                     </td>
@@ -451,7 +453,7 @@ export default function Contratti() {
                         <span className="text-muted">—</span>
                       )}
                     </td>
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}>
                       <div className="row-actions">
                         <button
                           className="btn btn-ghost btn-sm"
@@ -460,6 +462,13 @@ export default function Contratti() {
                         >
                           <i className="fa-solid fa-pen" />
                         </button>
+                        <button
+                        className="btn btn-ghost btn-sm"
+                        title="Lista rinnovi"
+                        onClick={() => navigate(`/rinnovi/${c.id}`)}
+                      >
+                        <i className="fa-solid fa-arrow-up-right-from-square" />
+                      </button>
                         <button
                           className="btn btn-ghost btn-sm"
                           title="Rinnova"

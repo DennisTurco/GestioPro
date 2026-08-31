@@ -4,7 +4,6 @@ import { formatDate } from "../utils/date";
 import { useToast } from "../context/ToastContext";
 import EmptyState from "../components/ui/EmptyState";
 import Modal from "../components/ui/Modal";
-import ConfirmModal from "../components/ui/ConfirmModal";
 import { UserAPI } from "../services/user.api";
 
 const EMPTY_FORM: UserCreateRequest = {
@@ -32,9 +31,6 @@ export default function Utenti() {
     const [editTarget, setEditTarget] = useState<User | null>(null)
     const [form, setForm] = useState<UserCreateRequest>(EMPTY_FORM)
     const [saving, setSaving] = useState(false)
-
-    const [deleteTarget, setDeleteTarget] = useState<User | null>(null)
-    const [deleting, setDeleting] = useState(false)
 
     const [pwForm, setPwForm] = useState({
         pwd: '',
@@ -195,24 +191,6 @@ export default function Utenti() {
     return true
   }
 
-  async function handleDelete() {
-    if (!deleteTarget) return;
-    setDeleting(true);
-    try {
-      await UserAPI.disable(deleteTarget.id);
-      setUsers((prev) => prev.filter((c) => c.id !== deleteTarget.id));
-      showToast("Utente eliminato", "success");
-      setDeleteTarget(null);
-    } catch (err: unknown) {
-      showToast(
-        err instanceof Error ? err.message : "Errore durante l'eliminazione",
-        "error",
-      );
-    } finally {
-      setDeleting(false);
-    }
-  }
-
   function exportCsv() {
     const header = ["Ruolo", "Nome", "Cognome", "Username", "Email", "DataCreazione", "DataUltimaModifica", "Attivo"];
     const rows = filtered.map((u) => [
@@ -364,14 +342,6 @@ export default function Utenti() {
                           onClick={() => openPasswordReset(usr)}
                         >
                           <i className="fa-solid fa-key" />
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          title="Elimina"
-                          disabled={usr.userRole == UserRole.Admin}
-                          onClick={() => setDeleteTarget(usr)}
-                        >
-                          <i className="fa-solid fa-trash" />
                         </button>
                       </div>
                     </td>
@@ -584,13 +554,6 @@ export default function Utenti() {
         </div>
       </Modal>
 
-      <ConfirmModal
-        isOpen={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
-        message={`Sei sicuro di voler eliminare l'utente "${deleteTarget?.username}"? Questa azione non può essere annullata.`}
-        loading={deleting}
-      />
     </div>
   );
 }

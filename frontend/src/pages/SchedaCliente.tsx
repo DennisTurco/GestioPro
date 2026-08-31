@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI } from '../services/api'
-import type { Contract, ContractRequest, Customer, CustomerRequest, Quotation, QuotationRequest, Setting } from '../types'
+import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI, ProductAPI } from '../services/api'
+import type { Contract, ContractRequest, Customer, CustomerRequest, Product, Quotation, QuotationRequest, Setting } from '../types'
 import { QuotationStatus, ContractType, QUOTATION_STATUS_INFO, CUSTOMER_TYPE_LABEL, CONTRACT_TYPE_LABEL, CONTRACT_STATUS_CLS } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { formatDate } from '../utils/date'
@@ -9,6 +9,7 @@ import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import Badge from '../components/ui/Badge'
+import QuotationProductsPicker, { type QuotationProductFormItem } from '../components/quotations/QuotationProductsPicker'
 import { getSettingValue } from '../utils/settings'
 
 type Tab = 'preventivi' | 'contratti' | 'note'
@@ -23,6 +24,7 @@ export default function SchedaCliente() {
   const [quotations, setQuotations] = useState<Quotation[]>([])
   const [contracts, setContracts] = useState<Contract[]>([])
   const [settings, setSettings] = useState<Setting[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('preventivi')
   const [quotationFilter, setQuotationFilter] = useState<QuotationFilter>('all')
@@ -41,6 +43,7 @@ export default function SchedaCliente() {
   const [quotationModalOpen, setQuotationModalOpen] = useState(false)
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null)
   const [quotationForm, setQuotationForm] = useState<Partial<QuotationRequest & { issueDate: string; validityDate: string }>>({})
+  const [quotationFormItems, setQuotationFormItems] = useState<QuotationProductFormItem[]>([])
   const [quotationSaving, setQuotationSaving] = useState(false)
 
   const [deleteQuotationModalOpen, setDeleteQuotationModalOpen] = useState(false)
@@ -64,20 +67,28 @@ export default function SchedaCliente() {
     if (!id) return
     const numId = Number(id)
     setLoading(true)
-    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll(), SettingsAPI.getAll()])
-      .then(([c, qs, cs, se]) => {
+    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll(), SettingsAPI.getAll(), ProductAPI.getAll()])
+      .then(([c, qs, cs, se, pr]) => {
         const customerQuotations = qs.filter(q => q.customerId === numId)
         const quotationIds = new Set(customerQuotations.map(q => q.id))
         setCustomer(c)
         setQuotations(customerQuotations)
         setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
         setSettings(se)
+        setProducts(pr)
         setNote(c.notes ?? '')
         document.title = `${c.name} ${c.surname} - GestioPro`
       })
       .catch(() => showToast('Impossibile caricare i dati del cliente', 'error'))
       .finally(() => setLoading(false))
   }, [id])
+
+  function handleQuotationItemsChange(next: QuotationProductFormItem[]) {
+    setQuotationFormItems(next)
+    if (next.length === 0) return
+    const total = next.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+    setQuotationForm(f => ({ ...f, amount: Number(total.toFixed(2)) }))
+  }
 
   function openNewQuotation() {
     const vatDefault = getSettingValue(settings, "VatPercentage") ?? "22";
@@ -99,6 +110,7 @@ export default function SchedaCliente() {
           notes: '',
           customerId: Number(id),
         })
+        setQuotationFormItems([])
         setQuotationModalOpen(true)
       })
       .catch(() => showToast('Impossibile ottenere il prossimo numero preventivo', 'error'))
@@ -119,6 +131,13 @@ export default function SchedaCliente() {
       notes: q.notes ?? '',
       customerId: q.customerId,
     })
+    setQuotationFormItems(q.products.map(p => ({
+      productId: p.productId,
+      quantity: p.quantity,
+      productName: p.productName,
+      productCode: p.productCode,
+      unitPrice: p.unitPrice,
+    })))
     setQuotationModalOpen(true)
   }
 
@@ -138,6 +157,7 @@ export default function SchedaCliente() {
         notes: quotationForm.notes,
         issueDate: (quotationForm as { issueDate?: string }).issueDate || undefined,
         validityDate: (quotationForm as { validityDate?: string }).validityDate || undefined,
+        products: quotationFormItems.map(i => ({ productId: i.productId, quantity: i.quantity })),
       }
       if (editingQuotation) {
         const updated = await QuotationAPI.update(editingQuotation.id, payload)
@@ -775,12 +795,22 @@ export default function SchedaCliente() {
               onChange={e => setQuotationForm(f => ({ ...f, validityDate: e.target.value }))}
             />
           </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Prodotti associati</label>
+            <QuotationProductsPicker
+              items={quotationFormItems}
+              onChange={handleQuotationItemsChange}
+              availableProducts={products}
+            />
+          </div>
           <div className="form-group">
             <label className="form-label">Importo (€)</label>
             <input
               type="number"
               className="form-control"
               value={quotationForm.amount ?? 0}
+              disabled={quotationFormItems.length > 0}
+              title={quotationFormItems.length > 0 ? 'Calcolato automaticamente dai prodotti associati' : undefined}
               onChange={e => setQuotationForm(f => ({ ...f, amount: Number(e.target.value) }))}
             />
           </div>
