@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, Tray, Menu, nativeImage } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
@@ -6,9 +6,28 @@ const http = require('http');
 const isDev = !app.isPackaged;
 const FRONTEND_URL = 'http://localhost:3000';
 const BACKEND_URL  = 'https://localhost:7160';
+const TRAY_ICON_PATH = path.join(__dirname, '..', 'public', 'icon.ico');
+const HIDDEN_ARG = '--hidden';
+
+// when the OS launches the app at login (autostart), it's passed --hidden so it
+// comes up minimized to the tray instead of popping a window on top of everything
+const startedHidden = process.argv.includes(HIDDEN_ARG);
 
 let backendProcess = null;
 let mainWindow = null;
+let tray = null;
+app.isQuitting = false;
+
+// ── Autostart ─────────────────────────────────────────
+
+function configureAutoLaunch() {
+    if (isDev) return; // don't register the dev binary as a login item
+
+    app.setLoginItemSettings({
+        openAtLogin: true,
+        args: [HIDDEN_ARG],
+    });
+}
 
 // ── Backend ───────────────────────────────────────────
 
@@ -43,7 +62,7 @@ function waitForBackend(url, retries = 30, delay = 1000) {
 
 // ── Window ────────────────────────────────────────────
 
-function createWindow() {
+function createWindow(startHidden = false) {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
@@ -57,6 +76,7 @@ function createWindow() {
         },
         autoHideMenuBar: true,
         backgroundColor: '#0F172A',
+        show: false,
     });
 
     if (isDev) {
@@ -65,28 +85,78 @@ function createWindow() {
         mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
     }
 
+    // avoid a flash of the window when launched hidden (autostart) or in the background
+    mainWindow.once('ready-to-show', () => {
+        if (!startHidden) mainWindow.show();
+    });
+
     // open external links in the system browser, not in the app
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url);
         return { action: 'deny' };
     });
 
+    // clicking the window's close button hides it to the tray instead of quitting
+    mainWindow.on('close', (event) => {
+        if (app.isQuitting) return;
+        event.preventDefault();
+        mainWindow.hide();
+    });
+
     mainWindow.on('closed', () => { mainWindow = null; });
+}
+
+function showWindow() {
+    if (!mainWindow) {
+        createWindow();
+        return;
+    }
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+}
+
+function quitApp() {
+    app.isQuitting = true;
+    if (backendProcess) backendProcess.kill();
+    app.quit();
+}
+
+// ── Tray ──────────────────────────────────────────────
+
+function createTray() {
+    const icon = nativeImage.createFromPath(TRAY_ICON_PATH);
+    tray = new Tray(icon.isEmpty() ? icon : icon.resize({ width: 16, height: 16 }));
+    tray.setToolTip('GestioPro');
+
+    const contextMenu = Menu.buildFromTemplate([
+        { label: 'Apri', click: showWindow },
+        { label: 'Esci', click: quitApp },
+    ]);
+    tray.setContextMenu(contextMenu);
+    tray.on('double-click', showWindow);
 }
 
 // ── Lifecycle ─────────────────────────────────────────
 
 app.whenReady().then(async () => {
+    configureAutoLaunch();
     startBackend();
     if (!isDev) await waitForBackend(BACKEND_URL);
-    createWindow();
+    createWindow(startedHidden);
+    createTray();
 });
 
 app.on('window-all-closed', () => {
-    if (backendProcess) backendProcess.kill();
-    if (process.platform !== 'darwin') app.quit();
+    // the window is hidden (not destroyed) on close, so this only fires
+    // on platforms/paths where the window is actually torn down
+    if (process.platform !== 'darwin') quitApp();
 });
 
 app.on('activate', () => {
-    if (mainWindow === null) createWindow();
+    showWindow();
+});
+
+app.on('before-quit', () => {
+    app.isQuitting = true;
 });

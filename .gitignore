@@ -407,3 +407,7 @@ api/
 xrefmap.yml
 coverage/
 coverage-result/
+
+### Electron / Inno Setup build output ###
+frontend/dist-electron/
+installer/Output/

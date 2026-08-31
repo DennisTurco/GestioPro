@@ -13,6 +13,13 @@
                 "uriFormat": "http://localhost:3000",
                 "action": "openExternally"
             }
+        },
+        {
+            "name": "Run Desktop",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm run electron:dev",
+            "cwd": "${workspaceFolder}/frontend",
         }
     ]
 }

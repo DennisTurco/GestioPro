@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ContractRenewal> ContractRenewals => Set<ContractRenewal>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Settings> Settings => Set<Settings>();
+    public DbSet<HeartBeat> HeartBeats => Set<HeartBeat>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -114,6 +115,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Value = null,
                 Description = "company logo, stored as a base64 data URL",
                 LastUpdateDate = null
+            }
+        );
+
+        modelBuilder.Entity<HeartBeat>().HasData(
+            new HeartBeat
+            {
+                Id = 1,
+                LastPing = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero)
             }
         );
     }

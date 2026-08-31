@@ -27,6 +27,8 @@ builder.Services.AddScoped<IContractRenewalService, ContractRenewalService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IHeartBeatService, HeartBeatService>();
+builder.Services.AddHostedService<HeartBeatBackgroundService>();
 
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

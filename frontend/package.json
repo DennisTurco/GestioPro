@@ -44,8 +44,8 @@
       "public/**/*"
     ],
     "win": {
-      "target": "nsis",
-      "icon": "public/icon.svg"
+      "target": "dir",
+      "icon": "public/icon.ico"
     },
     "extraResources": [
       {
