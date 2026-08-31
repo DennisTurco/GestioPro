@@ -54,4 +54,6 @@ public class Quotation
 
     [Required]
     public bool IsDisabled { get; set; } = false; // soft delete
+
+    public List<QuotationProduct> Products { get; set; } = [];
 }

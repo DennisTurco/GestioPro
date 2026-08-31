@@ -14,6 +14,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
     public async Task<List<QuotationResponseDTO>> GetAllAsync()
         => await context.Quotations
             .Include(q => q.Customer)
+            .Include(q => q.Products).ThenInclude(p => p.Product)
             .AsNoTracking()
             .Where(q => !q.IsDisabled)
             .Select(x => MapToDto(x))
@@ -23,10 +24,40 @@ public class QuotationService(AppDbContext context) : IQuotationService
     {
         var quotation = await context.Quotations
             .Include(q => q.Customer)
+            .Include(q => q.Products).ThenInclude(p => p.Product)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         return quotation is null ? null : MapToDto(quotation);
+    }
+
+    private async Task ReplaceProductsAsync(long quotationId, List<QuotationProductRequestDTO> items)
+    {
+        var existing = await context.QuotationProducts
+            .Where(qp => qp.QuotationId == quotationId)
+            .ToListAsync();
+        context.QuotationProducts.RemoveRange(existing);
+
+        if (items.Count == 0) return;
+
+        var productIds = items.Select(i => i.ProductId).ToList();
+        var products = await context.Products
+            .Where(p => productIds.Contains(p.Id))
+            .ToDictionaryAsync(p => p.Id);
+
+        foreach (var item in items)
+        {
+            if (!products.TryGetValue(item.ProductId, out var product))
+                throw new BusinessException($"Prodotto con id {item.ProductId} non trovato");
+
+            await context.QuotationProducts.AddAsync(new QuotationProduct
+            {
+                QuotationId = quotationId,
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                UnitPrice = product.Price,
+            });
+        }
     }
 
     public async Task<QuotationResponseDTO> CreateAsync(QuotationRequestDTO dto)
@@ -57,6 +88,10 @@ public class QuotationService(AppDbContext context) : IQuotationService
 
         await context.AddAsync(quotation);
         await context.SaveChangesAsync();
+
+        await ReplaceProductsAsync(quotation.Id, dto.Products);
+        await context.SaveChangesAsync();
+
         return (await GetByIdAsync(quotation.Id))!;
     }
 
@@ -82,8 +117,10 @@ public class QuotationService(AppDbContext context) : IQuotationService
         quotation.IssueDate = dto.IssueDate;
         quotation.ValidityDate = dto.ValidityDate;
 
+        await ReplaceProductsAsync(quotation.Id, dto.Products);
         await context.SaveChangesAsync();
-        return MapToDto(quotation);
+
+        return (await GetByIdAsync(id))!;
     }
 
     public async Task<QuotationResponseDTO> UpdateStatusAsync(long id, QuotationStatus status)
@@ -99,7 +136,7 @@ public class QuotationService(AppDbContext context) : IQuotationService
         quotation.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
-        return MapToDto(quotation);
+        return (await GetByIdAsync(id))!;
     }
 
     public async Task DisableAsync(long id)
@@ -149,6 +186,14 @@ public class QuotationService(AppDbContext context) : IQuotationService
             q.LastUpdateDate,
             q.IssueDate,
             q.ValidityDate,
-            q.IsDisabled
+            q.IsDisabled,
+            q.Products.Select(p => new QuotationProductResponseDTO(
+                p.ProductId,
+                p.Product.Name,
+                p.Product.Code,
+                p.Quantity,
+                p.UnitPrice,
+                p.UnitPrice * p.Quantity
+            )).ToList()
         );
 }

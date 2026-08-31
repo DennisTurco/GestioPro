@@ -88,8 +88,8 @@ export const ContractAPI = {
 }
 
 export const ContractRenewalAPI = {
-    getByContractId: (contractId: number)           => apiFetch<ContractRenewal[]>(`/contract-renewals/${contractId}`),
-    create: (data: ContractRenewalRequest)           => apiFetch<ContractRenewal>('/contract-renewals', { method: 'POST', body: JSON.stringify(data) }),
-    delete: (id: number)                             => apiFetch<null>(`/contract-renewals/${id}`, { method: 'DELETE' }),
+    getByContractId: (contractId: number)    => apiFetch<ContractRenewal[]>(`/contract-renewals/${contractId}`),
+    create: (data: ContractRenewalRequest)   => apiFetch<ContractRenewal>('/contract-renewals', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: number)                     => apiFetch<null>(`/contract-renewals/${id}`, { method: 'DELETE' }),
 }
 

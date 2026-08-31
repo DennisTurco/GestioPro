@@ -5,8 +5,9 @@ import Sidebar from './Sidebar'
 import ToastContainer from '../ui/Toast'
 import ErrorBoundary from '../ui/ErrorBoundary'
 
-const REPORT_BUG_URL      = 'https://github.com/DennisTurco/GestioPro/issues/new'
-const SUPPORT_PROJECT_URL = 'https://github.com/sponsors/DennisTurco'
+const REPORT_BUG_URL       = 'https://github.com/DennisTurco/GestioPro/issues/new?template=bug_report.md'
+const REQUEST_FEATURE_URL  = 'https://github.com/DennisTurco/GestioPro/issues/new?template=feature_request.md'
+const SUPPORT_PROJECT_URL  = 'https://github.com/sponsors/DennisTurco'
 
 function getTheme() {
   const saved = localStorage.getItem('theme')
@@ -50,6 +51,10 @@ export default function Layout() {
             <a href={REPORT_BUG_URL} target="_blank" rel="noopener noreferrer"
                className="btn btn-ghost btn-sm" title="Segnala bug">
               <i className="fa-solid fa-bug" /> Segnala bug
+            </a>
+            <a href={REQUEST_FEATURE_URL} target="_blank" rel="noopener noreferrer"
+               className="btn btn-ghost btn-sm" title="Richiedi feature">
+              <i className="fa-solid fa-lightbulb" /> Richiedi feature
             </a>
             <button className="btn btn-ghost btn-sm" onClick={toggleTheme} title="Cambia tema">
               <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`} />

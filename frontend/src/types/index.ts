@@ -138,6 +138,20 @@ export interface ProductCategoryRequest {
   description?: string
 }
 
+export interface QuotationProduct {
+  productId: number
+  productName: string
+  productCode: string
+  quantity: number
+  unitPrice: number
+  lineTotal: number
+}
+
+export interface QuotationProductRequest {
+  productId: number
+  quantity: number
+}
+
 export interface Quotation {
   id: number
   customerId: number
@@ -155,6 +169,7 @@ export interface Quotation {
   issueDate?: string
   validityDate?: string
   isDisabled: boolean
+  products: QuotationProduct[]
 }
 
 export interface QuotationRequest {
@@ -169,6 +184,7 @@ export interface QuotationRequest {
   notes?: string
   issueDate?: string
   validityDate?: string
+  products: QuotationProductRequest[]
 }
 
 export interface Setting {

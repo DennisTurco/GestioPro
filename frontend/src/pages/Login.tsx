@@ -8,20 +8,20 @@ export default function Login() {
   const auth = useAuth()
   const navigate = useNavigate()
 
-  const [form, setForm] = useState<Form>('login')
+  const [form, _] = useState<Form>('login')
   const [loading, setLoading] = useState(false)
 
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [loginError, setLoginError] = useState('')
 
-  const [regUsername, setRegUsername] = useState('')
-  const [regEmail, setRegEmail] = useState('')
-  const [regName, setRegName] = useState('')
-  const [regSurname, setRegSurname] = useState('')
-  const [regPassword, setRegPassword] = useState('')
-  const [regConfirmPassword, setRegConfirmPassword] = useState('')
-  const [registerError, setRegisterError] = useState('')
+//   const [regUsername, setRegUsername] = useState('')
+//   const [regEmail, setRegEmail] = useState('')
+//   const [regName, setRegName] = useState('')
+//   const [regSurname, setRegSurname] = useState('')
+//   const [regPassword, setRegPassword] = useState('')
+//   const [regConfirmPassword, setRegConfirmPassword] = useState('')
+//   const [registerError, setRegisterError] = useState('')
 
   if (auth.loading) return null
   if (auth.user) return <Navigate to="/" replace />
