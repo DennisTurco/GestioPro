@@ -16,6 +16,7 @@ import RequireRole from './components/RequireRole'
 import { UserRole } from './types'
 import Utenti from './pages/Utenti'
 import Contratti from './pages/Contracts'
+import RinnoviContratto from './pages/RinnoviContratto'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
               <Route path="/utenti" element={<RequireRole role={UserRole.Admin}><Utenti /></RequireRole>} />
               <Route path="/clienti" element={<Clienti />} />
               <Route path="/clienti/:id" element={<SchedaCliente />} />
+              <Route path="/rinnovi/:id" element={<RinnoviContratto />} />
               <Route path="/preventivi" element={<Preventivi />} />
               <Route path="/contratti" element={<Contratti />} />
               <Route path="/prodotti" element={<Prodotti />} />

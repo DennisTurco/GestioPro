@@ -14,5 +14,6 @@ public record QuotationRequestDTO(
     [MaxLength(2000)] string? Description,
     [MaxLength(1000)] string? Notes,
     DateOnly? IssueDate,
-    DateOnly? ValidityDate
+    DateOnly? ValidityDate,
+    List<QuotationProductRequestDTO> Products
 );

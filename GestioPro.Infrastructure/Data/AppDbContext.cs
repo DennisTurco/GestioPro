@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
     public DbSet<Quotation> Quotations => Set<Quotation>();
+    public DbSet<QuotationProduct> QuotationProducts => Set<QuotationProduct>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<ContractRenewal> ContractRenewals => Set<ContractRenewal>();

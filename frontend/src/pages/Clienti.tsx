@@ -272,7 +272,7 @@ export default function Clienti() {
                   <td>{c.email}</td>
                   <td>{c.phone || '-'}</td>
                   <td>{c.city || '-'}</td>
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }} title={c.contractCount > 0 ? String(c.contractCount) : ""}>
                       <i className={c.contractCount > 0 ? "fa-solid fa-circle-check" : ""} style={{color: 'var(--color-success)'}}></i>
                   </td>
                   <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
