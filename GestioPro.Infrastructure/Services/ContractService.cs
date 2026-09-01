@@ -9,7 +9,7 @@ using StringKit;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class ContractService(AppDbContext context) : IContractService
+public class ContractService(AppDbContext context, IAuditService auditService) : IContractService
 {
     public async Task<List<ContractResponseDTO>> GetAllAsync()
     {
@@ -19,7 +19,7 @@ public class ContractService(AppDbContext context) : IContractService
             .AsNoTracking()
             .ToListAsync();
 
-        return contracts.Select(MapToDto).ToList();
+        return contracts.ConvertAll(MapToDto);
     }
 
     public async Task<ContractResponseDTO?> GetByIdAsync(long id)
@@ -62,9 +62,13 @@ public class ContractService(AppDbContext context) : IContractService
         await context.AddAsync(contract);
         await context.SaveChangesAsync();
 
+        await auditService.LogAsync("Create", nameof(Contract), contract.Id.ToString(), newValues: MapToDto(contract));
+
         var renewal = CreateRenewal(contract);
         await context.AddAsync(renewal);
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
     }
 
     public async Task<ContractResponseDTO> UpdateAsync(long id, ContractRequestDTO dto)
@@ -72,6 +76,8 @@ public class ContractService(AppDbContext context) : IContractService
         var contract = await context.Contracts
             .Include(x => x.Quotation)
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Contratto non trovato");
+
+        var oldValues = MapToDto(contract);
 
         contract.QuotationId = dto.QuotationId;
         contract.Title = dto.Title;
@@ -83,7 +89,11 @@ public class ContractService(AppDbContext context) : IContractService
         contract.FilePath = dto.FilePath;
 
         await context.SaveChangesAsync();
-        return MapToDto(contract);
+        var newValues = MapToDto(contract);
+
+        await auditService.LogAsync("Update", nameof(Contract), contract.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task<ContractResponseDTO> RenewalAsync(long id)
@@ -94,13 +104,20 @@ public class ContractService(AppDbContext context) : IContractService
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Contratto non trovato");
 
         var renewal = CreateRenewal(contract);
+        var oldValues = MapToDto(contract);
 
         contract.EndDate = renewal.EndDate;
         contract.LastUpdateDate = renewal.RenewalDate;
 
         await context.AddAsync(renewal);
         await context.SaveChangesAsync();
-        return MapToDto(contract);
+
+        var newValues = MapToDto(contract);
+
+        await auditService.LogAsync("Update", nameof(Contract), contract.Id.ToString(), oldValues, newValues);
+        await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
+
+        return newValues;
     }
 
     public async Task<string> CalculateNextNumberAsync(long quotationId, string quotationNumber)
@@ -128,6 +145,17 @@ public class ContractService(AppDbContext context) : IContractService
             EndDate    = ContractTypeExtensions.ExtendEndDateByContractType(contract.EndDate, contract.ContractType),
             RenewalDate = DateTimeOffset.UtcNow,
         };
+
+    private static ContractRenewalResponseDTO MapToDto(ContractRenewal r)
+        => new (
+            r.Id,
+            r.ContractId,
+            r.Amount,
+            r.StartDate,
+            r.EndDate,
+            r.RenewalDate,
+            r.Notes
+        );
 
     private static ContractResponseDTO MapToDto(Contract c)
         => new (

@@ -17,6 +17,8 @@ import { UserRole } from './types'
 import Utenti from './pages/Utenti'
 import Contratti from './pages/Contracts'
 import RinnoviContratto from './pages/RinnoviContratto'
+import Audit from './pages/Audit'
+import AuditDetails from './pages/AuditDetails'
 
 export default function App() {
   return (
@@ -31,6 +33,7 @@ export default function App() {
               <Route path="/clienti" element={<Clienti />} />
               <Route path="/clienti/:id" element={<SchedaCliente />} />
               <Route path="/rinnovi/:id" element={<RinnoviContratto />} />
+              <Route path="/audit-details/:id" element={<AuditDetails />} />
               <Route path="/preventivi" element={<Preventivi />} />
               <Route path="/contratti" element={<Contratti />} />
               <Route path="/prodotti" element={<Prodotti />} />
@@ -39,6 +42,7 @@ export default function App() {
               <Route path="/task" element={<Task />} />
               <Route path="/profilo" element={<Profilo />} />
               <Route path="/contratti" element={<Contratti />} />
+              <Route path="/audit" element={<Audit />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

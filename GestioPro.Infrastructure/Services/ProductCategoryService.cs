@@ -7,7 +7,7 @@ using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class ProductCategoryService(AppDbContext context) : IProductCategoryService
+public class ProductCategoryService(AppDbContext context, IAuditService auditService) : IProductCategoryService
 {
     public async Task<List<ProductCategoryResponseDTO>> GetAllAsync()
     {
@@ -46,36 +46,45 @@ public class ProductCategoryService(AppDbContext context) : IProductCategoryServ
 
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
+        var newValues = MapToDto(entity);
+
+        await auditService.LogAsync("Create", nameof(ProductCategory), entity.Id.ToString(), newValues: newValues);
+
         return MapToDto(entity);
     }
 
     public async Task<ProductCategoryResponseDTO> UpdateAsync(long id, ProductCategoryRequestDTO dto)
     {
         var existing = await context.ProductCategories
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Categoria prodotto non trovata");
 
-        if (existing is null)
-            throw new BusinessException("Categoria prodotto non trovata");
+        var oldValues = MapToDto(existing);
 
         existing.Name = dto.Name;
         existing.Description = dto.Description;
         existing.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
-        return MapToDto(existing);
+        var newValues = MapToDto(existing);
+
+        await auditService.LogAsync("Update", nameof(ProductCategory), existing.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task DeleteAsync(long id)
     {
         var entity = await context.ProductCategories
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Categoria prodotto non trovata");
 
-        if (entity is null)
-            throw new BusinessException("Categoria prodotto non trovata");
+        var oldValues = MapToDto(entity);
 
         entity.IsDisabled = true;
         entity.LastUpdateDate = DateTimeOffset.UtcNow;
+
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Delete", nameof(ProductCategory), entity.Id.ToString(), oldValues);
     }
 
     private static ProductCategoryResponseDTO MapToDto(ProductCategory p)

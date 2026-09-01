@@ -5,7 +5,7 @@
 ; Per compilare:
 ;   - Apri questo file con Inno Setup Compiler
 ;   - Premi Ctrl+F9 (Build) oppure usa il menu Build > Compile
-;   - L'installer viene creato in installer\Output\GestioPro_Setup_1.0.0.exe
+;   - L'installer viene creato in installer\Output\GestioPro_Setup_....exe
 ;
 ; Nota: l'avvio automatico con Windows NON va gestito da questo installer.
 ; L'app Electron si registra da sola come voce di avvio (nascosta nella tray)
@@ -14,7 +14,7 @@
 ; quella registrazione.
 
 #define AppName      "GestioPro"
-#define AppVersion   "1.0.0"
+#define AppVersion   "0.1.0-beta"
 #define AppPublisher "DennisTurco"
 #define AppURL       "https://github.com/DennisTurco/GestioPro"
 #define AppExeName   "GestioPro.exe"

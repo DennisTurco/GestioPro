@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class ContractRenewalService(AppDbContext context) : IContractRenewalService
+public class ContractRenewalService(AppDbContext context, IAuditService auditService) : IContractRenewalService
 {
     public async Task<List<ContractRenewalResponseDTO>> GetByContractIdAsync(long contractId)
         => await context.ContractRenewals
@@ -25,6 +25,8 @@ public class ContractRenewalService(AppDbContext context) : IContractRenewalServ
 
         renewal.IsDisabled = true;
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Delete", nameof(ContractRenewal), renewal.Id.ToString(), MapToDto(renewal));
     }
 
     private static ContractRenewalResponseDTO MapToDto(ContractRenewal r)

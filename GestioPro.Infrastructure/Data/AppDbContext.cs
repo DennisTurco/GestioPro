@@ -16,6 +16,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<User> Users => Set<User>();
     public DbSet<Settings> Settings => Set<Settings>();
     public DbSet<HeartBeat> HeartBeats => Set<HeartBeat>();
+    public DbSet<Audit> Audit => Set<Audit>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

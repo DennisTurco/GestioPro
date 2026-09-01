@@ -8,7 +8,7 @@ using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class SettingsService(AppDbContext context) : ISettingsService
+public class SettingsService(AppDbContext context, IAuditService auditService) : ISettingsService
 {
     public async Task<List<SettingsResponseDTO>> GetAllAsync()
         => await context.Settings
@@ -28,10 +28,7 @@ public class SettingsService(AppDbContext context) : ISettingsService
     public async Task<SettingsResponseDTO> UpdateAsync(string code, SettingsRequestDTO dto)
     {
         var setting = await context.Settings
-            .FirstOrDefaultAsync(s => s.Code == code);
-
-        if (setting is null)
-            throw new BusinessException("Impostazione non trovata");
+            .FirstOrDefaultAsync(s => s.Code == code) ?? throw new BusinessException("Impostazione non trovata");
 
         try
         {
@@ -42,12 +39,18 @@ public class SettingsService(AppDbContext context) : ISettingsService
             // it's not a setting to validate
         }
 
+        var oldValues = MapToDto(setting);
+
         setting.Value = dto.Value;
         setting.LastUpdateDate = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
 
-        return MapToDto(setting);
+        var newValues = MapToDto(setting);
+
+        await auditService.LogAsync("Update", nameof(Settings), setting.Code, oldValues, newValues);
+
+        return newValues;
     }
 
     private static SettingsResponseDTO MapToDto(Settings s)

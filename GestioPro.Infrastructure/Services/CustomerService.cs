@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class CustomerService(AppDbContext context) : ICustomerService
+public class CustomerService(AppDbContext context, IAuditService auditService) : ICustomerService
 {
     public async Task<List<CustomerResponseDTO>> GetAllAsync()
     {
@@ -95,19 +95,20 @@ public class CustomerService(AppDbContext context) : ICustomerService
 
         await context.Customers.AddAsync(entity);
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Create", nameof(Customer), entity.Id.ToString(), newValues: entity);
     }
 
     public async Task<CustomerResponseDTO> UpdateAsync(long id, CustomerRequestDTO dto)
     {
         var entity = await context.Customers
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (entity is null)
-            throw new BusinessException("Customer not found");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Customer not found");
 
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.Email, dto.Email);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.VatNumber, dto.VatNumber);
+
+        var oldValues = MapToDto(entity);
 
         entity.CustomerType = dto.CustomerType;
         entity.Name = dto.Name;
@@ -129,22 +130,28 @@ public class CustomerService(AppDbContext context) : ICustomerService
         entity.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
+
         var (qCount, cCount) = await GetCountsAsync(id);
-        return MapToDto(entity, qCount, cCount);
+        var newValues = MapToDto(entity, qCount, cCount);
+
+        await auditService.LogAsync("Update", nameof(Customer), entity.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task DeleteAsync(long id)
     {
         var entity = await context.Customers
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Customer not found");
 
-        if (entity is null)
-            throw new BusinessException("Customer not found");
+        var oldValues = MapToDto(entity);
 
         entity.IsDisabled = true;
         entity.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Delete", nameof(Customer), entity.Id.ToString(), oldValues: oldValues);
     }
 
     private async Task<(int QuotationCount, int ContractCount)> GetCountsAsync(long customerId)

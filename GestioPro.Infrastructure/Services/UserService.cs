@@ -7,7 +7,7 @@ using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class UserService(AppDbContext context) : IUserService
+public class UserService(AppDbContext context, IAuditService auditService) : IUserService
 {
     public async Task<List<UserResponseDTO>> GetAllAsync()
         => await context.Users
@@ -62,12 +62,16 @@ public class UserService(AppDbContext context) : IUserService
         };
         context.Users.Add(user);
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Create", nameof(User), user.Id.ToString(), newValues: MapToDto(user));
     }
 
     public async Task<UserResponseDTO> UpdateForceAsync(Guid id, UserRequestDTO dto)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
             ?? throw new KeyNotFoundException("Utente non trovato");
+
+        var oldValues = MapToDto(user);
 
         user.UserRole = dto.UserRole;
         user.Username = dto.Username;
@@ -80,7 +84,12 @@ public class UserService(AppDbContext context) : IUserService
             user.Password = AuthService.HashPassword(dto.Password);
 
         await context.SaveChangesAsync();
-        return MapToDto(user);
+
+        var newValues = MapToDto(user);
+
+        await auditService.LogAsync("Update", nameof(User), user.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task<UserResponseDTO> UpdateAsync(Guid id, UserUpdateDTO dto)
@@ -91,6 +100,8 @@ public class UserService(AppDbContext context) : IUserService
         if (user.IsDisabled)
             throw new BusinessException("L'utente è stato disattivato da uno degli amministratori");
 
+        var oldValues = MapToDto(user);
+
         user.Username = dto.Username;
         user.Email = dto.Email;
         user.Name = dto.Name;
@@ -98,7 +109,12 @@ public class UserService(AppDbContext context) : IUserService
         user.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
-        return MapToDto(user);
+
+        var newValues = MapToDto(user);
+
+        await auditService.LogAsync("Update", nameof(User), user.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
 
@@ -116,11 +132,18 @@ public class UserService(AppDbContext context) : IUserService
         if (string.IsNullOrWhiteSpace(newPassword))
             throw new BusinessException("La nuova password è vuota, impossibile aggiornare");
 
+        var oldValues = MapToDto(user);
+
         user.Password = AuthService.HashPassword(newPassword);
         user.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
-        return MapToDto(user);
+
+        var newValues = MapToDto(user);
+
+        await auditService.LogAsync("Update", nameof(User), user.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task<UserResponseDTO> UpdatePasswordForcedAsync(Guid id, string password)
@@ -134,25 +157,35 @@ public class UserService(AppDbContext context) : IUserService
         if (string.IsNullOrWhiteSpace(password))
             throw new BusinessException("La nuova password è vuota, impossibile aggiornare");
 
+        var oldValues = MapToDto(user);
+
         user.Password = AuthService.HashPassword(password);
         user.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
-        return MapToDto(user);
+
+        var newValues = MapToDto(user);
+
+        await auditService.LogAsync("Update", nameof(User), user.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task DeleteAsync(Guid id)
     {
         var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new BusinessException("Utente non trovato");
 
-        if (user is null)
-            throw new BusinessException("Utente non trovato");
+        var oldValues = MapToDto(user);
 
         user.IsDisabled = true;
         user.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
+
+        var newValues = MapToDto(user);
+        await auditService.LogAsync("Delete", nameof(User), user.Id.ToString(), oldValues, newValues);
     }
 
     private static UserResponseDTO MapToDto(User u)

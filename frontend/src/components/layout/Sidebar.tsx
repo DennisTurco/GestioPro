@@ -14,8 +14,12 @@ interface NavItem {
 
 const ADMIN_ITEMS: NavItem[] = [
   { path: '/utenti',       page: 'utenti',       icon: 'fa-solid fa-users-gear',     label: 'Utenti'       },
-  { path: '/audit',        page: 'audit',        icon: 'fa-solid fa-scroll',         label: 'Audit',     disabled: true },
+  { path: '/audit',        page: 'audit',        icon: 'fa-solid fa-scroll',         label: 'Audit'        },
   { path: '/ripristino',   page: 'ripristino',   icon: 'fa-solid fa-rotate-left',    label: 'Ripristino',  disabled: true },
+]
+
+const REPORT_ITEMS: NavItem[] = [
+  { path: '/report',    page: 'report',  icon: 'fa-solid fa-chart-column',    label: 'Report', disabled: true},
 ]
 
 const MAIN_ITEMS: NavItem[] = [
@@ -23,9 +27,12 @@ const MAIN_ITEMS: NavItem[] = [
   { path: '/clienti',     page: 'clienti',     icon: 'fa-solid fa-users',          label: 'Clienti'      },
   { path: '/preventivi',  page: 'preventivi',  icon: 'fa-solid fa-receipt',        label: 'Preventivi'   },
   { path: '/contratti',   page: 'contratti',   icon: 'fa-solid fa-file-contract',  label: 'Contratti'   },
+  { path: '/fatture',     page: 'fatture',     icon: 'fa-solid fa-file-invoice',   label: 'Fatture',   disabled: true   },
+  { path: '/calendario',  page: 'calendario',  icon: 'fa-solid fa-calendar-days',  label: 'Calendario',  disabled: true   },
 ]
 
 const SERVICES_ITESM: NavItem[] = [
+  { path: '/fornitori',   page: 'fornitori',    icon: 'fa-solid fa-truck-field',   label: 'Fornitori',  disabled: true    },
   { path: '/prodotti',    page: 'prodotti',    icon: 'fa-solid fa-box',            label: 'Prodotti'     },
   { path: '/categorie',   page: 'categorie',   icon: 'fa-solid fa-tags',           label: 'Categorie'    },
 ]
@@ -58,6 +65,7 @@ export default function Sidebar() {
       <div className="sidebar-logo">
         <div className="logo-icon"><img src="/icon.svg" alt="logo" /></div>
         <span className="sidebar-logo-text">GestioPro</span>
+        {!collapsed && <span className="sidebar-beta-badge" title="Versione beta">BETA</span>}
         <button
           className="sidebar-toggle-btn"
           onClick={toggleCollapsed}
@@ -83,6 +91,19 @@ export default function Sidebar() {
           </div>
         ))}
         </>}
+
+        <div className="sidebar-section-label">Reportistica</div>
+        {REPORT_ITEMS.map(item => (
+          <div
+            key={item.page}
+            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
+            onClick={() => navigate(item.path)}
+            title={collapsed ? item.label : undefined}
+          >
+            <span className="nav-icon"><i className={item.icon} /></span>
+            <span className="nav-label">{item.label}</span>
+          </div>
+        ))}
 
         <div className="sidebar-section-label">Menu principale</div>
         {MAIN_ITEMS.map(item => (
@@ -132,9 +153,6 @@ export default function Sidebar() {
               {user?.username ?? ''}
             </div>
             <div style={{ fontSize: 11 }} className="user-email">{user?.email ?? ''}</div>
-            <div style={{ fontSize: 10, marginTop: 2, color: '#93C5FD', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {user?.userRole === UserRole.Admin ? 'Admin' : 'Operator'}
-            </div>
           </div>
           <button
             className="sidebar-profile-btn"

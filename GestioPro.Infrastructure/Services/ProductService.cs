@@ -7,7 +7,7 @@ using GestioPro.Common.Models;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class ProductService(AppDbContext context) : IProductService
+public class ProductService(AppDbContext context, IAuditService auditService) : IProductService
 {
     public async Task<List<ProductResponseDTO>> GetAllAsync()
         => await context.Products
@@ -50,16 +50,17 @@ public class ProductService(AppDbContext context) : IProductService
 
         await context.AddAsync(product);
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Create", nameof(Product), product.Id.ToString(), newValues: MapToDto(product));
     }
 
     public async Task<ProductResponseDTO> UpdateAsync(long id, ProductRequestDTO dto)
     {
         var entity = await context.Products
             .Include(p => p.Category)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Prodotto non trovato");
 
-        if (entity == null)
-            throw new BusinessException("Prodotto non trovato");
+        var oldValues = MapToDto(entity);
 
         entity.ProductStatus = dto.ProductStatus;
         entity.Code = dto.Code;
@@ -72,20 +73,25 @@ public class ProductService(AppDbContext context) : IProductService
         entity.CategoryId = dto.CategoryId;
 
         await context.SaveChangesAsync();
-        return MapToDto(entity);
+        var newValues = MapToDto(entity);
+
+        await auditService.LogAsync("Update", nameof(Product), entity.Id.ToString(), oldValues, newValues);
+
+        return newValues;
     }
 
     public async Task DeleteAsync(long id)
     {
         var entity = await context.Products
-           .FirstOrDefaultAsync(x => x.Id == id);
+           .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Prodotto non trovato");
 
-        if (entity is null)
-            throw new BusinessException("Prodotto non trovato");
+        var oldValues = MapToDto(entity);
 
         entity.IsDisabled = true;
 
         await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Delete", nameof(Product), entity.Id.ToString(), oldValues);
     }
 
     private static ProductResponseDTO MapToDto(Product p)

@@ -194,6 +194,37 @@ export interface Setting {
   lastUpdateDate?: string
 }
 
+export interface Audit {
+  id: number
+  timestamp: string
+  userId: string
+  username: string
+  action: string
+  entityType: string
+  entityId: string
+  oldValues?: string
+  newValues?: string
+  ipAddress?: string
+}
+
+// Action/EntityType are free-form strings assigned by the backend services (see IAuditService.LogAsync callers)
+export const AUDIT_ACTION_LABEL: Record<string, string> = {
+  Create: 'Creazione',
+  Update: 'Aggiornamento',
+  Delete: 'Eliminazione',
+}
+
+export const AUDIT_ENTITY_LABEL: Record<string, string> = {
+  Customer: 'Cliente',
+  Product: 'Prodotto',
+  ProductCategory: 'Categoria prodotto',
+  Contract: 'Contratto',
+  ContractRenewal: 'Rinnovo contratto',
+  Quotation: 'Preventivo',
+  Settings: 'Impostazione',
+  User: 'Utente',
+}
+
 // UI helpers
 export const CUSTOMER_TYPE_LABEL: Record<CustomerType, string> = {
   [CustomerType.Company]:     'Azienda',

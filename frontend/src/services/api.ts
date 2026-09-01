@@ -1,4 +1,4 @@
-import type { Customer, CustomerRequest, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest } from '../types'
+import type { Customer, CustomerRequest, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit } from '../types'
 
 const API_BASE = window.location.protocol === 'file:'
     ? 'https://localhost:7160/api/v1'
@@ -93,3 +93,7 @@ export const ContractRenewalAPI = {
     delete: (id: number)                     => apiFetch<null>(`/contract-renewals/${id}`, { method: 'DELETE' }),
 }
 
+export const AuditAPI = {
+    getAll: ()              => apiFetch<Audit[]>('/audit'),
+    getById: (id: number)   => apiFetch<Audit>(`/audit/${id}`),
+}
