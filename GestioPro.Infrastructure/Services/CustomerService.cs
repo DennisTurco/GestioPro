@@ -57,7 +57,7 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
         return MapToDto(customer, qCount, cCount);
     }
 
-    public async Task CreateAsync(CustomerRequestDTO dto)
+    public async Task<CustomerResponseDTO> CreateAsync(CustomerRequestDTO dto)
     {
         var exist = await context.Customers
             .AnyAsync(x => x.Email.Equals(dto.Email));
@@ -96,7 +96,11 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
         await context.Customers.AddAsync(entity);
         await context.SaveChangesAsync();
 
-        await auditService.LogAsync("Create", nameof(Customer), entity.Id.ToString(), newValues: entity);
+        var created = MapToDto(entity);
+
+        await auditService.LogAsync("Create", nameof(Customer), entity.Id.ToString(), newValues: created);
+
+        return created;
     }
 
     public async Task<CustomerResponseDTO> UpdateAsync(long id, CustomerRequestDTO dto)

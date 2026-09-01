@@ -1,4 +1,6 @@
 using GestioPro.Infrastructure.Services;
+using GestioPro.Common.DTOs;
+using GestioPro.Common.Interfaces;
 using GestioPro.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Infrastructure.Data;
@@ -7,6 +9,13 @@ namespace GestioPro.InfrastructureTests;
 
 public class QuotationServiceTests
 {
+    private sealed class NoOpAuditService : IAuditService
+    {
+        public Task<List<AuditResponseDTO>> GetAuditsAsync() => Task.FromResult(new List<AuditResponseDTO>());
+        public Task<AuditResponseDTO> GetAuditByIdAsync(long id) => throw new NotSupportedException();
+        public Task LogAsync(string action, string entityType, string entityId, object? oldValues = null, object? newValues = null) => Task.CompletedTask;
+    }
+
     private static AppDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -19,7 +28,7 @@ public class QuotationServiceTests
     public async Task CalculateNextNumberAsync_FirstQuotation_ShouldCreateFirstQuotation()
     {
         await using var context = CreateContext();
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
 
         var result = await service.CalculateNextNumberAsync();
 
@@ -35,7 +44,7 @@ public class QuotationServiceTests
         context.Quotations.Add(MokupQuotation($"{year}-012"));
         await context.SaveChangesAsync();
 
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
         var result = await service.CalculateNextNumberAsync();
 
         Assert.Equal($"{year}-013", result);
@@ -50,7 +59,7 @@ public class QuotationServiceTests
         context.Quotations.Add(MokupQuotation($"{year}-123"));
         await context.SaveChangesAsync();
 
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
         var result = await service.CalculateNextNumberAsync();
 
         Assert.Equal($"{year}-124", result);
@@ -63,7 +72,7 @@ public class QuotationServiceTests
         var year = DateTime.Today.Year;
         context.Quotations.Add(MokupQuotation($"{year}-005"));
         await context.SaveChangesAsync();
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
 
         var result = await service.CalculateNextNumberAsync();
 
@@ -77,7 +86,7 @@ public class QuotationServiceTests
         var previousYear = DateTime.Today.Year - 1;
         context.Quotations.Add(MokupQuotation($"{previousYear}-042"));
         await context.SaveChangesAsync();
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
 
         var result = await service.CalculateNextNumberAsync();
 
@@ -94,7 +103,7 @@ public class QuotationServiceTests
             MokupQuotation($"{year}-002")
         );
         await context.SaveChangesAsync();
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
 
         var result = await service.CalculateNextNumberAsync();
 
@@ -108,7 +117,7 @@ public class QuotationServiceTests
         var year = DateTime.Today.Year;
         context.Quotations.Add(MokupQuotation($"{year}-010"));
         await context.SaveChangesAsync();
-        var service = new QuotationService(context);
+        var service = new QuotationService(context, new NoOpAuditService());
 
         var result = await service.CalculateNextNumberAsync();
 

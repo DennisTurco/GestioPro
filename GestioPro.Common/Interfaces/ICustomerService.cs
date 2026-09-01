@@ -6,7 +6,7 @@ public interface ICustomerService
 {
     Task<List<CustomerResponseDTO>> GetAllAsync();
     Task<CustomerResponseDTO?> GetByIdAsync(long id);
-    Task CreateAsync(CustomerRequestDTO dto);
+    Task<CustomerResponseDTO> CreateAsync(CustomerRequestDTO dto);
     Task<CustomerResponseDTO> UpdateAsync(long id, CustomerRequestDTO dto);
     Task DeleteAsync(long id);
 }

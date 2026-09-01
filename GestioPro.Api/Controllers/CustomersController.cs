@@ -42,8 +42,8 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CustomerRequestDTO dto)
     {
-        await customerService.CreateAsync(dto);
-        return StatusCode(StatusCodes.Status201Created);
+        var created = await customerService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>

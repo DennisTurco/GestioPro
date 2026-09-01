@@ -1,10 +1,12 @@
 using GestioPro.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestioPro.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/audit")]
+[Authorize(Roles = "Admin")]
 public class AuditController(IAuditService auditService) : ControllerBase
 {
     /// <summary>
@@ -26,7 +28,7 @@ public class AuditController(IAuditService auditService) : ControllerBase
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
-        var result = auditService.GetAuditByIdAsync(id);
+        var result = await auditService.GetAuditByIdAsync(id);
         return result is null ? NotFound() : Ok(result);
     }
 }

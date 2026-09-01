@@ -96,12 +96,13 @@ export default function Sidebar() {
         {REPORT_ITEMS.map(item => (
           <div
             key={item.page}
-            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
-            title={collapsed ? item.label : undefined}
+            className={`nav-item${isActive(item.path) && !item.disabled ? ' active' : ''}${item.disabled ? ' nav-item--disabled' : ''}`}
+            onClick={item.disabled ? undefined : () => navigate(item.path)}
+            title={item.disabled ? `${item.label} (coming soon)` : collapsed ? item.label : undefined}
           >
             <span className="nav-icon"><i className={item.icon} /></span>
             <span className="nav-label">{item.label}</span>
+            {item.disabled && !collapsed && <span className="nav-soon">presto</span>}
           </div>
         ))}
 
@@ -109,12 +110,13 @@ export default function Sidebar() {
         {MAIN_ITEMS.map(item => (
           <div
             key={item.page}
-            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
-            title={collapsed ? item.label : undefined}
+            className={`nav-item${isActive(item.path) && !item.disabled ? ' active' : ''}${item.disabled ? ' nav-item--disabled' : ''}`}
+            onClick={item.disabled ? undefined : () => navigate(item.path)}
+            title={item.disabled ? `${item.label} (coming soon)` : collapsed ? item.label : undefined}
           >
             <span className="nav-icon"><i className={item.icon} /></span>
             <span className="nav-label">{item.label}</span>
+            {item.disabled && !collapsed && <span className="nav-soon">presto</span>}
           </div>
         ))}
 
@@ -122,12 +124,13 @@ export default function Sidebar() {
         {SERVICES_ITESM.map(item => (
           <div
             key={item.page}
-            className={`nav-item${isActive(item.path) ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
-            title={collapsed ? item.label : undefined}
+            className={`nav-item${isActive(item.path) && !item.disabled ? ' active' : ''}${item.disabled ? ' nav-item--disabled' : ''}`}
+            onClick={item.disabled ? undefined : () => navigate(item.path)}
+            title={item.disabled ? `${item.label} (coming soon)` : collapsed ? item.label : undefined}
           >
             <span className="nav-icon"><i className={item.icon} /></span>
             <span className="nav-label">{item.label}</span>
+            {item.disabled && !collapsed && <span className="nav-soon">presto</span>}
           </div>
         ))}
 

@@ -68,6 +68,18 @@ img { display: block; max-width: 100%; }
     transition: opacity 0.15s ease, width 0.22s ease;
 }
 
+.sidebar-beta-badge {
+    flex-shrink: 0;
+    font-size: 9px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.03em;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    color: var(--sidebar-logo-color);
+    opacity: 0.7;
+}
+
 .sidebar-toggle-btn {
     flex-shrink: 0;
     background: none;

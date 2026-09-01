@@ -78,18 +78,20 @@ export default function Audit() {
     URL.revokeObjectURL(url);
   }
 
-  const filtered = logs.filter((a) => {
-    if (actionFilter !== '' && a.action !== actionFilter) return false;
-    if (entityFilter !== '' && a.entityType !== entityFilter) return false;
+  const filtered = logs
+    .filter((a) => {
+      if (actionFilter !== '' && a.action !== actionFilter) return false;
+      if (entityFilter !== '' && a.entityType !== entityFilter) return false;
 
-    const q = search.toLowerCase();
-    if (!q) return true;
-    return (
-      a.timestamp.toString().toLowerCase().includes(q) ||
-      a.userId.toString().toLowerCase().includes(q) ||
-      a.username.toLocaleLowerCase().includes(q)
-    );
-  });
+      const q = search.toLowerCase();
+      if (!q) return true;
+      return (
+        a.timestamp.toString().toLowerCase().includes(q) ||
+        a.userId.toString().toLowerCase().includes(q) ||
+        a.username.toLocaleLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   const actionOptions = Array.from(new Set(logs.map((l) => l.action)));
   const entityOptions = Array.from(new Set(logs.map((l) => l.entityType)));
