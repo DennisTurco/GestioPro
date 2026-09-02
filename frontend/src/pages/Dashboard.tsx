@@ -204,7 +204,7 @@ export default function Dashboard() {
                   return (
                     <tr key={q.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/preventivi')}>
                       <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
-                      <td>{q.title}</td>
+                      <td><strong>{q.title}</strong></td>
                       <td>{q.customerName}</td>
                       <td>{formatCurrency(q.amount)}</td>
                       <td>{formatDate(q.issueDate)}</td>

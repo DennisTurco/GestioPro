@@ -84,31 +84,31 @@ export default function AuditDetails() {
         <div className="card-body">
           <div className="grid-2">
             <div className="form-group">
-              <label className="form-label">Data e ora</label>
+              <label className="form-label"><strong>Data e ora</strong></label>
               <div>{new Date(log.timestamp).toLocaleString("it-IT")}</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Azione</label>
+              <label className="form-label"><strong>Azione</strong></label>
               <div>{AUDIT_ACTION_LABEL[log.action] ?? log.action}</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Entità</label>
+              <label className="form-label"><strong>Entità</strong></label>
               <div>{AUDIT_ENTITY_LABEL[log.entityType] ?? log.entityType}</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Id entità</label>
+              <label className="form-label"><strong>Id entità</strong></label>
               <div>{log.entityId}</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Utente</label>
+              <label className="form-label"><strong>Utente</strong></label>
               <div>{log.username}</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Id utente</label>
+              <label className="form-label"><strong>Id utente</strong></label>
               <div>{log.userId}</div>
             </div>
             <div className="form-group">
-              <label className="form-label">Indirizzo IP</label>
+              <label className="form-label"><strong>Indirizzo IP</strong></label>
               <div>{log.ipAddress ?? "-"}</div>
             </div>
           </div>
@@ -117,7 +117,7 @@ export default function AuditDetails() {
 
       <div className="grid-2">
         <div className="card">
-          <div className="card-header">Valori precedenti</div>
+          <div className="card-header"><span><i className="fa-solid fa-x"></i> Valori precedenti</span></div>
           <div className="card-body">
             {oldValues ? (
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: 13, margin: 0 }}>
@@ -130,7 +130,7 @@ export default function AuditDetails() {
         </div>
 
         <div className="card">
-          <div className="card-header">Nuovi valori</div>
+          <div className="card-header"><span><i className="fa-solid fa-check"></i> Nuovi valori</span></div>
           <div className="card-body">
             {newValues ? (
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: 13, margin: 0 }}>

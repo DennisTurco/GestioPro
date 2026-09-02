@@ -237,13 +237,13 @@ export default function Utenti() {
 
       <div className="grid-2 mb-24">
         <div className="kpi-card">
-          <div className="kpi-icon"><i className="fa-solid fa-user-tie" /></div>
+          <div className="kpi-icon"><i className="fa-solid fa-user-shield" /></div>
           <div className="kpi-label">Amministratori attivi</div>
           <div className="kpi-value">{users.filter(x => x.userRole === UserRole.Admin && !x.isDisabled).length}</div>
           <div className="kpi-delta">&nbsp;</div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-icon"><i className="fa-solid fa-user-shield" /></div>
+          <div className="kpi-icon"><i className="fa-solid fa-user-tie" /></div>
           <div className="kpi-label">Operatori attivi</div>
           <div className="kpi-value">{users.filter(x => x.userRole === UserRole.Operator && !x.isDisabled).length}</div>
           <div className="kpi-delta">&nbsp;</div>
@@ -312,7 +312,7 @@ export default function Utenti() {
                 {filtered.map((usr) => (
                   <tr key={usr.id}>
                     <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                      <i className={usr.userRole == UserRole.Admin ? "fa-solid fa-user-tie" : "fa-solid fa-user-shield"}></i>
+                      <i className={usr.userRole == UserRole.Admin ? "fa-solid fa-user-shield" : "fa-solid fa-user-tie"}></i>
                     </td>
                     <td>
                       <strong>{usr.username}</strong>

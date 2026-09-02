@@ -437,9 +437,7 @@ export default function Contratti() {
                     <td>
                       <code style={{ fontSize: 12 }}>{c.number}</code>
                     </td>
-                    <td>
-                      <strong>{c.title}</strong>
-                    </td>
+                    <td>{c.title}</td>
                     <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? "—"}</td>
                     <td>
                       <Badge cls={statusBadgeCls(c.status)}>{c.status}</Badge>
