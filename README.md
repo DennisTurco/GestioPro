@@ -2,8 +2,6 @@
 
 Business management application for **freelancers and self-employed professionals**, available both as a **web app** and as a **Windows desktop app**.
 
----
-
 ## Features
 
 - **Dashboard**: at-a-glance overview of the business (customers, quotations, contracts).
@@ -17,15 +15,11 @@ Business management application for **freelancers and self-employed professional
 - **Dark mode**: light/dark theme toggle, remembered across sessions.
 - **Desktop app**: installs like a normal Windows application, starts automatically at login, and lives in the system tray (Apri/Esci) instead of cluttering the taskbar.
 
----
-
 ## Screenshots
 
 | ![image1](./docs/photo1.png) | ![image2](./docs/photo2.png) |
 | ------------------------ | ------------------------ |
 | ![image3](./docs/photo3.png) | ![image4](./docs/photo4.png) |
-
----
 
 ## Getting started
 
@@ -48,7 +42,5 @@ Business management application for **freelancers and self-employed professional
 If you're working in VS Code, the **"Avvia tutto"** task (`.vscode/tasks.json`) starts the database container, backend and frontend together in one go.
 
 To run it as a desktop app instead of in the browser: `cd frontend && npm run electron:dev` (with the backend already running).
-
----
 
 For architecture, project structure, API details, database schema, the Electron/tray/auto-start/heartbeat internals and build/installer instructions, see [code_documentation.md](code_documentation.md).
