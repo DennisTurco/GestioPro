@@ -6,6 +6,7 @@ namespace GestioPro.Common.DTOs;
 public record ProductRequestDTO(
     long CategoryId,
     ProductStatus ProductStatus,
+    ItemType ItemType,
     [Required] string Code,
     string? Ean,
     [Required, MaxLength(50)] string Name,

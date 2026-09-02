@@ -301,6 +301,13 @@ select.form-control { cursor: pointer; }
 }
 .modal-overlay.open { display: flex; }
 
+.modal-safe-zone {
+    /* shrinks on narrow viewports so it never pushes the modal off-screen */
+    padding: 0 clamp(12px, 6vw, 80px);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .modal {
     background: var(--color-surface);
     border-radius: var(--radius-lg);

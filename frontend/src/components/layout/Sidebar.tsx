@@ -33,7 +33,7 @@ const MAIN_ITEMS: NavItem[] = [
 
 const SERVICES_ITESM: NavItem[] = [
   { path: '/fornitori',   page: 'fornitori',    icon: 'fa-solid fa-truck-field',   label: 'Fornitori',  disabled: true    },
-  { path: '/prodotti',    page: 'prodotti',    icon: 'fa-solid fa-box',            label: 'Prodotti'     },
+  { path: '/prodotti',    page: 'prodotti',    icon: 'fa-solid fa-box',            label: 'Prodotti e Servizi'     },
   { path: '/categorie',   page: 'categorie',   icon: 'fa-solid fa-tags',           label: 'Categorie'    },
 ]
 

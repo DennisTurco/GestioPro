@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { ProductAPI, ProductCategoryAPI, SettingsAPI } from '../services/api'
 import type { Product, ProductRequest, ProductCategory, Setting } from '../types'
-import { ProductStatus, PRODUCT_STATUS_INFO } from '../types'
+import { ProductStatus, PRODUCT_STATUS_INFO, ItemType, ITEM_TYPE_INFO } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
@@ -13,6 +13,7 @@ import { getSettingValue } from '../utils/settings'
 const EMPTY_FORM: ProductRequest = {
   categoryId: 0,
   productStatus: ProductStatus.New,
+  itemType: ItemType.Product,
   code: '',
   ean: '',
   name: '',
@@ -33,6 +34,7 @@ export default function Prodotti() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<number | ''>('')
   const [statusFilter, setStatusFilter] = useState<ProductStatus | ''>('')
+  const [typeFilter, setTypeFilter] = useState<ItemType | ''>('')
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -43,7 +45,7 @@ export default function Prodotti() {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    document.title = 'Prodotti - GestioPro'
+    document.title = 'Prodotti e Servizi - GestioPro'
     loadData()
   }, [])
 
@@ -74,9 +76,10 @@ export default function Prodotti() {
           !p.categoryName.toLowerCase().includes(q)) return false
       if (categoryFilter !== '' && p.categoryId !== categoryFilter) return false
       if (statusFilter !== '' && p.productStatus !== statusFilter) return false
+      if (typeFilter !== '' && p.itemType !== typeFilter) return false
       return true
     })
-  }, [products, search, categoryFilter, statusFilter])
+  }, [products, search, categoryFilter, statusFilter, typeFilter])
 
   const filteredTotal = filtered.reduce((s, p) => s + p.price, 0)
 
@@ -96,6 +99,7 @@ export default function Prodotti() {
     setForm({
       categoryId: product.categoryId,
       productStatus: product.productStatus,
+      itemType: product.itemType,
       code: product.code,
       ean: product.ean ?? '',
       name: product.name,
@@ -124,22 +128,25 @@ export default function Prodotti() {
     if (form.vatPercentage < 0 || form.vatPercentage > 100) { showToast("L'IVA deve essere tra 0 e 100", 'warning'); return }
     if (form.price < 0) { showToast('Il prezzo non può essere negativo', 'warning'); return }
 
+    const isService = form.itemType === ItemType.Service
     const payload: ProductRequest = {
       ...form,
-      ean: form.ean?.trim() || undefined,
+      ean: isService ? undefined : (form.ean?.trim() || undefined),
+      quantity: isService ? undefined : form.quantity,
       description: form.description?.trim() || undefined,
     }
 
+    const label = isService ? 'Servizio' : 'Prodotto'
     setSaving(true)
     try {
       if (editingProduct) {
         const updated = await ProductAPI.update(editingProduct.id, payload)
         setProducts(prev => prev.map(p => p.id === updated.id ? updated : p))
-        showToast('Prodotto aggiornato', 'success')
+        showToast(`${label} aggiornato`, 'success')
       } else {
         const created = await ProductAPI.create(payload)
         setProducts(prev => [...prev, created])
-        showToast('Prodotto creato', 'success')
+        showToast(`${label} creato`, 'success')
       }
       closeModal()
     } catch (err: unknown) {
@@ -165,13 +172,14 @@ export default function Prodotti() {
   }
 
   function exportCsv() {
-    const headers = ['Nome', 'Codice', 'EAN', 'Categoria', 'Stato', 'Quantità', 'IVA%', 'Prezzo']
+    const headers = ['Tipo', 'Nome', 'Codice', 'EAN', 'Categoria', 'Stato', 'Quantità', 'IVA%', 'Prezzo']
     const rows = filtered.map(p => [
+      ITEM_TYPE_INFO[p.itemType].text,
       p.name,
       p.code,
       p.ean ?? '',
       p.categoryName,
-      PRODUCT_STATUS_INFO[p.productStatus].text,
+      p.itemType === ItemType.Service ? '' : PRODUCT_STATUS_INFO[p.productStatus].text,
       p.quantity ?? '',
       p.vatPercentage,
       p.price,
@@ -192,7 +200,7 @@ export default function Prodotti() {
     <div className="page">
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
-        <h1 className="page-title"> <i className="fa-solid fa-box" /> Prodotti</h1>
+        <h1 className="page-title"> <i className="fa-solid fa-box" /> Prodotti e Servizi</h1>
         <div className="page-actions">
           <button className="btn btn-primary btn-sm" onClick={openCreate}>
             <i className="fa-solid fa-circle-plus" /> Nuovo prodotto
@@ -211,6 +219,16 @@ export default function Prodotti() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        <select
+          className="form-control"
+          style={{ width: 160 }}
+          value={typeFilter}
+          onChange={e => setTypeFilter(e.target.value === '' ? '' : Number(e.target.value) as ItemType)}
+        >
+          <option value="">Tutti i tipi</option>
+          <option value={ItemType.Product}>{ITEM_TYPE_INFO[ItemType.Product].text}</option>
+          <option value={ItemType.Service}>{ITEM_TYPE_INFO[ItemType.Service].text}</option>
+        </select>
         <select
           className="form-control"
           style={{ width: 200 }}
@@ -255,6 +273,7 @@ export default function Prodotti() {
           <table className="data-table">
             <thead>
               <tr>
+                <th>Tipo</th>
                 <th>Nome</th>
                 <th>Codice</th>
                 <th>Categoria</th>
@@ -268,6 +287,11 @@ export default function Prodotti() {
             <tbody>
               {filtered.map(p => (
                 <tr key={p.id}>
+                  <td>
+                    <Badge cls={ITEM_TYPE_INFO[p.itemType].cls}>
+                      <i className={ITEM_TYPE_INFO[p.itemType].icon}/> {ITEM_TYPE_INFO[p.itemType].text}
+                    </Badge>
+                  </td>
                   <td>{p.name}</td>
                   <td>
                     <span>{p.code}</span>
@@ -275,11 +299,13 @@ export default function Prodotti() {
                   </td>
                   <td>{p.categoryName}</td>
                   <td>
-                    <Badge cls={PRODUCT_STATUS_INFO[p.productStatus].cls}>
-                      {PRODUCT_STATUS_INFO[p.productStatus].text}
-                    </Badge>
+                    {p.itemType === ItemType.Service ? '—' : (
+                      <Badge cls={PRODUCT_STATUS_INFO[p.productStatus].cls}>
+                        {PRODUCT_STATUS_INFO[p.productStatus].text}
+                      </Badge>
+                    )}
                   </td>
-                  <td>{p.quantity ?? '—'}</td>
+                  <td>{p.itemType === ItemType.Service ? '—' : (p.quantity ?? '—')}</td>
                   <td>{p.vatPercentage}%</td>
                   <td>{formatCurrency(p.price)}</td>
                   <td>
@@ -315,18 +341,33 @@ export default function Prodotti() {
       <Modal
         isOpen={modalOpen}
         onClose={closeModal}
-        title={editingProduct ? 'Modifica prodotto' : 'Nuovo prodotto'}
+        title={editingProduct
+          ? `Modifica ${form.itemType === ItemType.Service ? 'servizio' : 'prodotto'}`
+          : `Nuovo ${form.itemType === ItemType.Service ? 'servizio' : 'prodotto'}`}
         icon={editingProduct ? 'fa-solid fa-pen' : 'fa-solid fa-plus'}
         footer={
           <>
             <button className="btn btn-ghost" onClick={closeModal} disabled={saving}>Annulla</button>
             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? <span className="spinner" /> : (editingProduct ? 'Salva modifiche' : 'Crea prodotto')}
+              {saving ? <span className="spinner" /> : (editingProduct ? 'Salva modifiche' : `Crea ${form.itemType === ItemType.Service ? 'servizio' : 'prodotto'}`)}
             </button>
           </>
         }
       >
         <div className="form-row">
+          <div className="form-group">
+            <label className="form-label" htmlFor="prod-type">Tipo *</label>
+            <select
+              id="prod-type"
+              className="form-control"
+              value={form.itemType}
+              onChange={e => setField('itemType', Number(e.target.value) as ItemType)}
+            >
+              <option value={ItemType.Product}>{ITEM_TYPE_INFO[ItemType.Product].text}</option>
+              <option value={ItemType.Service}>{ITEM_TYPE_INFO[ItemType.Service].text}</option>
+            </select>
+          </div>
+
           <div className="form-group">
             <label className="form-label" htmlFor="prod-category">Categoria *</label>
             <select
@@ -342,18 +383,20 @@ export default function Prodotti() {
             </select>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="prod-status">Stato *</label>
-            <select
-              id="prod-status"
-              className="form-control"
-              value={form.productStatus}
-              onChange={e => setField('productStatus', Number(e.target.value) as ProductStatus)}
-            >
-              <option value={ProductStatus.New}>Nuovo</option>
-              <option value={ProductStatus.Used}>Usato</option>
-            </select>
-          </div>
+          {form.itemType === ItemType.Product && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="prod-status">Stato *</label>
+              <select
+                id="prod-status"
+                className="form-control"
+                value={form.productStatus}
+                onChange={e => setField('productStatus', Number(e.target.value) as ProductStatus)}
+              >
+                <option value={ProductStatus.New}>Nuovo</option>
+                <option value={ProductStatus.Used}>Usato</option>
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label" htmlFor="prod-code">Codice *</label>
@@ -367,17 +410,19 @@ export default function Prodotti() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="prod-ean">EAN</label>
-            <input
-              id="prod-ean"
-              type="text"
-              className="form-control"
-              placeholder="Codice EAN (opzionale)"
-              value={form.ean ?? ''}
-              onChange={e => setField('ean', e.target.value)}
-            />
-          </div>
+          {form.itemType === ItemType.Product && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="prod-ean">EAN</label>
+              <input
+                id="prod-ean"
+                type="text"
+                className="form-control"
+                placeholder="Codice EAN (opzionale)"
+                value={form.ean ?? ''}
+                onChange={e => setField('ean', e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="form-group form-group-full">
             <label className="form-label" htmlFor="prod-name">Nome *</label>
@@ -405,17 +450,19 @@ export default function Prodotti() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="prod-quantity">Quantità</label>
-            <input
-              id="prod-quantity"
-              type="number"
-              className="form-control"
-              min={0}
-              value={form.quantity ?? 0}
-              onChange={e => setField('quantity', Number(e.target.value))}
-            />
-          </div>
+          {form.itemType === ItemType.Product && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="prod-quantity">Quantità</label>
+              <input
+                id="prod-quantity"
+                type="number"
+                className="form-control"
+                min={0}
+                value={form.quantity ?? 0}
+                onChange={e => setField('quantity', Number(e.target.value))}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label" htmlFor="prod-vat">IVA% *</label>
@@ -449,7 +496,7 @@ export default function Prodotti() {
         isOpen={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        message={deleteTarget ? `Sei sicuro di voler eliminare il prodotto "${deleteTarget.name}"? L'operazione non può essere annullata.` : ''}
+        message={deleteTarget ? `Sei sicuro di voler eliminare ${deleteTarget.itemType === ItemType.Service ? 'il servizio' : 'il prodotto'} "${deleteTarget.name}"? L'operazione non può essere annullata.` : ''}
         loading={deleting}
       />
     </div>

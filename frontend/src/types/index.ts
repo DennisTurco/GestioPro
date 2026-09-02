@@ -19,6 +19,11 @@ export enum ProductStatus {
   Used = 2,
 }
 
+export enum ItemType {
+  Product = 1,
+  Service = 2,
+}
+
 export enum UserRole {
     Admin = 1,
     Operator = 2
@@ -104,6 +109,7 @@ export interface Product {
   categoryId: number
   categoryName: string
   productStatus: ProductStatus
+  itemType: ItemType
   code: string
   ean?: string
   name: string
@@ -116,6 +122,7 @@ export interface Product {
 export interface ProductRequest {
   categoryId: number
   productStatus: ProductStatus
+  itemType: ItemType
   code: string
   ean?: string
   name: string
@@ -244,6 +251,11 @@ export const QUOTATION_STATUS_INFO: Record<QuotationStatus, { text: string; cls:
 export const PRODUCT_STATUS_INFO: Record<ProductStatus, { text: string; cls: string }> = {
   [ProductStatus.New]:  { text: 'Nuovo', cls: 'badge-success' },
   [ProductStatus.Used]: { text: 'Usato', cls: 'badge-warning' },
+}
+
+export const ITEM_TYPE_INFO: Record<ItemType, { text: string; cls: string; icon: string }> = {
+  [ItemType.Product]: { text: 'Prodotto', cls: 'badge-info',  icon: 'fa-solid fa-box' },
+  [ItemType.Service]: { text: 'Servizio', cls: 'badge-muted', icon: 'fa-solid fa-screwdriver-wrench' },
 }
 
 export enum ContractType {

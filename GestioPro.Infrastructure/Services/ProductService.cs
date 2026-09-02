@@ -43,6 +43,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
             CategoryId = dto.CategoryId,
             Category = category,
             ProductStatus = dto.ProductStatus,
+            ItemType = dto.ItemType,
             Code = dto.Code,
             Ean = dto.Ean,
             Name = dto.Name,
@@ -71,6 +72,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
         var oldValues = MapToDto(entity);
 
         entity.ProductStatus = dto.ProductStatus;
+        entity.ItemType = dto.ItemType;
         entity.Code = dto.Code;
         entity.Name = dto.Name;
         entity.Description = dto.Description;
@@ -109,6 +111,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
             p.CategoryId,
             p.Category.Name,
             p.ProductStatus,
+            p.ItemType,
             p.Code,
             p.Ean,
             p.Name,

@@ -7,6 +7,7 @@ public record ProductResponseDTO(
     long CategoryId,
     string CategoryName,
     ProductStatus ProductStatus,
+    ItemType ItemType,
     string Code,
     string? Ean,
     string Name,

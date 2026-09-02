@@ -19,6 +19,9 @@ public class Product
     public ProductStatus ProductStatus { get; set; }
 
     [Required]
+    public ItemType ItemType { get; set; } = ItemType.Product;
+
+    [Required]
     public string Code { get; set; } = string.Empty;
 
     public string? Ean { get; set; }
