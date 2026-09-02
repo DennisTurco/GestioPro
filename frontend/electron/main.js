@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, Tray, Menu, nativeImage, protocol, net } = require('electron');
+const { app, BrowserWindow, shell, Tray, Menu, nativeImage, protocol, net, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
@@ -18,6 +18,7 @@ const APP_SCHEME = 'app';
 const startedHidden = process.argv.includes(HIDDEN_ARG);
 
 let backendProcess = null;
+let backendExitInfo = null; // set if the backend process exits before we stop waiting on it
 let mainWindow = null;
 let tray = null;
 app.isQuitting = false;
@@ -75,21 +76,28 @@ function startBackend() {
             ASPNETCORE_URLS: BACKEND_URL,
         },
     });
-    backendProcess.on('error', err => console.error('[backend]', err));
+    backendProcess.on('error', err => { backendExitInfo = String(err); console.error('[backend]', err); });
+    backendProcess.on('exit', (code, signal) => {
+        if (!app.isQuitting) backendExitInfo = `exited early (code ${code}, signal ${signal})`;
+    });
 }
 
+// Resolves true once the backend answers /api/v1/health, false if it never
+// did within the retry budget (backend missing a dependency, crashed on
+// startup, blocked by antivirus/firewall, etc.) - the caller decides what to
+// tell the user rather than silently pretending everything is fine.
 function waitForBackend(url, retries = 30, delay = 1000) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const check = (n) => {
             const req = http.get(url + '/api/v1/health', res => {
-                if (res.statusCode < 500) resolve();
+                if (res.statusCode < 500) resolve(true);
                 else retry(n);
             });
             req.on('error', () => retry(n));
             req.setTimeout(800, () => { req.destroy(); retry(n); });
         };
         const retry = (n) => {
-            if (n <= 0) return resolve(); // proceed anyway
+            if (n <= 0) return resolve(false);
             setTimeout(() => check(n - 1), delay);
         };
         check(retries);
@@ -124,6 +132,25 @@ function createWindow(startHidden = false) {
     // avoid a flash of the window when launched hidden (autostart) or in the background
     mainWindow.once('ready-to-show', () => {
         if (!startHidden) mainWindow.show();
+    });
+
+    // Electron's built-in "Zoom In" accelerator is bound to Ctrl+Plus, which on most
+    // keyboards is actually Ctrl+Shift+= - pressing plain Ctrl+= (what people actually
+    // reach for) doesn't match, so it silently does nothing while Ctrl+- (zoom out,
+    // no shift ambiguity) works fine. Handle all zoom keys explicitly instead.
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+        if (input.type !== 'keyDown' || !input.control || input.meta) return;
+        const wc = mainWindow.webContents;
+        if (input.key === '=' || input.key === '+') {
+            wc.setZoomLevel(Math.min(wc.getZoomLevel() + 0.5, 5));
+            event.preventDefault();
+        } else if (input.key === '-') {
+            wc.setZoomLevel(Math.max(wc.getZoomLevel() - 0.5, -5));
+            event.preventDefault();
+        } else if (input.key === '0') {
+            wc.setZoomLevel(0);
+            event.preventDefault();
+        }
     });
 
     // open external links in the system browser, not in the app
@@ -179,7 +206,19 @@ app.whenReady().then(async () => {
     if (!isDev) registerAppProtocol();
     configureAutoLaunch();
     startBackend();
-    if (!isDev) await waitForBackend(BACKEND_URL);
+
+    if (!isDev) {
+        const backendReady = await waitForBackend(BACKEND_URL);
+        if (!backendReady) {
+            dialog.showErrorBox(
+                'GestioPro',
+                'Il servizio in background non ha risposto in tempo.\n\n' +
+                (backendExitInfo ? `Dettagli: ${backendExitInfo}\n\n` : '') +
+                'Prova a riavviare l\'app. Se il problema persiste, controlla che l\'antivirus non stia bloccando GestioPro.exe o GestioPro.Api.exe.'
+            );
+        }
+    }
+
     createWindow(startedHidden);
     createTray();
 });

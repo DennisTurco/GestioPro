@@ -16,9 +16,12 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
 {
     public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO dto)
     {
+        // case-insensitive: PostgreSQL's default "=" is case-sensitive, and users
+        // routinely get their username auto-capitalized by the OS/keyboard
+        var username = dto.Username.Trim().ToLower();
         var user = await context.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Username == dto.Username);
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == username);
 
         if (user is null || !PasswordHasher.Verify(dto.Password, user.Password)) return null;
 

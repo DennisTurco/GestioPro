@@ -10,6 +10,9 @@ if (-not (Test-Path $prodSettings)) {
     if ($answer -ne "y") { exit 1 }
 }
 
-# --self-contained false: the target Windows machine must have the matching .NET runtime
-# installed. Switch to --self-contained true for a larger installer with no prerequisites.
-dotnet publish GestioPro.Api -c Release -r win-x64 --self-contained false -o GestioPro.Api/bin/Release/net10.0/win-x64/publish
+# --self-contained true: bundles the matching .NET runtime with the app, so end users
+# don't need anything preinstalled. A missing runtime on a plain user's PC is exactly
+# what made the packaged backend silently fail to start (Electron spawns it with
+# stdio: 'ignore', so there was no visible error - the frontend just got "Failed to
+# fetch" since nothing was listening on the port).
+dotnet publish GestioPro.Api -c Release -r win-x64 --self-contained true -o GestioPro.Api/bin/Release/net10.0/win-x64/publish

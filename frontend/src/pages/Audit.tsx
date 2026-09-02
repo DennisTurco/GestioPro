@@ -3,24 +3,32 @@ import { Audit, AUDIT_ACTION_LABEL, AUDIT_ENTITY_LABEL } from "../types";
 import { useToast } from "../context/ToastContext";
 import EmptyState from "../components/ui/EmptyState";
 import { AuditAPI } from "../services/api";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 export default function Audit() {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const [logs, setLogs] = useState<Audit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, _] = useState(false);
 
-  const [search, setSearch] = useState('')
-  const [actionFilter, setActionFilter] = useState('')
-  const [entityFilter, setEntityFilter] = useState('')
+  const [search, setSearch] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [entityFilter, setEntityFilter] = useState("");
+  const [userFilter, setUserFilter] = useState("");
+
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   useEffect(() => {
     document.title = "Audit - GestioPro";
     loadLogs();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, actionFilter, entityFilter, userFilter]);
 
   if (loading) {
     return (
@@ -45,9 +53,7 @@ export default function Audit() {
       setLogs(logs);
     } catch (err: unknown) {
       showToast(
-        err instanceof Error
-          ? err.message
-          : "Errore nel caricamento dei logs",
+        err instanceof Error ? err.message : "Errore nel caricamento dei logs",
         "error",
       );
     } finally {
@@ -56,9 +62,19 @@ export default function Audit() {
   }
 
   function exportCsv() {
-    const header = ["Timestamp", "IdUtente", "Username", "Azione", "Entità", "IdEntità", "VecchiValori", "NuoviValori", "IndirizzoIP"];
+    const header = [
+      "Timestamp",
+      "IdUtente",
+      "Username",
+      "Azione",
+      "Entità",
+      "IdEntità",
+      "VecchiValori",
+      "NuoviValori",
+      "IndirizzoIP",
+    ];
     const rows = filtered.map((a) => [
-      `"${new Date(a.timestamp).toLocaleString('it-IT')}"`,
+      `"${new Date(a.timestamp).toLocaleString("it-IT")}"`,
       `"${a.userId.replace(/"/g, '""')}"`,
       `"${a.username.replace(/"/g, '""')}"`,
       `"${a.action.replace(/"/g, '""')}"`,
@@ -80,8 +96,9 @@ export default function Audit() {
 
   const filtered = logs
     .filter((a) => {
-      if (actionFilter !== '' && a.action !== actionFilter) return false;
-      if (entityFilter !== '' && a.entityType !== entityFilter) return false;
+      if (actionFilter !== "" && a.action !== actionFilter) return false;
+      if (entityFilter !== "" && a.entityType !== entityFilter) return false;
+      if (userFilter !== "" && a.username !== userFilter) return false;
 
       const q = search.toLowerCase();
       if (!q) return true;
@@ -91,15 +108,36 @@ export default function Audit() {
         a.username.toLocaleLowerCase().includes(q)
       );
     })
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    .sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
 
   const actionOptions = Array.from(new Set(logs.map((l) => l.action)));
   const entityOptions = Array.from(new Set(logs.map((l) => l.entityType)));
+  const userOptions = Array.from(new Set(logs.map((l) => l.username)));
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
-        <h1 className="page-title"> <i className="fa-solid fa-scroll"></i> Audit</h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 24,
+        }}
+      >
+        <h1 className="page-title">
+          {" "}
+          <i className="fa-solid fa-scroll"></i> Audit
+        </h1>
       </div>
 
       <div className="filter-bar">
@@ -117,12 +155,26 @@ export default function Audit() {
         <select
           className="form-control"
           style={{ width: 160 }}
+          value={userFilter}
+          onChange={(e) => setUserFilter(e.target.value)}
+        >
+          <option value="">Tutti gli utenti</option>
+          {userOptions.map((a) => (
+            <option key={a} value={a}> {a} </option>
+          ))}
+        </select>
+
+        <select
+          className="form-control"
+          style={{ width: 160 }}
           value={actionFilter}
           onChange={(e) => setActionFilter(e.target.value)}
         >
           <option value="">Tutte le azioni</option>
           {actionOptions.map((a) => (
-            <option key={a} value={a}>{AUDIT_ACTION_LABEL[a] ?? a}</option>
+            <option key={a} value={a}>
+              {AUDIT_ACTION_LABEL[a] ?? a}
+            </option>
           ))}
         </select>
 
@@ -134,11 +186,17 @@ export default function Audit() {
         >
           <option value="">Tutte le entità</option>
           {entityOptions.map((et) => (
-            <option key={et} value={et}>{AUDIT_ENTITY_LABEL[et] ?? et}</option>
+            <option key={et} value={et}>
+              {AUDIT_ENTITY_LABEL[et] ?? et}
+            </option>
           ))}
         </select>
         <div className="toolbar-right">
-          <button className="btn btn-ghost btn-sm" onClick={exportCsv} title="Esporta CSV">
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={exportCsv}
+            title="Esporta CSV"
+          >
             <i className="fa-solid fa-download" /> Esporta
           </button>
         </div>
@@ -151,7 +209,9 @@ export default function Audit() {
       ) : filtered.length === 0 ? (
         <EmptyState
           message={
-            search || actionFilter || entityFilter ? "Nessun log trovato" : "Nessun log presente"
+            search || actionFilter || entityFilter
+              ? "Nessun log trovato"
+              : "Nessun log presente"
           }
         />
       ) : (
@@ -171,13 +231,19 @@ export default function Audit() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((log) => (
-                  <tr key={log.id}>
-                    <td>{new Date(log.timestamp).toLocaleString('it-IT')}</td>
+                {paginated.map((log) => (
+                  <tr
+                    key={log.id}
+                    onClick={() => navigate(`/audit-details/${log.id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <td>{new Date(log.timestamp).toLocaleString("it-IT")}</td>
                     <td>{log.userId.toString()}</td>
                     <td>{log.username}</td>
                     <td>{AUDIT_ACTION_LABEL[log.action] ?? log.action}</td>
-                    <td>{AUDIT_ENTITY_LABEL[log.entityType] ?? log.entityType}</td>
+                    <td>
+                      {AUDIT_ENTITY_LABEL[log.entityType] ?? log.entityType}
+                    </td>
                     <td>{log.entityId}</td>
                     <td>{log.ipAddress}</td>
                     <td>
@@ -196,12 +262,45 @@ export default function Audit() {
               </tbody>
             </table>
           </div>
-          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span className="text-muted text-sm">{filtered.length} logs</span>
+          <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
+              {filtered.length} log
+            </span>
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentPage} di {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
-
     </div>
   );
 }
