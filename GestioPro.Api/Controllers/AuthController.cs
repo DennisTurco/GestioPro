@@ -1,5 +1,7 @@
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Enums;
 using GestioPro.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestioPro.Api.Controllers;
@@ -9,6 +11,7 @@ namespace GestioPro.Api.Controllers;
 public class AuthController(IAuthService authService, IUserService userService) : ControllerBase
 {
     /// <summary>Login and get a JWT token</summary>
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDTO dto)
     {
@@ -17,11 +20,13 @@ public class AuthController(IAuthService authService, IUserService userService) 
         return Ok(result);
     }
 
-    /// <summary>Register a new account</summary>
+    /// <summary>Register a new account. Public self-registration always creates an Operator —
+    /// promoting to Admin requires an existing Admin (see PUT /users/{id}/force).</summary>
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserRequestDTO dto)
     {
-        await userService.CreateAsync(dto);
+        await userService.CreateAsync(dto with { UserRole = UserRole.Operator });
         return StatusCode(StatusCodes.Status201Created);
     }
 }

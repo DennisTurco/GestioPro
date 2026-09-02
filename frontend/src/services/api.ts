@@ -1,7 +1,10 @@
 import type { Customer, CustomerRequest, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit } from '../types'
 
-const API_BASE = window.location.protocol === 'file:'
-    ? 'https://localhost:7160/api/v1'
+// The packaged Electron app loads the UI via the custom app:// scheme (see
+// electron/main.js) and talks to its own bundled backend over plain loopback
+// HTTP - no TLS cert would be trusted for it on an end-user machine.
+const API_BASE = window.location.protocol === 'app:'
+    ? 'http://localhost:7160/api/v1'
     : window.location.origin + '/api/v1'
 
 export class ApiError extends Error {

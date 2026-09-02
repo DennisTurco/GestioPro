@@ -1,13 +1,17 @@
-const { app, BrowserWindow, shell, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, shell, Tray, Menu, nativeImage, protocol, net } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
+const { pathToFileURL } = require('url');
 
 const isDev = !app.isPackaged;
 const FRONTEND_URL = 'http://localhost:3000';
-const BACKEND_URL  = 'https://localhost:7160';
+// Plain HTTP: the packaged backend only ever talks to this same app over
+// loopback, and an end-user machine has no trusted cert for HTTPS anyway.
+const BACKEND_URL  = 'http://localhost:7160';
 const TRAY_ICON_PATH = path.join(__dirname, '..', 'public', 'icon.ico');
 const HIDDEN_ARG = '--hidden';
+const APP_SCHEME = 'app';
 
 // when the OS launches the app at login (autostart), it's passed --hidden so it
 // comes up minimized to the tray instead of popping a window on top of everything
@@ -17,6 +21,26 @@ let backendProcess = null;
 let mainWindow = null;
 let tray = null;
 app.isQuitting = false;
+
+// Loading dist/index.html directly via file:// (loadFile/loadURL with a file:
+// URL) breaks relative asset resolution for anything served out of an .asar
+// archive - Chromium's own file:// resolver doesn't understand asar virtual
+// paths and relative requests end up pointed at the filesystem root instead
+// of the app's dist folder. Serving the build through a custom scheme avoids
+// that entirely and is the approach Electron's own docs recommend for this.
+protocol.registerSchemesAsPrivileged([
+    { scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } },
+]);
+
+function registerAppProtocol() {
+    const distDir = path.join(__dirname, '..', 'dist');
+    protocol.handle(APP_SCHEME, (request) => {
+        const { pathname } = new URL(request.url);
+        const relativePath = pathname === '/' || pathname === '' ? 'index.html' : decodeURIComponent(pathname).replace(/^\/+/, '');
+        const filePath = path.join(distDir, relativePath);
+        return net.fetch(pathToFileURL(filePath).toString());
+    });
+}
 
 // ── Autostart ─────────────────────────────────────────
 
@@ -37,15 +61,27 @@ function startBackend() {
         return;
     }
 
-    const exePath = path.join(process.resourcesPath, 'backend', 'GestioPro.Api.exe');
-    backendProcess = spawn(exePath, [], { detached: false, stdio: 'ignore' });
+    const backendDir = path.join(process.resourcesPath, 'backend');
+    const exePath = path.join(backendDir, 'GestioPro.Api.exe');
+    backendProcess = spawn(exePath, [], {
+        cwd: backendDir, // ASP.NET Core loads appsettings.json relative to the
+                          // working directory, which otherwise defaults to
+                          // Electron's own cwd, not the backend's folder
+        detached: false,
+        stdio: 'ignore',
+        env: {
+            ...process.env,
+            ASPNETCORE_ENVIRONMENT: 'Production',
+            ASPNETCORE_URLS: BACKEND_URL,
+        },
+    });
     backendProcess.on('error', err => console.error('[backend]', err));
 }
 
 function waitForBackend(url, retries = 30, delay = 1000) {
     return new Promise((resolve, reject) => {
         const check = (n) => {
-            const req = http.get(url.replace('https', 'http') + '/api/v1/health', res => {
+            const req = http.get(url + '/api/v1/health', res => {
                 if (res.statusCode < 500) resolve();
                 else retry(n);
             });
@@ -82,7 +118,7 @@ function createWindow(startHidden = false) {
     if (isDev) {
         mainWindow.loadURL(FRONTEND_URL);
     } else {
-        mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
+        mainWindow.loadURL(`${APP_SCHEME}://index.html`);
     }
 
     // avoid a flash of the window when launched hidden (autostart) or in the background
@@ -140,6 +176,7 @@ function createTray() {
 // ── Lifecycle ─────────────────────────────────────────
 
 app.whenReady().then(async () => {
+    if (!isDev) registerAppProtocol();
     configureAutoLaunch();
     startBackend();
     if (!isDev) await waitForBackend(BACKEND_URL);

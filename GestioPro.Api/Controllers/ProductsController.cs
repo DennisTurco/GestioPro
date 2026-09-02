@@ -38,8 +38,8 @@ public class ProductsController(IProductService productService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductRequestDTO dto)
     {
-        await productService.CreateAsync(dto);
-        return StatusCode(StatusCodes.Status201Created);
+        var created = await productService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>

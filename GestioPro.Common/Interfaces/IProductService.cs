@@ -6,7 +6,7 @@ public interface IProductService
 {
     Task<List<ProductResponseDTO>> GetAllAsync();
     Task<ProductResponseDTO?> GetByIdAsync(long id);
-    Task CreateAsync(ProductRequestDTO dto);
+    Task<ProductResponseDTO> CreateAsync(ProductRequestDTO dto);
     Task<ProductResponseDTO> UpdateAsync(long id, ProductRequestDTO dto);
     Task DeleteAsync(long id);
 }

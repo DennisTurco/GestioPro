@@ -1,6 +1,7 @@
 using GestioPro.Infrastructure.Data;
 using GestioPro.Common.DTOs;
 using GestioPro.Common.Exceptions;
+using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
@@ -54,7 +55,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
             UserRole = dto.UserRole,
             Username = dto.Username,
             Email = dto.Email,
-            Password = AuthService.HashPassword(dto.Password),
+            Password = PasswordHasher.Hash(dto.Password),
             Name = dto.Name,
             Surname = dto.Surname,
             CreatedDate = now,
@@ -81,7 +82,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
         user.IsDisabled = dto.IsDisabled;
         user.LastUpdateDate = DateTimeOffset.UtcNow;
         if (!string.IsNullOrWhiteSpace(dto.Password))
-            user.Password = AuthService.HashPassword(dto.Password);
+            user.Password = PasswordHasher.Hash(dto.Password);
 
         await context.SaveChangesAsync();
 
@@ -126,7 +127,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
         if (user.IsDisabled)
             throw new BusinessException("Impossibile aggiornare la password, l'utente è stato disattivato da uno degli amministratori");
 
-        if (!user.Password.Equals(AuthService.HashPassword(oldPassword)))
+        if (!PasswordHasher.Verify(oldPassword, user.Password))
             throw new BusinessException("La password vecchia non è corretta, impossibile aggiornare");
 
         if (string.IsNullOrWhiteSpace(newPassword))
@@ -134,7 +135,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
 
         var oldValues = MapToDto(user);
 
-        user.Password = AuthService.HashPassword(newPassword);
+        user.Password = PasswordHasher.Hash(newPassword);
         user.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();
@@ -159,7 +160,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
 
         var oldValues = MapToDto(user);
 
-        user.Password = AuthService.HashPassword(password);
+        user.Password = PasswordHasher.Hash(password);
         user.LastUpdateDate = DateTimeOffset.UtcNow;
 
         await context.SaveChangesAsync();

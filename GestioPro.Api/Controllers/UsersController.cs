@@ -53,9 +53,10 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     /// <summary>
-    /// Create a new user
+    /// Create a new user (Admin only — public self-registration is POST /auth/register)
     /// </summary>
     /// <param name="dto">User information</param>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserRequestDTO dto)
     {
@@ -64,13 +65,19 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     /// <summary>
-    /// Update a user
+    /// Update a user's own profile (username/email/name/surname). Callers may only
+    /// update themselves; Admins should use PUT /{id}/force to edit other users.
     /// </summary>
     /// <param name="id">User ID</param>
     /// <param name="dto">User information</param>
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateDTO dto)
     {
+        var callerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!User.IsInRole("Admin") && callerId != id.ToString())
+            return Forbid();
+
         var updated = await userService.UpdateAsync(id, dto);
 
         if (updated is null)
@@ -132,9 +139,10 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     /// <summary>
-    /// Delete a user
+    /// Delete a user (Admin only)
     /// </summary>
     /// <param name="id">User ID</param>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

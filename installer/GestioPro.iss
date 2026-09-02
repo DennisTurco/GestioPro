@@ -14,11 +14,13 @@
 ; quella registrazione.
 
 #define AppName      "GestioPro"
-#define AppVersion   "0.1.0-beta"
+#define AppVersion   "0.1.1-beta"
 #define AppPublisher "DennisTurco"
 #define AppURL       "https://github.com/DennisTurco/GestioPro"
 #define AppExeName   "GestioPro.exe"
-#define SourceDir    "..\frontend\dist-electron\win-unpacked"
+#ifndef SourceDir
+  #define SourceDir  "..\frontend\dist-electron\win-unpacked"
+#endif
 
 [Setup]
 AppId={{B8E1A6D4-2F3C-4A9B-8E5D-9A0C3F7B21D4}
@@ -66,6 +68,18 @@ Name: "desktopicon"; \
 Source: "{#SourceDir}\*"; \
   DestDir: "{app}"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Registry]
+; L'app si registra da sola come voce di avvio automatico al primo avvio
+; (app.setLoginItemSettings in main.js), non lo fa questo installer — ma
+; alla disinstallazione va comunque ripulita, altrimenti resta una voce
+; morta che punta a un exe non più esistente.
+Root: HKCU; \
+  Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
+  ValueType: string; \
+  ValueName: "electron.app.GestioPro"; \
+  ValueData: """{app}\{#AppExeName}"" --hidden"; \
+  Flags: uninsdeletevalue
 
 [Icons]
 ; Start Menu

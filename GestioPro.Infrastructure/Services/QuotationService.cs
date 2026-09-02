@@ -74,6 +74,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
     {
         var quotation = await context.Quotations
             .Include(q => q.Customer)
+            .Include(q => q.Products).ThenInclude(p => p.Product)
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);
@@ -105,6 +106,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
     {
         var quotation = await context.Quotations
             .Include(q => q.Customer)
+            .Include(q => q.Products).ThenInclude(p => p.Product)
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);
@@ -124,6 +126,8 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
     public async Task DisableAsync(long id)
     {
         var quotation = await context.Quotations
+            .Include(q => q.Customer)
+            .Include(q => q.Products).ThenInclude(p => p.Product)
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);

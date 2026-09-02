@@ -27,7 +27,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
         return product is null ? null : MapToDto(product);
     }
 
-    public async Task CreateAsync(ProductRequestDTO dto)
+    public async Task<ProductResponseDTO> CreateAsync(ProductRequestDTO dto)
     {
         var exists = await context.Products
             .AnyAsync(x => x.Code.Equals(dto.Code));
@@ -35,9 +35,13 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
         if (exists)
             throw new BusinessException("Esiste già un prodotto con lo stesso codice");
 
+        var category = await context.ProductCategories.FindAsync(dto.CategoryId)
+            ?? throw new BusinessException("Categoria non trovata");
+
         var product = new Product
         {
             CategoryId = dto.CategoryId,
+            Category = category,
             ProductStatus = dto.ProductStatus,
             Code = dto.Code,
             Ean = dto.Ean,
@@ -51,7 +55,11 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
         await context.AddAsync(product);
         await context.SaveChangesAsync();
 
-        await auditService.LogAsync("Create", nameof(Product), product.Id.ToString(), newValues: MapToDto(product));
+        var created = MapToDto(product);
+
+        await auditService.LogAsync("Create", nameof(Product), product.Id.ToString(), newValues: created);
+
+        return created;
     }
 
     public async Task<ProductResponseDTO> UpdateAsync(long id, ProductRequestDTO dto)
@@ -83,6 +91,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
     public async Task DeleteAsync(long id)
     {
         var entity = await context.Products
+           .Include(p => p.Category)
            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Prodotto non trovato");
 
         var oldValues = MapToDto(entity);

@@ -49,7 +49,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // require an authenticated user by default; endpoints that must stay public
+    // (login, register) opt out explicitly with [AllowAnonymous]
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -68,12 +75,25 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseCors();
-app.UseHttpsRedirection();
+
+if (app.Environment.IsDevelopment())
+{
+    // HTTPS redirection only makes sense in dev (dotnet run binds both http+https
+    // via launchSettings, with a locally-trusted dev cert). The packaged desktop
+    // app talks to the backend over plain loopback HTTP only (see main.js) — an
+    // end-user machine has no trusted cert for it, and unconditionally redirecting
+    // to a non-listening HTTPS endpoint would break every request in production.
+    app.UseHttpsRedirection();
+
+    // registered before the auth middleware: the authorization fallback policy
+    // would otherwise 401 Swagger too, since it has no matched controller endpoint
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-app.UseSwagger();
-app.UseSwaggerUI();
+app.MapGet("/api/v1/health", () => Results.Ok()).AllowAnonymous();
 
 app.Run();

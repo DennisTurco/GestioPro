@@ -1,5 +1,6 @@
 using GestioPro.Common.DTOs;
 using GestioPro.Common.Enums;
+using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using GestioPro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace GestioPro.Infrastructure.Services;
@@ -16,13 +16,11 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
 {
     public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO dto)
     {
-        var hash = HashPassword(dto.Password);
-
         var user = await context.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Username == dto.Username && u.Password == hash);
+            .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
-        if (user is null) return null;
+        if (user is null || !PasswordHasher.Verify(dto.Password, user.Password)) return null;
 
         var token = GenerateToken(user.Id, user.Username, user.UserRole);
 
@@ -53,11 +51,5 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    public static string HashPassword(string password)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-        return Convert.ToHexString(bytes).ToLower();
     }
 }

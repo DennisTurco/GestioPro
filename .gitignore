@@ -411,3 +411,6 @@ coverage-result/
 ### Electron / Inno Setup build output ###
 frontend/dist-electron/
 installer/Output/
+
+### Real Supabase / production credentials (keep only the .example template in git) ###
+GestioPro.Api/appsettings.Production.json
