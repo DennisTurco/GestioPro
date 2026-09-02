@@ -1,4 +1,4 @@
-![logo](.github\banner.svg)
+![logo](.github/banner.svg)
 
 Business management application for **freelancers and self-employed professionals**, available both as a **web app** and as a **Windows desktop app**.
 
