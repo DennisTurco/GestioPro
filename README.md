@@ -1,4 +1,4 @@
-# GestioPro
+![logo](.github\banner.svg)
 
 Business management application for **freelancers and self-employed professionals**, available both as a **web app** and as a **Windows desktop app**.
 
@@ -16,6 +16,14 @@ Business management application for **freelancers and self-employed professional
 - **Audit log** *(Admin only)*: a full history of who created, changed or deleted what and when, with before/after values.
 - **Dark mode**: light/dark theme toggle, remembered across sessions.
 - **Desktop app**: installs like a normal Windows application, starts automatically at login, and lives in the system tray (Apri/Esci) instead of cluttering the taskbar.
+
+---
+
+## Screenshots
+
+| ![image1](./docs/photo1.png) | ![image2](./docs/photo2.png) |
+| ------------------------ | ------------------------ |
+| ![image3](./docs/photo3.png) | ![image4](./docs/photo4.png) |
 
 ---
 

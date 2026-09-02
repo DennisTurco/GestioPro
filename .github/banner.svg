@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" width="1200" height="260" role="img" aria-label="GestioPro">
+  <rect width="1200" height="260" fill="#0f172a"/>
+  <rect x="0" y="0" width="1200" height="260" fill="#1a1a2e" opacity="0.6"/>
+
+  <!-- decorative accent -->
+  <circle cx="1080" cy="60" r="180" fill="#2563eb" opacity="0.08"/>
+  <circle cx="1150" cy="220" r="120" fill="#2563eb" opacity="0.10"/>
+
+  <!-- logo mark -->
+  <rect x="90" y="70" width="120" height="120" rx="24" fill="#16213e" stroke="#2563eb" stroke-width="2"/>
+  <path d="M132 130 C132 106 150 89 172 89 C189 89 203 98 210 112 L192 112 C187 104 180 101 172 101 C158 101 146 112 146 130 C146 148 158 159.5 172 159.5 C184 159.5 194 152.5 197.5 143 L176 143 L176 129 L212 129 L212 168 L200 168 L200 158 C193 165 183 170 172 170 C150 170 132 154 132 130 Z" fill="#ffffff"/>
+
+  <!-- wordmark -->
+  <text x="250" y="152" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="72" font-weight="700" fill="#ffffff">GestioPro</text>
+  <text x="253" y="188" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="22" fill="#94a3b8">Business management, simplified.</text>
+</svg>
