@@ -30,6 +30,7 @@ img { display: block; max-width: 100%; }
 .sidebar {
     width: var(--sidebar-width);
     background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -43,7 +44,7 @@ img { display: block; max-width: 100%; }
     color: var(--sidebar-logo-color);
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid var(--sidebar-border);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -75,7 +76,7 @@ img { display: block; max-width: 100%; }
     letter-spacing: 0.03em;
     padding: 2px 6px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.08);
+    background: var(--sidebar-badge-bg);
     color: var(--sidebar-logo-color);
     opacity: 0.7;
 }
@@ -97,7 +98,7 @@ img { display: block; max-width: 100%; }
 }
 .sidebar-toggle-btn:hover {
     color: var(--sidebar-text-hover);
-    background: rgba(255,255,255,0.08);
+    background: var(--sidebar-hover-bg);
 }
 
 .sidebar-section-label {
@@ -129,7 +130,7 @@ img { display: block; max-width: 100%; }
 }
 .nav-item:hover {
     color: var(--sidebar-text-hover);
-    background: rgba(255,255,255,0.04);
+    background: var(--sidebar-hover-bg);
 }
 .nav-item.active {
     color: var(--sidebar-active-text);
@@ -170,7 +171,7 @@ img { display: block; max-width: 100%; }
 
 .sidebar-footer {
     padding: 16px 20px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid var(--sidebar-border);
     color: var(--sidebar-text);
     font-size: var(--font-size-sm);
 }
@@ -218,7 +219,7 @@ img { display: block; max-width: 100%; }
 }
 .sidebar-profile-btn:hover {
     color: var(--sidebar-text-hover);
-    background: rgba(255,255,255,0.1);
+    background: var(--sidebar-hover-bg);
 }
 
 /* ── SIDEBAR COLLAPSED ───────────────────────────── */

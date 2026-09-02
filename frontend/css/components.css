@@ -438,9 +438,39 @@ select.form-control { cursor: pointer; }
     padding: 48px;
     gap: 20px;
 }
-.login-brand .brand-logo { font-size: 64px; opacity: 0.9; }
+.login-brand .brand-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
 .login-brand h1 { font-size: 28px; font-weight: 700; text-align: center; }
-.login-brand p  { font-size: 14px; opacity: 0.75; text-align: center; line-height: 1.6; }
+.login-brand p  { font-size: 14px; opacity: 0.75; text-align: center; line-height: 1.6; max-width: 340px; }
+.login-brand .brand-features {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+}
+.login-brand .brand-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    opacity: 0.9;
+    background: rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+}
+.login-brand .brand-features li i {
+    width: 18px;
+    text-align: center;
+    opacity: 0.85;
+}
 .login-right {
     flex: 1;
     display: flex;

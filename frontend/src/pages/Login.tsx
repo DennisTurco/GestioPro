@@ -69,55 +69,51 @@ export default function Login() {
 //   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-      <div className="login-card">
-        <div className="login-logo">
-          <div className="logo-icon">
-            <img src="/icon.svg" alt="GestioPro" />
-          </div>
-          <h1>GestioPro</h1>
-          <p>{form === 'login' ? 'Accedi al tuo account' : 'Crea un nuovo account'}</p>
-        </div>
+    <div className="login-shell">
+      <div className="login-right">
+        <div className="login-box">
+          <h2>{form === 'login' ? 'Accedi al tuo account' : 'Crea un nuovo account'}</h2>
+          <p className="subtitle">Inserisci le tue credenziali per continuare</p>
 
-        {form === 'login' && (
-          <form onSubmit={handleLogin} noValidate>
-            <div className="form-group">
-              <label className="form-label" htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                className="form-control"
-                placeholder="Il tuo username"
-                autoComplete="username"
-                value={loginUsername}
-                onChange={e => setLoginUsername(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                className="form-control"
-                placeholder="La tua password"
-                autoComplete="current-password"
-                value={loginPassword}
-                onChange={e => setLoginPassword(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary btn-login" disabled={loading}>
-              <i className="fa-solid fa-right-to-bracket" />
-              {loading ? ' Accesso in corso...' : ' Accedi'}
-            </button>
-            {loginError && (
-              <div id="login-error" className="login-error">{loginError}</div>
-            )}
-            {/* <div className="login-footer">
-              Non hai un account?{' '}
-              <a onClick={() => { setLoginError(''); setForm('register') }}>Registrati</a>
-            </div> */}
-          </form>
-        )}
+          {form === 'login' && (
+            <form onSubmit={handleLogin} noValidate>
+              <div className="form-group">
+                <label className="form-label" htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  type="text"
+                  className="form-control"
+                  placeholder="Username o email"
+                  autoComplete="username"
+                  value={loginUsername}
+                  onChange={e => setLoginUsername(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  className="form-control"
+                  placeholder="La tua password"
+                  autoComplete="current-password"
+                  value={loginPassword}
+                  onChange={e => setLoginPassword(e.target.value)}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary btn-login" disabled={loading}>
+                <i className="fa-solid fa-right-to-bracket" />
+                {loading ? ' Accesso in corso...' : ' Accedi'}
+              </button>
+              {loginError && (
+                <div id="login-error" className="login-error">{loginError}</div>
+              )}
+              {/* <div className="login-footer">
+                Non hai un account?{' '}
+                <a onClick={() => { setLoginError(''); setForm('register') }}>Registrati</a>
+              </div> */}
+            </form>
+          )}
 
         {/* Right now the Register has been disabled because a user could be created only throw an Admin user */}
         {/* {form === 'register' && (
@@ -204,6 +200,18 @@ export default function Login() {
             </div>
           </form>
         )} */}
+        </div>
+      </div>
+
+      <div className="login-brand">
+        <img src="/icon.svg" alt="GestioPro" className="brand-logo" />
+        <h1>GestioPro</h1>
+        <p>La gestione della tua attività, semplificata: clienti, preventivi, contratti e prodotti in un unico posto.</p>
+        <ul className="brand-features">
+          <li><i className="fa-solid fa-receipt" /> Preventivi professionali in pochi click</li>
+          <li><i className="fa-solid fa-file-contract" /> Contratti e rinnovi sempre sotto controllo</li>
+          <li><i className="fa-solid fa-users" /> Anagrafica clienti centralizzata</li>
+        </ul>
       </div>
     </div>
   )

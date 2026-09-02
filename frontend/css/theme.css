@@ -27,14 +27,17 @@
     --color-accent:         #10B981;
     --color-accent-dark:    #059669;
 
-    /* ── Sidebar (sempre dark, indipendente dal tema) ── */
-    --sidebar-bg:           #1E293B;
-    --sidebar-text:         #94A3B8;
-    --sidebar-text-hover:   #E2E8F0;
-    --sidebar-active-bg:    rgba(37, 99, 235, 0.18);
-    --sidebar-active-text:  #60A5FA;
+    /* ── Sidebar (segue il tema) ── */
+    --sidebar-bg:           #FFFFFF;
+    --sidebar-border:       #E2E8F0;
+    --sidebar-text:         #64748B;
+    --sidebar-text-hover:   #1E293B;
+    --sidebar-hover-bg:     rgba(15, 23, 42, 0.05);
+    --sidebar-active-bg:    rgba(37, 99, 235, 0.08);
+    --sidebar-active-text:  #2563EB;
     --sidebar-active-border:var(--color-primary);
-    --sidebar-logo-color:   #FFFFFF;
+    --sidebar-logo-color:   #1E293B;
+    --sidebar-badge-bg:     rgba(15, 23, 42, 0.06);
     --sidebar-width:        240px;
 
     /* ── Superfici & sfondo ── */
@@ -105,6 +108,17 @@
     --color-surface-hover:  #243147;
     --color-border:         #334155;
 
+    /* Sidebar */
+    --sidebar-bg:           #1E293B;
+    --sidebar-border:       rgba(255,255,255,0.06);
+    --sidebar-text:         #94A3B8;
+    --sidebar-text-hover:   #E2E8F0;
+    --sidebar-hover-bg:     rgba(255,255,255,0.06);
+    --sidebar-active-bg:    rgba(37, 99, 235, 0.18);
+    --sidebar-active-text:  #60A5FA;
+    --sidebar-logo-color:   #FFFFFF;
+    --sidebar-badge-bg:     rgba(255,255,255,0.08);
+
     /* Testo */
     --color-text:           #E2E8F0;
     --color-text-muted:     #94A3B8;
@@ -140,6 +154,16 @@
         --color-surface:        #1E293B;
         --color-surface-hover:  #243147;
         --color-border:         #334155;
+
+        --sidebar-bg:           #1E293B;
+        --sidebar-border:       rgba(255,255,255,0.06);
+        --sidebar-text:         #94A3B8;
+        --sidebar-text-hover:   #E2E8F0;
+        --sidebar-hover-bg:     rgba(255,255,255,0.06);
+        --sidebar-active-bg:    rgba(37, 99, 235, 0.18);
+        --sidebar-active-text:  #60A5FA;
+        --sidebar-logo-color:   #FFFFFF;
+        --sidebar-badge-bg:     rgba(255,255,255,0.08);
 
         --color-text:           #E2E8F0;
         --color-text-muted:     #94A3B8;
