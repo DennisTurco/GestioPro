@@ -502,14 +502,18 @@ export default function SchedaCliente() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               {customer.email && (
                 <span className="text-muted" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <i className="fa-solid fa-envelope" />
-                  {customer.email}
+                    <a href={"mailto:" + customer.email}>
+                        <i className="fa-solid fa-envelope" />
+                        {customer.email}
+                    </a>
                 </span>
               )}
               {customer.phone && (
                 <span className="text-muted" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <i className="fa-solid fa-phone" />
-                  {customer.phone}
+                    <a href={"tel:" + customer.phone}>
+                        <i className="fa-solid fa-phone" />
+                        {customer.phone}
+                    </a>
                 </span>
               )}
               {customer.city && (

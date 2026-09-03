@@ -10,7 +10,7 @@ public class CityController(ICityService cityService) : ControllerBase
     /// <summary>
     /// Returns all city info by city name if possible
     /// </summary>
-    /// <param name="city">Contract ID</param>
+    /// <param name="city">city name</param>
     [HttpGet("lookup/{city}")]
     public async Task<IActionResult> GetByContractId(string city)
     {
