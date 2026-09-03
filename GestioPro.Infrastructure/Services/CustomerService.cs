@@ -109,8 +109,10 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.VatNumber, dto.VatNumber);
 
-        await ThrowIfDuplicatedPhoneNumber(dto);
-        await ThrowIfDuplicatedEmail(dto);
+        if (entity.Phone != dto.Phone) // i want to search the duplicated with another entity not with itself
+            await ThrowIfDuplicatedPhoneNumber(dto);
+        if (entity.Email != dto.Email)  // i want to search the duplicated with another entity not with itself
+            await ThrowIfDuplicatedEmail(dto);
 
         var oldValues = MapToDto(entity);
 

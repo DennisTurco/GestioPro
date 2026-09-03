@@ -92,6 +92,7 @@ export const ContractAPI = {
     update: (id: number, data: ContractRequest) => apiFetch<Contract>(`/contracts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     getNextNumber: (quotationId: number, quotationNumber: string) => apiFetch<string>(`/contracts/next-number?quotationId=${quotationId}&quotationNumber=${encodeURIComponent(quotationNumber)}`),
     renewal: (id: number)                   => apiFetch<Contract>(`/contracts/renewal?contractId=${id}`),
+    delete: (id: number)                     => apiFetch<null>(`/contracts/${id}`, { method: 'DELETE' }),
 }
 
 export const ContractRenewalAPI = {

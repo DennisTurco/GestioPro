@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI, ProductAPI } from '../services/api'
+import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI, ProductAPI, LocationAPI } from '../services/api'
 import type { Contract, ContractRequest, Customer, CustomerRequest, Product, Quotation, QuotationRequest, Setting } from '../types'
 import { QuotationStatus, ContractType, QUOTATION_STATUS_INFO, CUSTOMER_TYPE_LABEL, CONTRACT_TYPE_LABEL, CONTRACT_STATUS_CLS } from '../types'
-import { formatCurrency } from '../utils/currency'
+import { fixPercentageValueIfOutOfBoundary, formatCurrency, getTotalAmount, normalizeDecimalInput } from '../utils/currency'
 import { formatDate } from '../utils/date'
 import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
@@ -42,7 +42,7 @@ export default function SchedaCliente() {
 
   const [quotationModalOpen, setQuotationModalOpen] = useState(false)
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null)
-  const [quotationForm, setQuotationForm] = useState<Partial<QuotationRequest & { issueDate: string; validityDate: string }>>({})
+  const [quotationForm, setQuotationForm] = useState<Partial<QuotationRequest & { issueDate: string; validityDate: string; totalAmount: number }>>({})
   const [quotationFormItems, setQuotationFormItems] = useState<QuotationProductFormItem[]>([])
   const [quotationSaving, setQuotationSaving] = useState(false)
 
@@ -55,11 +55,12 @@ export default function SchedaCliente() {
 
   const [contractEditTarget, setContractEditTarget] = useState<Contract | null>(null)
   const [contractEditOpen, setContractEditOpen] = useState(false)
-  const [contractEditForm, setContractEditForm] = useState({ title: '', amount: '', vatPercentage: '', description: '', notes: '' })
+  const [contractEditForm, setContractEditForm] = useState({ title: '', amount: '', vatPercentage: '', totalAmount: '', description: '', notes: '' })
   const [contractEditSaving, setContractEditSaving] = useState(false)
 
   const [contractCreateOpen, setContractCreateOpen] = useState(false)
   const [contractCreateForm, setContractCreateForm] = useState<Partial<ContractRequest>>({})
+  const [contractCreateTotalAmount, setContractCreateTotalAmount] = useState(0)
   const [contractCreateSaving, setContractCreateSaving] = useState(false)
   const [contractNumberLoading, setContractNumberLoading] = useState(false)
 
@@ -99,7 +100,44 @@ export default function SchedaCliente() {
     setQuotationFormItems(next)
     if (next.length === 0) return
     const total = next.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-    setQuotationForm(f => ({ ...f, amount: Number(total.toFixed(2)) }))
+    const amount = Number(total.toFixed(2))
+    setQuotationForm(f => ({
+      ...f,
+      amount,
+      totalAmount: getTotalAmount(amount, f.vatPercentage ?? 0, f.discountPercentage ?? 0),
+    }))
+  }
+
+  function handleQuotationAmountChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const amount = parseFloat(value) || 0
+    setQuotationForm(f => ({
+      ...f,
+      amount,
+      totalAmount: getTotalAmount(amount, f.vatPercentage ?? 0, f.discountPercentage ?? 0),
+    }))
+  }
+
+  function handleQuotationVatChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    const vatPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+    setQuotationForm(f => ({
+      ...f,
+      vatPercentage,
+      totalAmount: getTotalAmount(f.amount ?? 0, vatPercentage, f.discountPercentage ?? 0),
+    }))
+  }
+
+  function handleQuotationDiscountChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    const discountPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+    setQuotationForm(f => ({
+      ...f,
+      discountPercentage,
+      totalAmount: getTotalAmount(f.amount ?? 0, f.vatPercentage ?? 0, discountPercentage),
+    }))
   }
 
   function openNewQuotation() {
@@ -117,6 +155,7 @@ export default function SchedaCliente() {
           amount: 0,
           vatPercentage: Number(vatDefault),
           discountPercentage: 0,
+          totalAmount: 0,
           title: '',
           description: descDefault,
           notes: '',
@@ -138,6 +177,7 @@ export default function SchedaCliente() {
       amount: q.amount,
       vatPercentage: q.vatPercentage,
       discountPercentage: q.discountPercentage,
+      totalAmount: getTotalAmount(q.amount, q.vatPercentage, q.discountPercentage),
       title: q.title,
       description: q.description ?? '',
       notes: q.notes ?? '',
@@ -218,6 +258,10 @@ export default function SchedaCliente() {
       province: customer.province ?? '',
       address: customer.address ?? '',
       notes: customer.notes ?? '',
+      region: customer.region ?? '',
+      country: customer.country ?? '',
+      lon: customer.lon,
+      lat: customer.lon
     })
     setEditModalOpen(true)
   }
@@ -323,6 +367,7 @@ export default function SchedaCliente() {
       contractType: ContractType.Semestral,
       startDate: new Date().toISOString().slice(0, 10)
     })
+    setContractCreateTotalAmount(getTotalAmount(0, Number(vatDefault)))
     setContractCreateOpen(true)
   }
 
@@ -332,10 +377,46 @@ export default function SchedaCliente() {
       title: c.title,
       amount: String(c.amount),
       vatPercentage: String(c.vatPercentage),
+      totalAmount: String(getTotalAmount(c.amount, c.vatPercentage)),
       description: c.description ?? '',
       notes: c.notes ?? '',
     })
     setContractEditOpen(true)
+  }
+
+  function handleContractEditAmountChange(value: string) {
+    value = normalizeDecimalInput(value)
+    setContractEditForm(f => ({
+      ...f,
+      amount: value,
+      totalAmount: String(getTotalAmount(parseFloat(value) || 0, parseFloat(f.vatPercentage) || 0)),
+    }))
+  }
+
+  function handleContractEditVatChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    const vatPercentage = fixPercentageValueIfOutOfBoundary(valNumber)
+    setContractEditForm(f => ({
+      ...f,
+      vatPercentage,
+      totalAmount: String(getTotalAmount(parseFloat(f.amount) || 0, parseFloat(vatPercentage) || 0)),
+    }))
+  }
+
+  function handleContractCreateAmountChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const amount = parseFloat(value) || 0
+    setContractCreateForm(f => ({ ...f, amount }))
+    setContractCreateTotalAmount(getTotalAmount(amount, contractCreateForm.vatPercentage ?? 0))
+  }
+
+  function handleContractCreateVatChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    const vatPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+    setContractCreateForm(f => ({ ...f, vatPercentage }))
+    setContractCreateTotalAmount(getTotalAmount(contractCreateForm.amount ?? 0, vatPercentage))
   }
 
   async function handleContractSave() {
@@ -409,6 +490,39 @@ export default function SchedaCliente() {
     }
   }
 
+  const cityLookupTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    useEffect(() => {
+      return () => {
+        if (cityLookupTimeout.current) clearTimeout(cityLookupTimeout.current)
+      }
+    }, [])
+
+  function handleCityChange(value: string) {
+      setEditForm((f => ({ ...f, city: value})))
+
+      if (cityLookupTimeout.current) clearTimeout(cityLookupTimeout.current)
+
+      const city = value.trim()
+      if (city.length < 2) return
+
+      cityLookupTimeout.current = setTimeout(async () => {
+        try {
+          const result = await LocationAPI.lookupCity(city)
+          if (result == null) return;
+          setEditForm(prev => prev.city?.trim() !== city ? prev : {
+            ...prev,
+            province: result.province ?? prev.province,
+            region: result.region ?? prev.region,
+            lat: result.lat ?? prev.lat,
+            lon: result.lon ?? prev.lon,
+          })
+        } catch {
+          // città non trovata: l'utente continua a compilare i campi manualmente
+        }
+      }, 500)
+    }
+
   const acceptedQuotations = quotations.filter(q => q.quotationStatus === QuotationStatus.Accepted)
 
   const filteredQuotations = quotationFilter === 'all'
@@ -448,6 +562,8 @@ export default function SchedaCliente() {
     { label: 'Provincia', value: customer.province },
     { label: 'Regione', value: customer.region },
     { label: 'Paese', value: customer.country },
+    { label: 'Latitudine', value: String(customer.lat) },
+    { label: 'Longitudine', value: String(customer.lon) },
     { label: 'Inserito il', value: formatDate(customer.insertDate) },
     { label: 'Ultimo aggiornamento', value: formatDate(customer.lastUpdateDate) },
   ]
@@ -898,30 +1014,43 @@ export default function SchedaCliente() {
           <div className="form-group">
             <label className="form-label">Importo (€)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
               value={quotationForm.amount ?? 0}
               disabled={quotationFormItems.length > 0}
               title={quotationFormItems.length > 0 ? 'Calcolato automaticamente dai prodotti associati' : undefined}
-              onChange={e => setQuotationForm(f => ({ ...f, amount: Number(e.target.value) }))}
+              onChange={e => handleQuotationAmountChange(e.target.value)}
             />
           </div>
           <div className="form-group">
             <label className="form-label">IVA (%)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
               value={quotationForm.vatPercentage ?? 22}
-              onChange={e => setQuotationForm(f => ({ ...f, vatPercentage: Number(e.target.value) }))}
+              onChange={e => handleQuotationVatChange(e.target.value)}
             />
           </div>
           <div className="form-group">
             <label className="form-label">Sconto (%)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
               value={quotationForm.discountPercentage ?? 0}
-              onChange={e => setQuotationForm(f => ({ ...f, discountPercentage: Number(e.target.value) }))}
+              onChange={e => handleQuotationDiscountChange(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Importo Finale (€)</label>
+            <input
+              type="number"
+              className="form-control"
+              value={quotationForm.totalAmount ?? 0}
+              disabled={true}
+              title="Applicati lo sconto e l'IVA"
             />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -949,7 +1078,7 @@ export default function SchedaCliente() {
         isOpen={deleteQuotationModalOpen}
         onClose={() => setDeleteQuotationModalOpen(false)}
         onConfirm={handleDeleteQuotation}
-        message="Sei sicuro di voler eliminare questo preventivo? L'operazione non può essere annullata."
+        message="Sei sicuro di voler eliminare questo preventivo?"
         loading={deleteQuotationLoading}
       />
 
@@ -1022,7 +1151,7 @@ export default function SchedaCliente() {
               onChange={e => setEditForm(f => ({ ...f, vatNumber: e.target.value }))}
             />
           </div>
-          <div className="form-group">
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Codice fiscale</label>
             <input
               type="text"
@@ -1037,7 +1166,27 @@ export default function SchedaCliente() {
               type="text"
               className="form-control"
               value={editForm.city ?? ''}
-              onChange={e => setEditForm(f => ({ ...f, city: e.target.value }))}
+              onChange={e => handleCityChange(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Paese</label>
+            <input
+              type="text"
+              className="form-control"
+              value={editForm.country ?? ''}
+              onChange={e => setEditForm(f => ({ ...f, country: e.target.value}))}
+              placeholder="Italia"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Regione</label>
+            <input
+              type="text"
+              className="form-control"
+              value={editForm.region ?? ''}
+              onChange={e => setEditForm(f => ({ ...f, region: e.target.value}))}
+              placeholder="Regione"
             />
           </div>
           <div className="form-group">
@@ -1056,6 +1205,26 @@ export default function SchedaCliente() {
               className="form-control"
               value={editForm.address ?? ''}
               onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Longitudine</label>
+            <input
+              type="number"
+              className="form-control"
+              value={editForm.lon ?? ''}
+              onChange={e => setEditForm(f => ({ ...f, lon: e.target.value === '' ? undefined : Number(e.target.value)}))}
+              placeholder="41.40338"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Latitudine</label>
+            <input
+              type="number"
+              className="form-control"
+              value={editForm.lat ?? ''}
+              onChange={e => setEditForm(f => ({ ...f, lat: e.target.value === '' ? undefined : Number(e.target.value)}))}
+              placeholder="2.17403"
             />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -1109,11 +1278,15 @@ export default function SchedaCliente() {
           </div>
           <div className="form-group">
             <label className="form-label">Importo (€) <span className="required">*</span></label>
-            <input type="number" className="form-control" value={contractEditForm.amount} onChange={e => setContractEditForm(f => ({ ...f, amount: e.target.value }))} min={0} step={0.01} />
+            <input type="text" inputMode="decimal" className="form-control" value={contractEditForm.amount} onChange={e => handleContractEditAmountChange(e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">IVA %</label>
-            <input type="number" className="form-control" value={contractEditForm.vatPercentage} onChange={e => setContractEditForm(f => ({ ...f, vatPercentage: e.target.value }))} min={0} max={100} />
+            <input type="text" inputMode="decimal" className="form-control" value={contractEditForm.vatPercentage} onChange={e => handleContractEditVatChange(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Importo Finale (€)</label>
+            <input type="number" className="form-control" value={contractEditForm.totalAmount} disabled={true} title="Applicata l'IVA" />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Descrizione</label>
@@ -1176,11 +1349,15 @@ export default function SchedaCliente() {
           </div>
           <div className="form-group">
             <label className="form-label">Importo (€) <span className="required">*</span></label>
-            <input type="number" className="form-control" value={contractCreateForm.amount ?? 0} onChange={e => setContractCreateForm(f => ({ ...f, amount: Number(e.target.value) }))} min={0} step={0.01} />
+            <input type="text" inputMode="decimal" className="form-control" value={contractCreateForm.amount ?? 0} onChange={e => handleContractCreateAmountChange(e.target.value)} />
           </div>
           <div className="form-group">
             <label className="form-label">IVA %</label>
-            <input type="number" className="form-control" value={contractCreateForm.vatPercentage ?? 22} onChange={e => setContractCreateForm(f => ({ ...f, vatPercentage: Number(e.target.value) }))} min={0} max={100} />
+            <input type="text" inputMode="decimal" className="form-control" value={contractCreateForm.vatPercentage ?? 22} onChange={e => handleContractCreateVatChange(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Importo Finale (€)</label>
+            <input type="number" className="form-control" value={contractCreateTotalAmount} disabled={true} title="Applicata l'IVA" />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Descrizione</label>

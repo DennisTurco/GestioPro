@@ -8,14 +8,14 @@ import {
   QuotationStatus,
 } from "../types";
 import { formatDate } from "../utils/date";
-import { formatCurrency } from "../utils/currency";
+import { fixPercentageValueIfOutOfBoundary, formatCurrency, getTotalAmount, normalizeDecimalInput } from "../utils/currency";
 import { useToast } from "../context/ToastContext";
 import Modal from "../components/ui/Modal";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import EmptyState from "../components/ui/EmptyState";
 import Badge from "../components/ui/Badge";
 import { getSettingValue } from "../utils/settings";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface FormState {
   quotationId: number;
@@ -60,6 +60,8 @@ export default function Contratti() {
   const [settings, setSettings] = useState<Setting[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [deleteTarget, setDeleteTarget] = useState<Contract | null>(null);
+
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -72,6 +74,7 @@ export default function Contratti() {
 
   const [renewTarget, setRenewTarget] = useState<Contract | null>(null);
   const [renewing, setRenewing] = useState(false);
+  const [deleting, setDeleting] = useState(false)
 
   const [page, setPage] = useState(1)
   const pageSize = 20
@@ -269,6 +272,33 @@ export default function Contratti() {
     }
   }
 
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await ContractAPI.delete(deleteTarget.id);
+      showToast("Contratto eliminato", "success");
+      setDeleteTarget(null);
+      await reload();
+    } catch (e: unknown) {
+      showToast(
+        e instanceof Error ? `Errore: ${e.message}` : "Errore",
+        "error",
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function reload() {
+    try {
+      const c = await ContractAPI.getAll();
+      setContracts(c);
+    } catch {
+      showToast("Errore nel caricamento dei contratti", "error");
+    }
+  }
+
   function exportCsv() {
     const rows = [
       ["N&#176;", "Titolo", "Tipo", "Stato", "Importo", "IVA%", "Inizio", "Fine"],
@@ -296,37 +326,24 @@ export default function Contratti() {
   }
 
   function handleVatPercentageChange(value: string) {
-
-    value = fixPercentageValueIfOutOfBoundary(Number(value))
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
         vatPercentage: value,
-        finalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(value) || 0, 0)),
+        finalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(value) || 0)),
     }))
   }
 
   function handleAmountChange(value: string) {
+    value = normalizeDecimalInput(value)
     setForm(prev => ({
         ...prev,
         amount: value,
-        finalAmount: String(getTotalAmount(parseFloat(value) || 0, parseFloat(prev.vatPercentage) || 0, 0)),
+        finalAmount: String(getTotalAmount(parseFloat(value) || 0, parseFloat(prev.vatPercentage) || 0)),
     }))
-  }
-
-  function fixPercentageValueIfOutOfBoundary(percentage: number) : string {
-    if (percentage < 0)
-        return "0"
-    else if (percentage > 100)
-        return "100"
-    return String(percentage)
-  }
-
-  function getTotalAmount(amount: number, vatPercentage: number, discountPercentage: number) {
-    const discount = amount * discountPercentage / 100;
-    amount -= discount;
-    const vatAmount = amount * vatPercentage / 100;
-    return amount + vatAmount;
   }
 
   const statuses = [...new Set(contracts.map((c) => c.status))];
@@ -525,6 +542,13 @@ export default function Contratti() {
                         >
                           <i className="fa-solid fa-rotate-right" />
                         </button>
+                        <button
+                              className="btn btn-danger btn-sm btn-icon"
+                              title="Elimina"
+                              onClick={() => setDeleteTarget(c)}
+                            >
+                              <i className="fa-solid fa-trash" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -721,13 +745,12 @@ export default function Contratti() {
               Importo (€) <span className="required">*</span>
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
               value={form.amount}
               onChange={(e) => handleAmountChange(e.target.value)}
               placeholder="0.00"
-              min={0}
-              step={0.01}
             />
           </div>
 
@@ -750,12 +773,11 @@ export default function Contratti() {
           <div className="form-group">
             <label className="form-label">IVA %</label>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
               value={form.vatPercentage}
               onChange={(e) => handleVatPercentageChange(e.target.value)}
-              min={0}
-              max={100}
             />
           </div>
 
@@ -817,6 +839,14 @@ export default function Contratti() {
             : ""
         }
       />
+
+      <ConfirmModal
+            isOpen={deleteTarget !== null}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDelete}
+            message={deleteTarget ? `Sei sicuro di voler eliminare "${deleteTarget.title}"? L'operazione NON può essere annullata!` : ''}
+            loading={deleting}
+        />
     </div>
   );
 }

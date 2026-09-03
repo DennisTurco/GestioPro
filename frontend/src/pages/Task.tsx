@@ -445,7 +445,7 @@ export default function Task() {
         isOpen={confirmOpen}
         onClose={() => { setConfirmOpen(false); setDeleteId(null) }}
         onConfirm={handleDelete}
-        message="Sei sicuro di voler eliminare questo task? L'operazione non può essere annullata."
+        message="Sei sicuro di voler eliminare questo task?"
         loading={deleting}
       />
     </div>

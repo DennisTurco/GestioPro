@@ -77,4 +77,15 @@ public class ContractController(IContractService contractService) : ControllerBa
         var result = await contractService.RenewalAsync(contractId);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Delete a contract
+    /// </summary>
+    /// <param name="id">Contract ID</param>
+    [HttpDelete("{id:long}")]
+    public async Task<IActionResult> Delete(long id)
+    {
+        await contractService.DeleteAsync(id);
+        return NoContent();
+    }
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { ProductAPI, ProductCategoryAPI, SettingsAPI } from '../services/api'
 import type { Product, ProductRequest, ProductCategory, Setting } from '../types'
 import { ProductStatus, PRODUCT_STATUS_INFO, ItemType, ITEM_TYPE_INFO } from '../types'
-import { formatCurrency } from '../utils/currency'
+import { fixPercentageValueIfOutOfBoundary, formatCurrency, getTotalAmount, normalizeDecimalInput } from '../utils/currency'
 import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
@@ -21,6 +21,7 @@ const EMPTY_FORM: ProductRequest = {
   quantity: 0,
   vatPercentage: 22,
   price: 0,
+  totalAmount: 0
 }
 
 export default function Prodotti() {
@@ -112,6 +113,7 @@ export default function Prodotti() {
       quantity: product.quantity ?? 0,
       vatPercentage: product.vatPercentage,
       price: product.price,
+      totalAmount: getTotalAmount(product.price || 0, product.vatPercentage || 0)
     })
     setModalOpen(true)
   }
@@ -199,6 +201,27 @@ export default function Prodotti() {
     a.download = 'prodotti.csv'
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  function handleAmountChange(value: string) {
+    value = normalizeDecimalInput(value)
+    setForm(prev => ({
+        ...prev,
+        price: parseFloat(value),
+        totalAmount: getTotalAmount(parseFloat(value) || 0, prev.vatPercentage || 0),
+    }))
+  }
+
+  function handleVatPercentageChange(value: string) {
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    value = fixPercentageValueIfOutOfBoundary(valNumber)
+
+    setForm(prev => ({
+        ...prev,
+        vatPercentage: parseFloat(value),
+        totalAmount: getTotalAmount(prev.price || 0, parseFloat(value) || 0),
+    }))
   }
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -513,12 +536,11 @@ export default function Prodotti() {
             <label className="form-label" htmlFor="prod-vat">IVA% *</label>
             <input
               id="prod-vat"
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
-              min={0}
-              max={100}
               value={form.vatPercentage}
-              onChange={e => setField('vatPercentage', Number(e.target.value))}
+              onChange={(e) => handleVatPercentageChange(e.target.value)}
             />
           </div>
 
@@ -526,13 +548,25 @@ export default function Prodotti() {
             <label className="form-label" htmlFor="prod-price">Prezzo *</label>
             <input
               id="prod-price"
-              type="number"
+              type="text"
+              inputMode="decimal"
               className="form-control"
-              min={0}
-              step={0.01}
               value={form.price}
-              onChange={e => setField('price', Number(e.target.value))}
+              onChange={(e) => handleAmountChange(e.target.value)}
             />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Importo Finale (€)</label>
+              <input
+                type="number"
+                className="form-control"
+                value={form.totalAmount}
+                disabled={true}
+                title={"Applicato lo sconto e l'iva"}
+              />
+            </div>
           </div>
         </div>
       </Modal>
@@ -541,7 +575,7 @@ export default function Prodotti() {
         isOpen={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        message={deleteTarget ? `Sei sicuro di voler eliminare ${deleteTarget.itemType === ItemType.Service ? 'il servizio' : 'il prodotto'} "${deleteTarget.name}"? L'operazione non può essere annullata.` : ''}
+        message={deleteTarget ? `Sei sicuro di voler eliminare ${deleteTarget.itemType === ItemType.Service ? 'il servizio' : 'il prodotto'} "${deleteTarget.name}"?` : ''}
         loading={deleting}
       />
     </div>

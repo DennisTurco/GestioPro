@@ -138,6 +138,7 @@ export interface ProductRequest {
   quantity?: number
   vatPercentage: number
   price: number
+  totalAmount: number
 }
 
 export interface ProductCategory {

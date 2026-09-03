@@ -92,13 +92,13 @@ namespace GestioPro.Infrastructure.Migrations
                     table.PrimaryKey("PK_users", x => x.Id);
                 });
 
-             // default user -> username: admin, pass: admin1
+             // default user -> username: admin, pass: admin
              migrationBuilder.InsertData(
                 table: "users",
                 columns: new[] {"Id", "Username", "Email", "Password", "Name", "Surname", "CreatedDate", "IsDisabled", "LastUpdateDate", "UserRole"},
                 values: new object[,]
                 {
-                    { "09793cde-0d45-4d4d-9e49-202a11e567fa", "admin", "admin@gmail.com", "100000.+NykQyf3RvbE14yFPpCIGw==.08Ovr/9fStKfxK5du8kwenYinWCSFfvV/YIguVeH+lg=", "Admin", "Admin", DateTimeOffset.UtcNow, false, DateTimeOffset.UtcNow, 1 }
+                    { "09793cde-0d45-4d4d-9e49-202a11e567fa", "admin", "admin@gmail.com", "100000.3Uf5xk/2GsWVV5RY9NFaWA==.TzWvJ/7dbXfhqAKAp+je13/McNfKdNcAsgIbuZDWk8Q=", "Admin", "Admin", DateTimeOffset.UtcNow, false, DateTimeOffset.UtcNow, 1 }
                 });
 
             migrationBuilder.CreateTable(

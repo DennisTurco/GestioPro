@@ -48,4 +48,4 @@ For architecture, project structure, API details, database schema, the Electron/
 ## Default user to login
 
 - username: `admin`
-- password: `admin1`
+- password: `admin`

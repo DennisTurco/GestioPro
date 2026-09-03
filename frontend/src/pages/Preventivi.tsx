@@ -3,7 +3,7 @@ import { marked } from "marked";
 import { QuotationAPI, ClientiAPI, SettingsAPI, ProductAPI } from "../services/api";
 import type { Quotation, QuotationRequest, Customer, Setting, Product } from "../types";
 import { QuotationStatus, QUOTATION_STATUS_INFO } from "../types";
-import { formatCurrency } from "../utils/currency";
+import { fixPercentageValueIfOutOfBoundary, formatCurrency, getTotalAmount, normalizeDecimalInput } from "../utils/currency";
 import { formatDate, toDateInput } from "../utils/date";
 import { useToast } from "../context/ToastContext";
 import Modal from "../components/ui/Modal";
@@ -98,8 +98,9 @@ export default function Preventivi() {
   }, []);
 
   function handleVatPercentageChange(value: string) {
-
-    value = fixPercentageValueIfOutOfBoundary(Number(value))
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
@@ -109,8 +110,9 @@ export default function Preventivi() {
   }
 
   function handleDiscountPercentageChange(value: string) {
-
-    value = fixPercentageValueIfOutOfBoundary(Number(value))
+    value = normalizeDecimalInput(value)
+    const valNumber = Number(Number(value).toFixed(2))
+    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
@@ -120,26 +122,12 @@ export default function Preventivi() {
   }
 
   function handleAmountChange(value: string) {
+    value = normalizeDecimalInput(value)
     setForm(prev => ({
         ...prev,
         amount: value,
         totalAmount: String(getTotalAmount(parseFloat(value) || 0, parseFloat(prev.vatPercentage) || 0, parseFloat(prev.discountPercentage) || 0)),
     }))
-  }
-
-  function fixPercentageValueIfOutOfBoundary(percentage: number) : string {
-    if (percentage < 0)
-        return "0"
-    else if (percentage > 100)
-        return "100"
-    return String(percentage)
-  }
-
-  function getTotalAmount(amount: number, vatPercentage: number, discountPercentage: number) {
-    const discount = amount * discountPercentage / 100;
-    amount -= discount;
-    const vatAmount = amount * vatPercentage / 100;
-    return amount + vatAmount;
   }
 
   async function reload() {
@@ -947,11 +935,10 @@ export default function Preventivi() {
             <div className="form-group">
               <label className="form-label">Importo (€) *</label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 className="form-control"
                 placeholder="0.00"
-                step="0.01"
-                min="0"
                 value={form.amount}
                 disabled={formItems.length > 0}
                 title={formItems.length > 0 ? "Calcolato automaticamente dai prodotti associati" : undefined}
@@ -964,10 +951,9 @@ export default function Preventivi() {
             <div className="form-group">
               <label className="form-label">IVA (%)</label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 className="form-control"
-                min="0"
-                max="100"
                 value={form.vatPercentage}
                 onChange={(e) => handleVatPercentageChange(e.target.value)}
               />
@@ -975,10 +961,9 @@ export default function Preventivi() {
             <div className="form-group">
               <label className="form-label">Sconto (%)</label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 className="form-control"
-                min="0"
-                max="100"
                 value={form.discountPercentage}
                 onChange={(e) => handleDiscountPercentageChange(e.target.value)}
               />
@@ -1054,7 +1039,7 @@ export default function Preventivi() {
         onConfirm={handleDelete}
         message={
           deleteTarget
-            ? `Vuoi eliminare il preventivo "${deleteTarget.number} – ${deleteTarget.title}"? L'operazione non può essere annullata.`
+            ? `Vuoi eliminare il preventivo "${deleteTarget.number} - ${deleteTarget.title}"?`
             : ""
         }
         loading={deleting}

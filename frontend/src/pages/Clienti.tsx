@@ -618,7 +618,7 @@ export default function Clienti() {
         loading={deleting}
         message={
           deleteTarget
-            ? `Sei sicuro di voler eliminare il cliente ${deleteTarget.name} ${deleteTarget.surname}? L'operazione non è reversibile.`
+            ? `Sei sicuro di voler eliminare il cliente ${deleteTarget.name} ${deleteTarget.surname}?`
             : 'Sei sicuro di voler eliminare questo cliente?'
         }
       />
