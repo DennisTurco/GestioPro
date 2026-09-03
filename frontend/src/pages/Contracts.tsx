@@ -24,6 +24,7 @@ interface FormState {
   title: string;
   amount: string;
   totalAmount: string;
+  finalAmount: string;
   vatPercentage: string;
   startDate: string;
   endDate: string;
@@ -38,6 +39,7 @@ const emptyForm = (): FormState => ({
   title: "",
   amount: "",
   totalAmount: "",
+  finalAmount: "",
   vatPercentage: "22",
   startDate: new Date().toISOString().slice(0, 10),
   endDate: "",
@@ -151,6 +153,7 @@ export default function Contratti() {
       contractType: String(c.contractType),
       number: c.number,
       totalAmount: String(c.totalAmount),
+      finalAmount: String(getTotalAmount(c.amount, c.vatPercentage, 0)),
       title: c.title,
       amount: String(c.amount),
       vatPercentage: String(c.vatPercentage),
@@ -290,6 +293,40 @@ export default function Contratti() {
     a.download = "contratti.csv";
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function handleVatPercentageChange(value: string) {
+
+    value = fixPercentageValueIfOutOfBoundary(Number(value))
+
+    setForm(prev => ({
+        ...prev,
+        vatPercentage: value,
+        finalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(value) || 0, 0)),
+    }))
+  }
+
+  function handleAmountChange(value: string) {
+    setForm(prev => ({
+        ...prev,
+        amount: value,
+        finalAmount: String(getTotalAmount(parseFloat(value) || 0, parseFloat(prev.vatPercentage) || 0, 0)),
+    }))
+  }
+
+  function fixPercentageValueIfOutOfBoundary(percentage: number) : string {
+    if (percentage < 0)
+        return "0"
+    else if (percentage > 100)
+        return "100"
+    return String(percentage)
+  }
+
+  function getTotalAmount(amount: number, vatPercentage: number, discountPercentage: number) {
+    const discount = amount * discountPercentage / 100;
+    amount -= discount;
+    const vatAmount = amount * vatPercentage / 100;
+    return amount + vatAmount;
   }
 
   const statuses = [...new Set(contracts.map((c) => c.status))];
@@ -687,9 +724,7 @@ export default function Contratti() {
               type="number"
               className="form-control"
               value={form.amount}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, amount: e.target.value }))
-              }
+              onChange={(e) => handleAmountChange(e.target.value)}
               placeholder="0.00"
               min={0}
               step={0.01}
@@ -706,9 +741,6 @@ export default function Contratti() {
               type="number"
               className="form-control"
               value={form.totalAmount}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, totalAmount: e.target.value }))
-              }
               placeholder="0.00"
               disabled={true}
             />
@@ -721,13 +753,23 @@ export default function Contratti() {
               type="number"
               className="form-control"
               value={form.vatPercentage}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, vatPercentage: e.target.value }))
-              }
+              onChange={(e) => handleVatPercentageChange(e.target.value)}
               min={0}
               max={100}
             />
           </div>
+
+          {/* Totale con iva */}
+          <div className="form-group form-group-full">
+            <label className="form-label">Importo Finale (€)</label>
+            <input
+            type="number"
+            className="form-control"
+            value={form.finalAmount}
+            disabled={true}
+            title={"Applicata l'iva"}
+            />
+        </div>
 
           {/* Descrizione */}
           <div className="form-group form-group-full">

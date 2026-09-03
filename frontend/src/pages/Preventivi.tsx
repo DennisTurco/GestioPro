@@ -25,6 +25,7 @@ interface FormState {
   validityDate: string;
   quotationStatus: string;
   notes: string;
+  totalAmount: string;
 }
 
 const emptyForm = (): FormState => ({
@@ -39,6 +40,7 @@ const emptyForm = (): FormState => ({
   validityDate: "",
   quotationStatus: String(QuotationStatus.Draft),
   notes: "",
+  totalAmount: "",
 });
 
 export default function Preventivi() {
@@ -94,6 +96,51 @@ export default function Preventivi() {
       .catch(() => showToast("Errore nel caricamento dei dati", "error"))
       .finally(() => setLoading(false));
   }, []);
+
+  function handleVatPercentageChange(value: string) {
+
+    value = fixPercentageValueIfOutOfBoundary(Number(value))
+
+    setForm(prev => ({
+        ...prev,
+        vatPercentage: value,
+        totalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(value) || 0, parseFloat(prev.discountPercentage) || 0)),
+    }))
+  }
+
+  function handleDiscountPercentageChange(value: string) {
+
+    value = fixPercentageValueIfOutOfBoundary(Number(value))
+
+    setForm(prev => ({
+        ...prev,
+        discountPercentage: value,
+        totalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(prev.vatPercentage) || 0, parseFloat(value) || 0)),
+    }))
+  }
+
+  function handleAmountChange(value: string) {
+    setForm(prev => ({
+        ...prev,
+        amount: value,
+        totalAmount: String(getTotalAmount(parseFloat(value) || 0, parseFloat(prev.vatPercentage) || 0, parseFloat(prev.discountPercentage) || 0)),
+    }))
+  }
+
+  function fixPercentageValueIfOutOfBoundary(percentage: number) : string {
+    if (percentage < 0)
+        return "0"
+    else if (percentage > 100)
+        return "100"
+    return String(percentage)
+  }
+
+  function getTotalAmount(amount: number, vatPercentage: number, discountPercentage: number) {
+    const discount = amount * discountPercentage / 100;
+    amount -= discount;
+    const vatAmount = amount * vatPercentage / 100;
+    return amount + vatAmount;
+  }
 
   async function reload() {
     try {
@@ -207,6 +254,7 @@ export default function Preventivi() {
       validityDate: toDateInput(q.validityDate),
       quotationStatus: String(q.quotationStatus),
       notes: q.notes ?? "",
+      totalAmount: String(getTotalAmount(q.amount, q.vatPercentage, q.discountPercentage)),
     });
     setFormItems(q.products.map((p) => ({
       productId: p.productId,
@@ -907,9 +955,12 @@ export default function Preventivi() {
                 value={form.amount}
                 disabled={formItems.length > 0}
                 title={formItems.length > 0 ? "Calcolato automaticamente dai prodotti associati" : undefined}
-                onChange={(e) => setField("amount", e.target.value)}
+                onChange={(e) => handleAmountChange(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
               <label className="form-label">IVA (%)</label>
               <input
@@ -918,7 +969,7 @@ export default function Preventivi() {
                 min="0"
                 max="100"
                 value={form.vatPercentage}
-                onChange={(e) => setField("vatPercentage", e.target.value)}
+                onChange={(e) => handleVatPercentageChange(e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -929,7 +980,20 @@ export default function Preventivi() {
                 min="0"
                 max="100"
                 value={form.discountPercentage}
-                onChange={(e) => setField("discountPercentage", e.target.value)}
+                onChange={(e) => handleDiscountPercentageChange(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Importo Finale (€)</label>
+              <input
+                type="number"
+                className="form-control"
+                value={form.totalAmount}
+                disabled={true}
+                title={"Applicato lo sconto e l'iva"}
               />
             </div>
           </div>
