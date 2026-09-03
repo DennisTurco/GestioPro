@@ -71,6 +71,9 @@ export default function Contratti() {
   const [renewTarget, setRenewTarget] = useState<Contract | null>(null);
   const [renewing, setRenewing] = useState(false);
 
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+
   function kpiFor(status: string) {
     const rows = contracts.filter((c) => c.status === status);
     return {
@@ -91,6 +94,10 @@ export default function Contratti() {
     document.title = "Contratti - GestioPro";
     loadData();
   }, []);
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, typeFilter, statusFilter]);
 
   async function loadData() {
     setLoading(true);
@@ -287,6 +294,13 @@ export default function Contratti() {
 
   const statuses = [...new Set(contracts.map((c) => c.status))];
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
@@ -432,7 +446,7 @@ export default function Contratti() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((c) => (
+                {paginated.map((c) => (
                   <tr key={c.id} onClick={() => navigate(`/rinnovi/${c.id}`)} style={{ cursor: 'pointer' }}>
                     <td>
                       <code style={{ fontSize: 12 }}>{c.number}</code>
@@ -481,8 +495,42 @@ export default function Contratti() {
               </tbody>
             </table>
           </div>
-          <div className="card-footer text-sm text-muted">
-            {filtered.length} contratti &middot; Totale: {formatCurrency(filtered.reduce((s, c) => s + (c.amount ?? 0), 0))}
+          <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
+              {filtered.length} contratti
+            </span>
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentPage} di {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -66,9 +66,16 @@ export default function Preventivi() {
   const [deleteTarget, setDeleteTarget] = useState<Quotation | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+
   useEffect(() => {
     document.title = "Preventivi - GestioPro";
   }, []);
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, statusFilter, customerFilter]);
 
   useEffect(() => {
     setLoading(true);
@@ -356,6 +363,13 @@ export default function Preventivi() {
   }
 
   const filteredTotal = filtered.reduce((s, p) => s + (p.amount ?? 0), 0);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   async function generatePdf(q: Quotation) {
     // @ts-ignore
@@ -660,7 +674,7 @@ export default function Preventivi() {
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((q) => {
+                  paginated.map((q) => {
                     const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus];
                     return (
                       <tr key={q.id}>
@@ -725,6 +739,43 @@ export default function Preventivi() {
                 )}
               </tbody>
             </table>
+            <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
+              {filtered.length} preventivi
+            </span>
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentPage} di {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
+          </div>
           </div>
         )}
 

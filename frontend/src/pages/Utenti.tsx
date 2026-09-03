@@ -37,10 +37,17 @@ export default function Utenti() {
         confirm: '',
     })
 
+    const [page, setPage] = useState(1)
+    const pageSize = 20
+
   useEffect(() => {
     document.title = "Utenti - GestioPro";
     loadUsers();
   }, []);
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, roleFilter])
 
   if (loading) {
     return (
@@ -224,6 +231,13 @@ export default function Utenti() {
     );
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24,}}>
@@ -350,8 +364,42 @@ export default function Utenti() {
               </tbody>
             </table>
           </div>
-          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span className="text-muted text-sm">{filtered.length} utenti</span>
+          <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
+              {filtered.length} utenti
+            </span>
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentPage} di {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

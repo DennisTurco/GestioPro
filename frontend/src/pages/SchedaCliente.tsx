@@ -63,6 +63,10 @@ export default function SchedaCliente() {
   const [contractCreateSaving, setContractCreateSaving] = useState(false)
   const [contractNumberLoading, setContractNumberLoading] = useState(false)
 
+  const [quotationPage, setQuotationPage] = useState(1)
+  const [contractPage, setContractPage] = useState(1)
+  const pageSize = 10
+
   useEffect(() => {
     if (!id) return
     const numId = Number(id)
@@ -82,6 +86,14 @@ export default function SchedaCliente() {
       .catch(() => showToast('Impossibile caricare i dati del cliente', 'error'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => {
+    setQuotationPage(1)
+  }, [quotationFilter]);
+
+  useEffect(() => {
+    setContractPage(1)
+  }, []);
 
   function handleQuotationItemsChange(next: QuotationProductFormItem[]) {
     setQuotationFormItems(next)
@@ -403,10 +415,6 @@ export default function SchedaCliente() {
     ? quotations
     : quotations.filter(q => q.quotationStatus === quotationFilter)
 
-  const filteredQuotationsTotal = filteredQuotations.reduce((s, q) => s + (q.amount ?? 0), 0)
-
-  const contractsTotal = contracts.reduce((s, q) => s + (q.amount ?? 0), 0)
-
   if (loading) {
     return (
       <div className="text-center" style={{ padding: '64px 0' }}>
@@ -452,6 +460,20 @@ export default function SchedaCliente() {
     { label: QUOTATION_STATUS_INFO[QuotationStatus.Rejected].text, value: QuotationStatus.Rejected },
     { label: QUOTATION_STATUS_INFO[QuotationStatus.Expired].text, value: QuotationStatus.Expired },
   ]
+
+  const totalQuotationPages = Math.max(1, Math.ceil(filteredQuotations.length / pageSize));
+  const currentQuotationPage = Math.min(quotationPage, totalQuotationPages);
+  const paginatedQuotation = filteredQuotations.slice(
+    (currentQuotationPage - 1) * pageSize,
+    currentQuotationPage * pageSize,
+  );
+
+  const totalContractPages = Math.max(1, Math.ceil(contracts.length / pageSize));
+  const currentContractPage = Math.min(contractPage, totalContractPages);
+  const paginatedContract = contracts.slice(
+    (currentContractPage - 1) * pageSize,
+    currentContractPage * pageSize,
+  );
 
   return (
     <div>
@@ -589,13 +611,13 @@ export default function SchedaCliente() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredQuotations.length === 0 ? (
+                  {paginatedQuotation.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="text-center text-muted" style={{ padding: '32px 0' }}>
                         Nessun preventivo trovato
                       </td>
                     </tr>
-                  ) : filteredQuotations.map(q => {
+                  ) : paginatedQuotation.map(q => {
                     const si = QUOTATION_STATUS_INFO[q.quotationStatus]
                     return (
                       <tr key={q.id}>
@@ -627,10 +649,43 @@ export default function SchedaCliente() {
                 </tbody>
               </table>
             </div>
-            <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="text-muted text-sm">{filteredQuotations.length} preventivi</span>
-              <span className="font-semibold">Totale: {formatCurrency(filteredQuotationsTotal)}</span>
-            </div>
+            <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentQuotationPage - 1) * pageSize + 1}-
+              {Math.min(currentQuotationPage * pageSize, filteredQuotations.length)} di{" "}
+              {filteredQuotations.length} preventivi
+            </span>
+            {totalQuotationPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentQuotationPage === 1}
+                  onClick={() => setQuotationPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentQuotationPage} di {totalQuotationPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentQuotationPage === totalQuotationPages}
+                  onClick={() => setQuotationPage((p) => Math.min(totalQuotationPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
+          </div>
             </div>
           </div>
         )}
@@ -658,13 +713,13 @@ export default function SchedaCliente() {
                   </tr>
                 </thead>
                 <tbody>
-                  {contracts.length === 0 ? (
+                  {paginatedContract.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="text-center text-muted" style={{ padding: '32px 0' }}>
                         Nessun contratto trovato
                       </td>
                     </tr>
-                  ) : contracts.map(c => (
+                  ) : paginatedContract.map(c => (
                     <tr key={c.id}>
                       <td className="font-medium"><code style={{ fontSize: 12 }}>{c.number}</code></td>
                       <td><strong>{c.title}</strong></td>
@@ -689,10 +744,43 @@ export default function SchedaCliente() {
                   ))}
                 </tbody>
               </table>
-              <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="text-muted text-sm">{contracts.length} contratti</span>
-              <span className="font-semibold">Totale: {formatCurrency(contractsTotal)}</span>
-            </div>
+              <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentContractPage - 1) * pageSize + 1}-
+              {Math.min(currentContractPage * pageSize, contracts.length)} di{" "}
+              {contracts.length} contratti
+            </span>
+            {totalContractPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentContractPage === 1}
+                  onClick={() => setContractPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentContractPage} di {totalContractPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentContractPage === totalContractPages}
+                  onClick={() => setContractPage((p) => Math.min(totalContractPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
+          </div>
             </div>
           </div>
         )}

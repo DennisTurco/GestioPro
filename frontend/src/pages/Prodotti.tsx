@@ -44,10 +44,17 @@ export default function Prodotti() {
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
   const [deleting, setDeleting] = useState(false)
 
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+
   useEffect(() => {
     document.title = 'Prodotti e Servizi - GestioPro'
     loadData()
   }, [])
+
+  useEffect(() => {
+    setPage(1)
+  }, [search, categoryFilter, statusFilter, typeFilter])
 
   async function loadData() {
     setLoading(true)
@@ -80,8 +87,6 @@ export default function Prodotti() {
       return true
     })
   }, [products, search, categoryFilter, statusFilter, typeFilter])
-
-  const filteredTotal = filtered.reduce((s, p) => s + p.price, 0)
 
   function openCreate() {
     setEditingProduct(null)
@@ -195,6 +200,13 @@ export default function Prodotti() {
     a.click()
     URL.revokeObjectURL(url)
   }
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="page">
@@ -331,9 +343,42 @@ export default function Prodotti() {
             </tbody>
           </table>
           </div>
-          <div className="card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="text-muted text-sm">{filtered.length} prodotti</span>
-            <span className="font-semibold">Totale: {formatCurrency(filteredTotal)}</span>
+          <div
+            className="card-footer"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-muted text-sm">
+              {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
+              {filtered.length} prodotti
+            </span>
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina precedente"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+                <span className="text-muted text-sm">
+                  Pagina {currentPage} di {totalPages}
+                </span>
+                <button
+                  className="btn btn-ghost btn-sm btn-icon"
+                  title="Pagina successiva"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
