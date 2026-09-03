@@ -44,3 +44,8 @@ If you're working in VS Code, the **"Avvia tutto"** task (`.vscode/tasks.json`) 
 To run it as a desktop app instead of in the browser: `cd frontend && npm run electron:dev` (with the backend already running).
 
 For architecture, project structure, API details, database schema, the Electron/tray/auto-start/heartbeat internals and build/installer instructions, see [code_documentation.md](code_documentation.md).
+
+## Default user to login
+
+- username: `admin`
+- password: `admin1`

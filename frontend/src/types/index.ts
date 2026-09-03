@@ -104,6 +104,14 @@ export interface CustomerRequest {
   notes?: string
 }
 
+export interface CityLookupResult {
+  city: string
+  province?: string
+  region?: string
+  lat?: number
+  lon?: number
+}
+
 export interface Product {
   id: number
   categoryId: number

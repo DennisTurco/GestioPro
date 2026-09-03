@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClientiAPI } from '../services/api'
+import { ClientiAPI, LocationAPI } from '../services/api'
 import type { Customer, CustomerRequest } from '../types'
 import { CustomerType, CUSTOMER_TYPE_LABEL } from '../types'
 import { useToast } from '../context/ToastContext'
@@ -112,6 +112,8 @@ export default function Clienti() {
       address: c.address ?? '',
       landline: c.landline ?? '',
       notes: c.notes ?? '',
+      lon: c.lon,
+      lat: c.lat,
     })
     setModalOpen(true)
   }
@@ -124,6 +126,39 @@ export default function Clienti() {
 
   function setField<K extends keyof CustomerRequest>(key: K, value: CustomerRequest[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
+  }
+
+  const cityLookupTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (cityLookupTimeout.current) clearTimeout(cityLookupTimeout.current)
+    }
+  }, [])
+
+  function handleCityChange(value: string) {
+    setField('city', value)
+
+    if (cityLookupTimeout.current) clearTimeout(cityLookupTimeout.current)
+
+    const city = value.trim()
+    if (city.length < 2) return
+
+    cityLookupTimeout.current = setTimeout(async () => {
+      try {
+        const result = await LocationAPI.lookupCity(city)
+        if (result == null) return;
+        setForm(prev => prev.city?.trim() !== city ? prev : {
+          ...prev,
+          province: result.province ?? prev.province,
+          region: result.region ?? prev.region,
+          lat: result.lat ?? prev.lat,
+          lon: result.lon ?? prev.lon,
+        })
+      } catch {
+        // città non trovata: l'utente continua a compilare i campi manualmente
+      }
+    }, 500)
   }
 
   async function handleSave() {
@@ -487,6 +522,17 @@ export default function Clienti() {
           </div>
 
           <div className="form-group">
+            <label className="form-label">Città</label>
+            <input
+              type="text"
+              className="form-control"
+              value={form.city}
+              onChange={e => handleCityChange(e.target.value)}
+              placeholder="Milano"
+            />
+          </div>
+
+          <div className="form-group">
             <label className="form-label">Paese</label>
             <input
               type="text"
@@ -519,17 +565,6 @@ export default function Clienti() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Città</label>
-            <input
-              type="text"
-              className="form-control"
-              value={form.city}
-              onChange={e => setField('city', e.target.value)}
-              placeholder="Milano"
-            />
-          </div>
-
           <div className="form-group form-group-full">
             <label className="form-label">Indirizzo</label>
             <input
@@ -538,6 +573,28 @@ export default function Clienti() {
               value={form.address}
               onChange={e => setField('address', e.target.value)}
               placeholder="Via, numero civico"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Longitudine</label>
+            <input
+              type="number"
+              className="form-control"
+              value={form.lon ?? ''}
+              onChange={e => setField('lon', e.target.value === '' ? undefined : Number(e.target.value))}
+              placeholder="41.40338"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Latitudine</label>
+            <input
+              type="number"
+              className="form-control"
+              value={form.lat ?? ''}
+              onChange={e => setField('lat', e.target.value === '' ? undefined : Number(e.target.value))}
+              placeholder="2.17403"
             />
           </div>
 

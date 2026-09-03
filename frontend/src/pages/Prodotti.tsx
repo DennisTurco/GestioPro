@@ -297,7 +297,7 @@ export default function Prodotti() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(p => (
+              {paginated.map(p => (
                 <tr key={p.id}>
                   <td>
                     <Badge cls={ITEM_TYPE_INFO[p.itemType].cls}>

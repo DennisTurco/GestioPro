@@ -30,6 +30,7 @@ builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHeartBeatService, HeartBeatService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddHostedService<HeartBeatBackgroundService>();
 
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
