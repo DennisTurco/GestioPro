@@ -290,7 +290,7 @@ export default function Preventivi() {
       validityDate: form.validityDate || undefined,
       quotationStatus: parseInt(form.quotationStatus) as QuotationStatus,
       notes: form.notes.trim() || undefined,
-      products: formItems.map((i) => ({ productId: i.productId, quantity: i.quantity, productName: i.productName })),
+      products: formItems.map((i) => ({ productId: i.productId, quantity: i.quantity, productName: i.productName, unitPrice: i.unitPrice })),
     };
 
     setSaving(true);

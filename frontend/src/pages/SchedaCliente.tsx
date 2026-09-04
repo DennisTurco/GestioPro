@@ -209,7 +209,7 @@ export default function SchedaCliente() {
         notes: quotationForm.notes,
         issueDate: (quotationForm as { issueDate?: string }).issueDate || undefined,
         validityDate: (quotationForm as { validityDate?: string }).validityDate || undefined,
-        products: quotationFormItems.map(i => ({ productId: i.productId, quantity: i.quantity, productName: i.productName })),
+        products: quotationFormItems.map(i => ({ productId: i.productId, quantity: i.quantity, productName: i.productName, unitPrice: i.unitPrice })),
       }
       if (editingQuotation) {
         const updated = await QuotationAPI.update(editingQuotation.id, payload)
