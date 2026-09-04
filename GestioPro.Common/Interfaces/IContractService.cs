@@ -10,4 +10,5 @@ public interface IContractService
     public Task<ContractResponseDTO> UpdateAsync(long id, ContractRequestDTO dto);
     public Task<string> CalculateNextNumberAsync(long quotationId, string quotationNumber);
     public Task<ContractResponseDTO> RenewalAsync(long id);
+    public Task DeleteAsync(long id);
 }

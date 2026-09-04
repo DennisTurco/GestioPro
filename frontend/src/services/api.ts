@@ -28,13 +28,38 @@ export async function apiFetch<T = unknown>(endpoint: string, opts: RequestInit 
     })
 
     if (!response.ok) {
-        let msg = 'Errore server'
+        // response.json() consumes the body stream even when JSON.parse fails inside it,
+        // so a second response.text() call afterward always throws "body stream already
+        // read" - masking the real error behind a generic message. Read the body once as
+        // text, then try to parse it, instead of calling json() and text() on the same
+        // already-drained stream.
+        let msg = response.statusText || 'Errore server'
         try {
-            const data = await response.json()
-            msg = data.errors?.[0]?.defaultMessage || data.message || data.title || response.statusText
-        } catch {
-            try { msg = (await response.text()).slice(0, 200) || response.statusText } catch { /* noop */ }
+            const text = await response.text()
+            if (text) {
+                try {
+                    const data = JSON.parse(text)
+                    msg = data.errors?.[0]?.defaultMessage || data.message || data.title || msg
+                } catch {
+                    msg = text.slice(0, 200)
+                }
+            }
+        } catch { /* noop - keep the statusText fallback */ }
+
+        // A 401 on a request that carried a token means that token is no longer valid
+        // (expired, or the account was disabled) - the app was otherwise fully logged
+        // in, so every other page would just keep failing with this same opaque error
+        // forever. Clear it and let AuthContext react (it listens for this event and
+        // resets its user state, which Layout's route guard turns into a redirect to
+        // /login via React Router - a real window.location navigation must NOT be used
+        // here: the packaged app serves everything through a custom app:// protocol
+        // that only resolves real files (index.html, assets/...), not client-side
+        // routes like /login, so a hard navigation to it renders a blank/black window.
+        if (response.status === 401 && token) {
+            localStorage.removeItem('auth_token')
+            window.dispatchEvent(new Event('auth:unauthorized'))
         }
+
         throw new ApiError(response.status, msg)
     }
 
@@ -92,6 +117,7 @@ export const ContractAPI = {
     update: (id: number, data: ContractRequest) => apiFetch<Contract>(`/contracts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     getNextNumber: (quotationId: number, quotationNumber: string) => apiFetch<string>(`/contracts/next-number?quotationId=${quotationId}&quotationNumber=${encodeURIComponent(quotationNumber)}`),
     renewal: (id: number)                   => apiFetch<Contract>(`/contracts/renewal?contractId=${id}`),
+    delete: (id: number)                     => apiFetch<null>(`/contracts/${id}`, { method: 'DELETE' }),
 }
 
 export const ContractRenewalAPI = {

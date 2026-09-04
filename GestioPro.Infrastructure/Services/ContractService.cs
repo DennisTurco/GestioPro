@@ -120,6 +120,21 @@ public class ContractService(AppDbContext context, IAuditService auditService) :
         return newValues;
     }
 
+    public async Task DeleteAsync(long id)
+    {
+        var contract = await context.Contracts
+            .Include(c => c.Quotation)
+            .Include(c => c.Renewals)
+            .FirstOrDefaultAsync(c => c.Id == id) ?? throw new BusinessException("Contratto non trovato");
+
+        var oldValues = MapToDto(contract);
+
+        context.Contracts.Remove(contract);
+        await context.SaveChangesAsync();
+
+        await auditService.LogAsync("Delete", nameof(Contract), contract.Id.ToString(), oldValues);
+    }
+
     public async Task<string> CalculateNextNumberAsync(long quotationId, string quotationNumber)
     {
         if (quotationNumber.IsNullOrWhiteSpace())

@@ -29,6 +29,24 @@ public class ContractRenewalService(AppDbContext context, IAuditService auditSer
         await auditService.LogAsync("Delete", nameof(ContractRenewal), renewal.Id.ToString(), MapToDto(renewal));
     }
 
+    public async Task DeleteAllByContractIdAsync(long contractId)
+    {
+        var renewals = await context.ContractRenewals
+            .AsNoTracking()
+            .Where(x => x.ContractId == contractId)
+            .ToListAsync();
+
+        try
+        {
+            foreach (var renewal in renewals)
+                await DeleteAsync(renewal.Id);
+        }
+        catch
+        {
+            // do nothing
+        }
+    }
+
     private static ContractRenewalResponseDTO MapToDto(ContractRenewal r)
         => new(r.Id, r.ContractId, r.Amount, r.StartDate, r.EndDate, r.RenewalDate, r.Notes);
 }

@@ -24,6 +24,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
+  // apiFetch dispatches this when any request comes back 401 with an expired/invalid
+  // token - clearing user here is what actually makes Layout's route guard redirect
+  // to /login (via React Router, in-memory - see the comment in api.ts for why a real
+  // navigation can't be used instead).
+  useEffect(() => {
+    function handleUnauthorized() { setUser(null) }
+    window.addEventListener('auth:unauthorized', handleUnauthorized)
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized)
+  }, [])
+
   async function login(username: string, password: string) {
     const { token, user } = await UserAPI.login(username, password)
     localStorage.setItem('auth_token', token)
