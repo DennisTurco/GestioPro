@@ -4,5 +4,6 @@ namespace GestioPro.Common.DTOs;
 
 public record QuotationProductRequestDTO(
     long ProductId,
-    [Range(1, int.MaxValue)] int Quantity
+    [Range(1, int.MaxValue)] int Quantity,
+    string? ProductName = null
 );

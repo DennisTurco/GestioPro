@@ -22,6 +22,10 @@ public class QuotationProduct
     public Product Product { get; set; } = null!;
 
     [Required]
+    [MaxLength(200)]
+    public string ProductName { get; set; } = string.Empty;
+
+    [Required]
     [Range(1, int.MaxValue)]
     public int Quantity { get; set; } = 1;
 

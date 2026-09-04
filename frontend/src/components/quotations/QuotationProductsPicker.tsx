@@ -40,6 +40,10 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
     onChange(items.map(i => i.productId === productId ? { ...i, quantity } : i))
   }
 
+  function updateProductName(productId: number, productName: string) {
+    onChange(items.map(i => i.productId === productId ? { ...i, productName } : i))
+  }
+
   function removeProduct(productId: number) {
     onChange(items.filter(i => i.productId !== productId))
   }
@@ -79,7 +83,13 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
                 return (
                   <tr key={item.productId}>
                     <td>
-                      {item.productName} ({item.productCode})
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={item.productName}
+                        onChange={e => updateProductName(item.productId, e.target.value)}
+                      />
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>({item.productCode})</span>
                       {!stillAvailable && (
                         <span className="badge badge-muted" style={{ marginLeft: 6, fontSize: 11 }} title="Il prodotto non è più disponibile nel catalogo">
                           non disponibile
