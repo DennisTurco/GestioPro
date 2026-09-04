@@ -14,7 +14,7 @@
 ; quella registrazione.
 
 #define AppName      "GestioPro"
-#define AppVersion   "0.3.0-beta"
+#define AppVersion   "0.4.0-beta"
 #define AppPublisher "DennisTurco"
 #define AppURL       "https://github.com/DennisTurco/GestioPro"
 #define AppExeName   "GestioPro.exe"
