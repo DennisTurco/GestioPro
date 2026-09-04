@@ -44,6 +44,10 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
     onChange(items.map(i => i.productId === productId ? { ...i, productName } : i))
   }
 
+  function updateUnitPrice(productId: number, unitPrice: number) {
+    onChange(items.map(i => i.productId === productId ? { ...i, unitPrice } : i))
+  }
+
   function removeProduct(productId: number) {
     onChange(items.filter(i => i.productId !== productId))
   }
@@ -96,7 +100,16 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
                         </span>
                       )}
                     </td>
-                    <td>{formatCurrency(item.unitPrice)}</td>
+                    <td>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min={0}
+                        step="0.01"
+                        value={item.unitPrice}
+                        onChange={e => updateUnitPrice(item.productId, Math.max(0, Number(e.target.value)))}
+                      />
+                    </td>
                     <td>
                       <input
                         type="number"

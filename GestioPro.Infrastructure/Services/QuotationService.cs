@@ -182,7 +182,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
                 ProductId = item.ProductId,
                 ProductName = string.IsNullOrWhiteSpace(item.ProductName) ? product.Name : item.ProductName,
                 Quantity = item.Quantity,
-                UnitPrice = product.Price,
+                UnitPrice = item.UnitPrice ?? product.Price,
             });
         }
     }

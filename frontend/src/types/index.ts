@@ -167,6 +167,7 @@ export interface QuotationProductRequest {
   productId: number
   quantity: number
   productName?: string
+  unitPrice?: number
 }
 
 export interface Quotation {
