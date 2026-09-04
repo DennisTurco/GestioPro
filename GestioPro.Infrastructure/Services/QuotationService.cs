@@ -180,6 +180,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
             {
                 QuotationId = quotationId,
                 ProductId = item.ProductId,
+                ProductName = string.IsNullOrWhiteSpace(item.ProductName) ? product.Name : item.ProductName,
                 Quantity = item.Quantity,
                 UnitPrice = product.Price,
             });
@@ -206,7 +207,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
             q.IsDisabled,
             q.Products.Select(p => new QuotationProductResponseDTO(
                 p.ProductId,
-                p.Product.Name,
+                p.ProductName,
                 p.Product.Code,
                 p.Quantity,
                 p.UnitPrice,

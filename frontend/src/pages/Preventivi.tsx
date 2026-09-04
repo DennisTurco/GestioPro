@@ -290,7 +290,7 @@ export default function Preventivi() {
       validityDate: form.validityDate || undefined,
       quotationStatus: parseInt(form.quotationStatus) as QuotationStatus,
       notes: form.notes.trim() || undefined,
-      products: formItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      products: formItems.map((i) => ({ productId: i.productId, quantity: i.quantity, productName: i.productName })),
     };
 
     setSaving(true);
@@ -472,6 +472,7 @@ export default function Preventivi() {
             <div>
               ${companyName ? `<div style="font-size:14px;font-weight:700;color:#111827">${companyName}</div>` : ""}
               <div style="font-size:11px;color:#6b7280">${[companyAddress, companyVat ? `P.IVA ${companyVat}` : ""].filter(Boolean).join(" · ")}</div>
+              ${[companyEmail, companyPhone].filter(Boolean).length ? `<div style="font-size:11px;color:#6b7280">${[companyEmail, companyPhone].filter(Boolean).join(" · ")}</div>` : ""}
             </div>
           </div>
           <div style="text-align:right">
@@ -494,20 +495,46 @@ export default function Preventivi() {
           </div>
         </div>
 
+        ${
+          q.products && q.products.length
+            ? `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6mm">
+                <tr style="background:#f9fafb">
+                  <th style="padding:8px 12px;text-align:center;border:1px solid #e5e7eb;width:15%">Quantità</th>
+                  <th style="padding:8px 12px;text-align:left;border:1px solid #e5e7eb">Prodotto / Servizio</th>
+                  <th style="padding:8px 12px;text-align:right;border:1px solid #e5e7eb;width:25%">Prezzo</th>
+                </tr>
+                ${q.products
+                  .map(
+                    (p) => `<tr>
+                      <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center">${p.quantity}</td>
+                      <td style="padding:8px 12px;border:1px solid #e5e7eb">${p.productName}</td>
+                      <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:right">${formatCurrency(p.unitPrice * p.quantity)}</td>
+                    </tr>`,
+                  )
+                  .join("")}
+              </table>`
+            : ""
+        }
+
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8mm">
           <tr style="background:#f9fafb">
             <th style="padding:8px 12px;text-align:left;border:1px solid #e5e7eb">Imponibile</th>
             <th style="padding:8px 12px;text-align:left;border:1px solid #e5e7eb">IVA (${q.vatPercentage ?? 0}%)</th>
             <th style="padding:8px 12px;text-align:left;border:1px solid #e5e7eb">Sconto (${q.discountPercentage ?? 0}%)</th>
-            <th style="padding:8px 12px;text-align:right;border:1px solid #e5e7eb;font-size:13px">Totale</th>
           </tr>
           <tr>
             <td style="padding:8px 12px;border:1px solid #e5e7eb">${formatCurrency(q.amount)}</td>
             <td style="padding:8px 12px;border:1px solid #e5e7eb">${formatCurrency(vat)}</td>
             <td style="padding:8px 12px;border:1px solid #e5e7eb">${q.discountPercentage ?? 0}%</td>
-            <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:right;font-weight:700;font-size:15px;background:#f9fafb">${formatCurrency(total)}</td>
           </tr>
         </table>
+
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8mm">
+          <div style="min-width:60mm;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
+            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#374151">Totale complessivo</span>
+            <span style="font-weight:700;font-size:15px">${formatCurrency(total)}</span>
+          </div>
+        </div>
 
         ${descHtml ? `<div style="height:1px;background:#e5e7eb;margin:0 0 6mm"></div><div style="font-size:12px;line-height:1.6">${descHtml}</div>` : ""}
         ${notesHtml}
