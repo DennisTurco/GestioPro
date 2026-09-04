@@ -5,8 +5,8 @@ import Sidebar from './Sidebar'
 import ToastContainer from '../ui/Toast'
 import ErrorBoundary from '../ui/ErrorBoundary'
 
-const REPORT_BUG_URL       = 'https://github.com/DennisTurco/GestioPro/issues/new?template=bug_report.md'
-const REQUEST_FEATURE_URL  = 'https://github.com/DennisTurco/GestioPro/issues/new?template=feature_request.md'
+const REPORT_BUG_URL       = 'https://github.com/DennisTurco/GestioPro/issues/new?template=bug_report.yml'
+const REQUEST_FEATURE_URL  = 'https://github.com/DennisTurco/GestioPro/issues/new?template=feature_request.yml'
 const SUPPORT_PROJECT_URL  = 'https://github.com/sponsors/DennisTurco'
 
 function getTheme() {
@@ -26,6 +26,10 @@ export default function Layout() {
 
   function toggleTheme() {
     setTheme(t => t === 'dark' ? 'light' : 'dark')
+  }
+
+  function toggleNotifications() {
+    // TODO: implement this
   }
 
   if (loading) {
@@ -58,6 +62,9 @@ export default function Layout() {
             </a>
             <button className="btn btn-ghost btn-sm" onClick={toggleTheme} title="Cambia tema">
               <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`} />
+            </button>
+            <button className="btn btn-ghost btn-sm" style={{ marginLeft: 16 }} onClick={toggleNotifications} title="Centro notifiche">
+              <i className="fa-solid fa-bell" />
             </button>
           </div>
         </header>
