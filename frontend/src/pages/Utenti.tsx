@@ -13,6 +13,7 @@ const EMPTY_FORM: UserCreateRequest = {
     email: '',
     password: '',
     isDisabled: false,
+    emailNotificationsEnabled: true,
     userRole: UserRole.Operator,
 }
 
@@ -91,7 +92,7 @@ export default function Utenti() {
 
   function openEdit(user: User) {
     setEditTarget(user);
-    setForm({ userRole: user.userRole, name: user.name, surname: user.surname, email: user.email, username: user.username, password: '', isDisabled: user.isDisabled });
+    setForm({ userRole: user.userRole, name: user.name, surname: user.surname, email: user.email, username: user.username, password: '', isDisabled: user.isDisabled, emailNotificationsEnabled: user.emailNotificationsEnabled });
     setModalOpen(true);
   }
 
@@ -199,7 +200,7 @@ export default function Utenti() {
   }
 
   function exportCsv() {
-    const header = ["Ruolo", "Nome", "Cognome", "Username", "Email", "DataCreazione", "DataUltimaModifica", "Attivo"];
+    const header = ["Ruolo", "Nome", "Cognome", "Username", "Email", "DataCreazione", "DataUltimaModifica", "Attivo", "NotificheAttive"];
     const rows = filtered.map((u) => [
       `"${u.userRole.toString().replace(/"/g, '""')}"`,
       `"${u.name.replace(/"/g, '""')}"`,
@@ -209,6 +210,7 @@ export default function Utenti() {
       `"${formatDate(u.createdDate)}"`,
       `"${formatDate(u.lastUpdateDate)}"`,
       `"${!u.isDisabled}"`,
+      `"${u.emailNotificationsEnabled}"`,
     ]);
     const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -319,11 +321,12 @@ export default function Utenti() {
                   <th>Data creazione</th>
                   <th>Data modifica</th>
                   <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Attivo</th>
+                  <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Notifiche email</th>
                   <th>Azioni</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((usr) => (
+                {paginated.map((usr) => (
                   <tr key={usr.id}>
                     <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                       <i className={usr.userRole == UserRole.Admin ? "fa-solid fa-user-shield" : "fa-solid fa-user-tie"}></i>
@@ -338,6 +341,9 @@ export default function Utenti() {
                     <td>{formatDate(usr.lastUpdateDate)}</td>
                     <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                       <i className={usr.isDisabled ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-check"} style={{ color: usr.isDisabled ? 'var(--color-danger)' : 'var(--color-success)'}} />
+                    </td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                      <i className={usr.emailNotificationsEnabled ? "fa-solid fa-circle-check" : "fa-solid fa-circle-xmark"} style={{ color: usr.emailNotificationsEnabled ? 'var(--color-success)' : 'var(--color-danger)'}} />
                     </td>
                     <td>
                       <div className="action-buttons">
@@ -503,6 +509,16 @@ export default function Utenti() {
             <option value={UserRole.Admin}>Admin</option>
             <option value={UserRole.Operator}>Operatore</option>
           </select>
+        </div>
+        <div className="form-group">
+          <label className="form-label">
+            <input
+              type="checkbox"
+              checked={form.emailNotificationsEnabled}
+              onChange={(e) => setForm((f) => ({ ...f, emailNotificationsEnabled: e.target.checked }))}
+            />
+            {' '}Notifiche Email
+          </label>
         </div>
         <div className="form-group">
           <label className="form-label">

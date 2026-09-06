@@ -5,6 +5,7 @@ import type { Customer, Quotation, Product, Contract } from '../types'
 import { QUOTATION_STATUS_INFO } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { formatDate } from '../utils/date'
+import { hasActiveTextSelection } from '../utils/dom'
 import { useToast } from '../context/ToastContext'
 import Badge from '../components/ui/Badge'
 import EmptyState from '../components/ui/EmptyState'
@@ -125,7 +126,7 @@ export default function Dashboard() {
                     <tr
                       key={c.id}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/clienti/${c.id}`)}
+                      onClick={() => { if (!hasActiveTextSelection()) navigate(`/clienti/${c.id}`) }}
                     >
                       <td style={{ width: 40 }}>
                         <div className="avatar">
@@ -202,7 +203,7 @@ export default function Dashboard() {
                 {recentQuotations.map(q => {
                   const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus]
                   return (
-                    <tr key={q.id} style={{ cursor: 'pointer' }} onClick={() => navigate('/preventivi')}>
+                    <tr key={q.id} style={{ cursor: 'pointer' }} onClick={() => { if (!hasActiveTextSelection()) navigate('/preventivi') }}>
                       <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
                       <td><strong>{q.title}</strong></td>
                       <td>{q.customerName}</td>

@@ -10,6 +10,7 @@ public record UserResponseDTO(
     string Name,
     string Surname,
     bool IsDisabled,
+    bool EmailNotificationsEnabled,
     DateTimeOffset CreatedDate,
     DateTimeOffset LastUpdateDate
 );

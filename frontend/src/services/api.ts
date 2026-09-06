@@ -1,4 +1,4 @@
-import type { Customer, CustomerRequest, CityLookupResult, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit } from '../types'
+import type { Customer, CustomerRequest, CityLookupResult, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit, Notification } from '../types'
 
 // The packaged Electron app loads the UI via the custom app:// scheme (see
 // electron/main.js) and talks to its own bundled backend over plain loopback
@@ -129,4 +129,10 @@ export const ContractRenewalAPI = {
 export const AuditAPI = {
     getAll: ()              => apiFetch<Audit[]>('/audit'),
     getById: (id: number)   => apiFetch<Audit>(`/audit/${id}`),
+}
+
+export const NotificationAPI = {
+    getAll: ()              => apiFetch<Notification[]>('/notifications'),
+    markAsRead: (id: number) => apiFetch<Notification>(`/notifications?id=${id}`, { method: 'PUT' }),
+    delete: (id: number)    => apiFetch<null>(`/notifications/${id}`, { method: 'DELETE' }),
 }

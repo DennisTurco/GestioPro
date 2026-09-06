@@ -6,10 +6,11 @@ using GestioPro.Common.Models;
 using GestioPro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using StringKit;
+using GestioPro.Common;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class ContractService(AppDbContext context, IAuditService auditService) : IContractService
+public class ContractService(AppDbContext context, IAuditService auditService, INotificationService notificationService) : IContractService
 {
     public async Task<List<ContractResponseDTO>> GetAllAsync()
     {
@@ -63,12 +64,6 @@ public class ContractService(AppDbContext context, IAuditService auditService) :
         await context.SaveChangesAsync();
 
         await auditService.LogAsync("Create", nameof(Contract), contract.Id.ToString(), newValues: MapToDto(contract));
-
-        var renewal = CreateRenewal(contract);
-        await context.AddAsync(renewal);
-        await context.SaveChangesAsync();
-
-        await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
     }
 
     public async Task<ContractResponseDTO> UpdateAsync(long id, ContractRequestDTO dto)
@@ -116,6 +111,8 @@ public class ContractService(AppDbContext context, IAuditService auditService) :
 
         await auditService.LogAsync("Update", nameof(Contract), contract.Id.ToString(), oldValues, newValues);
         await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
+
+        await notificationService.CreateAsync(NotificationMessages.ContractRenewed(contract.Title, contract.Number, contract.EndDate));
 
         return newValues;
     }

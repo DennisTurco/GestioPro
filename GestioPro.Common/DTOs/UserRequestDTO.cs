@@ -10,5 +10,6 @@ public record UserRequestDTO(
     string? Password,
     [Required, MaxLength(50)] string Name,
     [Required, MaxLength(50)] string Surname,
+    bool EmailNotificationsEnabled = true,
     bool IsDisabled = false
 );
