@@ -27,7 +27,7 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
 
         var token = GenerateToken(user.Id, user.Username, user.UserRole);
 
-        var userDto = new UserResponseDTO(user.Id, user.UserRole, user.Username, user.Email, user.Name, user.Surname, user.IsDisabled, user.CreatedDate, user.LastUpdateDate);
+        var userDto = new UserResponseDTO(user.Id, user.UserRole, user.Username, user.Email, user.Name, user.Surname, user.IsDisabled, user.EmailNotificationsEnabled, user.CreatedDate, user.LastUpdateDate);
         return new LoginResponseDTO(token, userDto);
     }
 

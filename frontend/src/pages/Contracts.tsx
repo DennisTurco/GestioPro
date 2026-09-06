@@ -15,6 +15,7 @@ import ConfirmModal from "../components/ui/ConfirmModal";
 import EmptyState from "../components/ui/EmptyState";
 import Badge from "../components/ui/Badge";
 import { getSettingValue } from "../utils/settings";
+import { hasActiveTextSelection } from "../utils/dom";
 import { useNavigate } from "react-router-dom";
 
 interface FormState {
@@ -501,7 +502,7 @@ export default function Contratti() {
               </thead>
               <tbody>
                 {paginated.map((c) => (
-                  <tr key={c.id} onClick={() => navigate(`/rinnovi/${c.id}`)} style={{ cursor: 'pointer' }}>
+                  <tr key={c.id} onClick={() => { if (!hasActiveTextSelection()) navigate(`/rinnovi/${c.id}`) }} style={{ cursor: 'pointer' }}>
                     <td>
                       <code style={{ fontSize: 12 }}>{c.number}</code>
                     </td>

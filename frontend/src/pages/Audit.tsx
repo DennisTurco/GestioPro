@@ -4,6 +4,7 @@ import { useToast } from "../context/ToastContext";
 import EmptyState from "../components/ui/EmptyState";
 import { AuditAPI } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { hasActiveTextSelection } from "../utils/dom";
 
 export default function Audit() {
   const navigate = useNavigate();
@@ -234,7 +235,7 @@ export default function Audit() {
                 {paginated.map((log) => (
                   <tr
                     key={log.id}
-                    onClick={() => navigate(`/audit-details/${log.id}`)}
+                    onClick={() => { if (!hasActiveTextSelection()) navigate(`/audit-details/${log.id}`) }}
                     style={{ cursor: "pointer" }}
                   >
                     <td>{new Date(log.timestamp).toLocaleString("it-IT")}</td>

@@ -41,4 +41,6 @@ public class User
 
     [Required]
     public bool IsDisabled {get; set; } = false; // soft delete
+
+    public bool EmailNotificationsEnabled { get; set; } = true;
 }

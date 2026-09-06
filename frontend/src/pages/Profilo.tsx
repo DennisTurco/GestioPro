@@ -15,6 +15,7 @@ export default function Profilo() {
     surname: user?.surname ?? '',
     email: user?.email ?? '',
     username: user?.username ?? '',
+    emailNotificationsEnabled: user?.emailNotificationsEnabled ?? false
   }
 
   const [infoForm, setInfoForm] = useState<UserRequest>(USER_FORM)
@@ -149,6 +150,17 @@ export default function Profilo() {
                   onChange={e => setInfoForm(p => ({ ...p, username: e.target.value }))}
                   placeholder="username"
                 />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Preferenze notifiche</label>
+                <label className="form-check">
+                  <input
+                    type="checkbox"
+                    checked={infoForm.emailNotificationsEnabled}
+                    onChange={(e) => setInfoForm((p) => ({ ...p, emailNotificationsEnabled: e.target.checked }))}
+                  />
+                  Notifiche Email
+                </label>
               </div>
             </div>
           </div>

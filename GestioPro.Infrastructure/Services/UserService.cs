@@ -5,10 +5,11 @@ using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
+using GestioPro.Common;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class UserService(AppDbContext context, IAuditService auditService) : IUserService
+public class UserService(AppDbContext context, IAuditService auditService, INotificationService notificationService) : IUserService
 {
     public async Task<List<UserResponseDTO>> GetAllAsync()
         => await context.Users
@@ -58,6 +59,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
             Password = PasswordHasher.Hash(dto.Password),
             Name = dto.Name,
             Surname = dto.Surname,
+            EmailNotificationsEnabled = dto.EmailNotificationsEnabled,
             CreatedDate = now,
             LastUpdateDate = now
         };
@@ -81,6 +83,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
         user.Surname = dto.Surname;
         user.IsDisabled = dto.IsDisabled;
         user.LastUpdateDate = DateTimeOffset.UtcNow;
+        user.EmailNotificationsEnabled = dto.EmailNotificationsEnabled;
         if (!string.IsNullOrWhiteSpace(dto.Password))
             user.Password = PasswordHasher.Hash(dto.Password);
 
@@ -89,6 +92,8 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
         var newValues = MapToDto(user);
 
         await auditService.LogAsync("Update", nameof(User), user.Id.ToString(), oldValues, newValues);
+
+        await notificationService.CreateByUserIdAsync(NotificationMessages.UserForceUpdate, id);
 
         return newValues;
     }
@@ -108,6 +113,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
         user.Name = dto.Name;
         user.Surname = dto.Surname;
         user.LastUpdateDate = DateTimeOffset.UtcNow;
+        user.EmailNotificationsEnabled = dto.EmailNotificationsEnabled;
 
         await context.SaveChangesAsync();
 
@@ -169,6 +175,8 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
 
         await auditService.LogAsync("Update", nameof(User), user.Id.ToString(), oldValues, newValues);
 
+        await notificationService.CreateByUserIdAsync(NotificationMessages.UserPasswordForceUpdate, id);
+
         return newValues;
     }
 
@@ -198,6 +206,7 @@ public class UserService(AppDbContext context, IAuditService auditService) : IUs
             u.Name,
             u.Surname,
             u.IsDisabled,
+            u.EmailNotificationsEnabled,
             u.CreatedDate,
             u.LastUpdateDate
         );

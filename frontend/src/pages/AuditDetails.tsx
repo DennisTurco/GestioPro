@@ -80,7 +80,7 @@ export default function AuditDetails() {
       </div>
 
       <div className="card mb-24">
-        <div className="card-header">Informazioni generali</div>
+        <div className="card-header"><span><i className="fa-solid fa-circle-info"/> Informazioni generali </span></div>
         <div className="card-body">
           <div className="grid-2">
             <div className="form-group">

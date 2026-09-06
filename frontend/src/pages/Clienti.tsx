@@ -8,6 +8,7 @@ import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import EmptyState from '../components/ui/EmptyState'
 import { getInitials,  avatarColor } from '../utils/user'
+import { hasActiveTextSelection } from '../utils/dom'
 
 const COMPANY_TYPES = new Set<CustomerType>([
   CustomerType.Company,
@@ -298,7 +299,7 @@ export default function Clienti() {
               {paginated.map(c => (
                 <tr
                   key={c.id}
-                  onClick={() => navigate(`/clienti/${c.id}`)}
+                  onClick={() => { if (!hasActiveTextSelection()) navigate(`/clienti/${c.id}`) }}
                   style={{ cursor: 'pointer' }}
                 >
                   <td className="col-id">{c.id}</td>

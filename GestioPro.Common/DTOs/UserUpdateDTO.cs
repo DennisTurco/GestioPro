@@ -4,5 +4,6 @@ public record UserUpdateDTO(
     string Username,
     string Email,
     string Name,
-    string Surname
+    string Surname,
+    bool EmailNotificationsEnabled
 );

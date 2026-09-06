@@ -59,8 +59,8 @@ public class Contract
     [NotMapped]
     public string Status => EndDate switch
     {
-        var d when d < DateOnly.FromDateTime(DateTime.Today) => "Scaduto",
-        var d when d < DateOnly.FromDateTime(DateTime.Today).AddDays(14) => "In scadenza",
-        _ => "Attivo"
+        var d when d < DateOnly.FromDateTime(DateTime.Today) => ContractStatus.Expired,
+        var d when d < DateOnly.FromDateTime(DateTime.Today).AddDays(14) => ContractStatus.Expiring,
+        _ => ContractStatus.Active
     };
 }

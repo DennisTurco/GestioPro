@@ -39,6 +39,7 @@ export interface User {
   createdDate: string
   lastUpdateDate: string
   isDisabled: boolean
+  emailNotificationsEnabled: boolean
   userRole: UserRole
 }
 
@@ -47,6 +48,7 @@ export interface UserRequest {
     email: string
     name: string
     surname: string
+    emailNotificationsEnabled: boolean
 }
 
 export interface UserCreateRequest {
@@ -56,6 +58,7 @@ export interface UserCreateRequest {
   surname: string
   password: string
   isDisabled: boolean
+  emailNotificationsEnabled: boolean
   userRole: UserRole
 }
 
@@ -210,6 +213,15 @@ export interface Setting {
   value?: string
   description?: string
   lastUpdateDate?: string
+}
+
+export interface Notification {
+  id: number
+  userId: string
+  summary: string
+  description?: string
+  isRead: boolean
+  creationDate: string
 }
 
 export interface Audit {
