@@ -15,6 +15,16 @@ services:
       - db
     restart: unless-stopped
 
+  mailpit:
+    container_name: mailpit-gestiopro
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - db
+    restart: unless-stopped
+
 networks:
   db:
     driver: bridge

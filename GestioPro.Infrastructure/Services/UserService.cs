@@ -17,6 +17,13 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             .Select(u => MapToDto(u))
             .ToListAsync();
 
+    public async Task<List<UserResponseDTO>> GetUsersToSendEmailAsync()
+        => await context.Users
+            .AsNoTracking()
+            .Where(x => x.EmailNotificationsEnabled && !x.IsDisabled)
+            .Select(u => MapToDto(u))
+            .ToListAsync();
+
     public async Task<UserResponseDTO?> LoginByIdAsync(Guid id)
     {
         var user = await context.Users

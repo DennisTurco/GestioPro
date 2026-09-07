@@ -1,4 +1,5 @@
 using GestioPro.Common.DTOs;
+using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using GestioPro.Common.Models;
 using GestioPro.Infrastructure.Data;
@@ -71,6 +72,9 @@ public class NotificationService(AppDbContext context) : INotificationService
     {
         var notification = await context.Notification
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new ArgumentException("Notification log id does not exist");
+
+        if (notification.CreationDate > DateTimeOffset.UtcNow.AddMonths(-1))
+            throw new BusinessException("Impossibile eliminare una notifica più recente di un mese");
 
         context.Notification.Remove(notification);
         await context.SaveChangesAsync();
