@@ -420,8 +420,6 @@ export default function Preventivi() {
     const vat = (net * (q.vatPercentage ?? 0)) / 100;
     const total = net + vat;
 
-    const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus];
-
     const companyName = getSettingValue(settings, "CompanyName") || "";
     const companyAddress = getSettingValue(settings, "Address") || "";
     const companyVat = getSettingValue(settings, "VatNumber") || "";
@@ -443,14 +441,13 @@ export default function Preventivi() {
       companyWebsite,
     ].filter(Boolean);
 
-    const footerHtml = footerParts.length
-      ? `<div style="margin-top:14mm;padding-top:4mm;border-top:1px solid #e5e7eb;text-align:center;font-size:10px;color:#9ca3af">
-          ${footerParts.join(" &nbsp;&bull;&nbsp; ")}
-        </div>`
-      : "";
+    // Drawn directly on every PDF page after rendering (see below) instead of
+    // flowing in the HTML, so it repeats on every page pinned to the bottom
+    // regardless of how many pages the quotation spans.
+    const footerText = footerParts.join("   •   ");
 
     const signaturesHtml = `
-      <div style="margin-top:16mm">
+      <div style="margin-top:16mm;page-break-inside:avoid">
         <div style="font-size:11px;color:#374151;margin-bottom:10mm">Data: __________________</div>
         <div style="display:flex;justify-content:space-between;gap:24px">
           <div style="width:45%;text-align:center">
@@ -465,20 +462,20 @@ export default function Preventivi() {
       </div>`;
 
     const html = `
-      <div style="margin:5px 10px 10px;padding:10mm;font-family:Arial,sans-serif;color:#111827;background:#fff">
+      <div style="margin:5px 10px 10px;padding:10mm;font-family:Arial,sans-serif;color:#111827;background:#fff;min-height:265mm;display:flex;flex-direction:column">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm">
           <div style="display:flex;gap:14px;align-items:center">
             ${logoHtml}
             <div>
               ${companyName ? `<div style="font-size:14px;font-weight:700;color:#111827">${companyName}</div>` : ""}
               <div style="font-size:11px;color:#6b7280">${[companyAddress, companyVat ? `P.IVA ${companyVat}` : ""].filter(Boolean).join(" · ")}</div>
-              ${[companyEmail, companyPhone].filter(Boolean).length ? `<div style="font-size:11px;color:#6b7280">${[companyEmail, companyPhone].filter(Boolean).join(" · ")}</div>` : ""}
+              ${companyEmail ? `<div style="font-size:11px;color:#6b7280">${companyEmail}</div>` : ""}
+              ${companyPhone ? `<div style="font-size:11px;color:#6b7280">${companyPhone}</div>` : ""}
             </div>
           </div>
           <div style="text-align:right">
             <div style="font-size:20px;font-weight:700;color:#111827">Preventivo ${q.number}</div>
-            <div style="font-size:12px;color:#6b7280;margin-bottom:6px">${q.title || ""}</div>
-            <span style="background:#dbeafe;color:#1e40af;padding:3px 12px;border-radius:99px;font-size:11px;font-weight:600">${statusInfo?.text ?? ""}</span>
+            <div style="font-size:12px;color:#6b7280">${q.title || ""}</div>
           </div>
         </div>
 
@@ -529,33 +526,53 @@ export default function Preventivi() {
           </tr>
         </table>
 
-        <div style="display:flex;justify-content:flex-end;margin-bottom:8mm">
-          <div style="min-width:60mm;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
-            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#374151">Totale complessivo</span>
-            <span style="font-weight:700;font-size:15px">${formatCurrency(total)}</span>
+        <div style="display:flex;justify-content:center;margin-bottom:8mm">
+          <div style="min-width:90mm;height:14mm;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:16mm;padding:0 16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px">
+            <span style="text-align:left;line-height:14mm;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#374151">Totale complessivo</span>
+            <span style="text-align:right;line-height:14mm;font-weight:700;font-size:15px">${formatCurrency(total)}</span>
           </div>
         </div>
 
         ${descHtml ? `<div style="height:1px;background:#e5e7eb;margin:0 0 6mm"></div><div style="font-size:12px;line-height:1.6">${descHtml}</div>` : ""}
         ${notesHtml}
+
+        <div style="flex:1"></div>
         ${signaturesHtml}
-        ${footerHtml}
       </div>`;
 
     const container = document.createElement("div");
     container.innerHTML = html;
     document.body.appendChild(container);
 
-    await html2pdf()
+    const pdf = await html2pdf()
       .set({
         filename: `preventivo_${q.number}.pdf`,
         margin: 10,
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { format: "a4", unit: "mm" },
-      })
+        // pagebreak isn't in html2pdf.js's bundled type defs, but is a real supported option
+        pagebreak: { mode: ["css", "legacy"] },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any)
       .from(container)
-      .save();
+      .toPdf()
+      .get("pdf");
 
+    if (footerText) {
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageCount = pdf.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setDrawColor(229, 231, 235);
+        pdf.line(10, pageHeight - 14, pageWidth - 10, pageHeight - 14);
+        pdf.setFontSize(8);
+        pdf.setTextColor(156, 163, 175);
+        pdf.text(footerText, pageWidth / 2, pageHeight - 10, { align: "center" });
+      }
+    }
+
+    pdf.save(`preventivo_${q.number}.pdf`);
     container.remove();
   }
 
