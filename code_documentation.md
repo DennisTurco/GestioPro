@@ -128,6 +128,14 @@ dotnet bin/Release/net10.0/GestioPro.Api.dll
 ```
 (Build the Release configuration first with `dotnet build GestioPro.Api -c Release` — using a separate build output and a non-default port avoids colliding with a `Debug` build/session you may already have running.)
 
+## Email (Mailpit)
+
+`MailService` (`GestioPro.Infrastructure/Services/MailService.cs`) sends email via SMTP (MailKit). In development it points at [Mailpit](https://github.com/axllent/mailpit), a fake SMTP server with a web UI that catches every message instead of actually delivering it — so you can test email flows without spamming real inboxes.
+
+- Start it with `docker compose up -d mailpit` (service defined in `docker-compose.yml`, image `axllent/mailpit`, SMTP on port 1025, web UI on port 8025).
+- Open **[http://localhost:8025](http://localhost:8025)** to see everything the app has sent.
+- Host/port are read from config (`Smtp:Host` / `Smtp:Port` in `appsettings.json`, default `localhost:1025`) rather than hardcoded, so production only needs to override them (plus SMTP auth/TLS, which Mailpit doesn't require but a real provider will) via `appsettings.Production.json` or environment variables — same layering as described in **Environments** above.
+
 ## Supabase setup (from scratch)
 
 1. Create a project at [supabase.com](https://supabase.com); note the database password you set.

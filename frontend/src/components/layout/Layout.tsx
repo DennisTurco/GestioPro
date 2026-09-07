@@ -9,6 +9,8 @@ import ToastContainer from '../ui/Toast'
 import ErrorBoundary from '../ui/ErrorBoundary'
 import Modal from '../ui/Modal'
 
+const NOTIFICATION_DELETE_MIN_AGE_MS = 30 * 24 * 60 * 60 * 1000 // keep in sync with the 1-month rule in NotificationService.DeleteAsync
+
 const REPORT_BUG_URL       = 'https://github.com/DennisTurco/GestioPro/issues/new?template=bug_report.yml'
 const REQUEST_FEATURE_URL  = 'https://github.com/DennisTurco/GestioPro/issues/new?template=feature_request.yml'
 const SUPPORT_PROJECT_URL  = 'https://github.com/sponsors/DennisTurco'
@@ -78,6 +80,10 @@ export default function Layout() {
     }
   }
 
+  function canDeleteNotification(notification: Notification) {
+    return Date.now() - new Date(notification.creationDate).getTime() >= NOTIFICATION_DELETE_MIN_AGE_MS
+  }
+
   const unreadCount = notifications.filter(n => !n.isRead).length
 
   if (loading) {
@@ -140,13 +146,15 @@ export default function Layout() {
                             <span className="notif-summary">{n.summary}</span>
                             <span className="notif-date">{new Date(n.creationDate).toLocaleString('it-IT')}</span>
                           </div>
-                          <button
-                            className="btn btn-ghost btn-sm notif-delete-btn"
-                            title="Elimina notifica"
-                            onClick={(e) => deleteNotification(e, n)}
-                          >
-                            <i className="fa-solid fa-trash" />
-                          </button>
+                          {canDeleteNotification(n) && (
+                            <button
+                              className="btn btn-ghost btn-sm notif-delete-btn"
+                              title="Elimina notifica"
+                              onClick={(e) => deleteNotification(e, n)}
+                            >
+                              <i className="fa-solid fa-trash" />
+                            </button>
+                          )}
                         </li>
                       ))}
                     </ul>
