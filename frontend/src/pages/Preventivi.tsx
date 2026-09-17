@@ -10,6 +10,7 @@ import Modal from "../components/ui/Modal";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import Badge from "../components/ui/Badge";
 import EmptyState from "../components/ui/EmptyState";
+import SearchableSelect from "../components/ui/SearchableSelect";
 import QuotationProductsPicker, { type QuotationProductFormItem } from "../components/quotations/QuotationProductsPicker";
 import { getSettingValue } from "../utils/settings";
 
@@ -96,6 +97,17 @@ export default function Preventivi() {
       .catch(() => showToast("Errore nel caricamento dei dati", "error"))
       .finally(() => setLoading(false));
   }, []);
+
+  const customerOptions = useMemo(
+    () =>
+      customers.map((c) => ({
+        value: String(c.id),
+        label: [c.companyName ? `${c.companyName} -` : null, c.name, c.surname]
+          .filter(Boolean)
+          .join(" "),
+      })),
+    [customers],
+  );
 
   function handleVatPercentageChange(value: string) {
     value = normalizeDecimalInput(value)
@@ -881,6 +893,7 @@ export default function Preventivi() {
         onClose={closeModal}
         title={editingQuotation ? "Modifica preventivo" : "Nuovo preventivo"}
         icon={editingQuotation ? "fa-solid fa-pen" : "fa-solid fa-receipt"}
+        size="lg"
         footer={
           <>
             <button
@@ -922,24 +935,12 @@ export default function Preventivi() {
             </div>
             <div className="form-group">
               <label className="form-label">Cliente *</label>
-              <select
-                className="form-control"
+              <SearchableSelect
+                options={customerOptions}
                 value={form.customerId}
-                onChange={(e) => setField("customerId", e.target.value)}
-              >
-                <option value="">- Seleziona cliente -</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {[
-                      c.companyName ? `${c.companyName} -` : null,
-                      c.name,
-                      c.surname,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setField("customerId", value)}
+                placeholder="Cerca cliente…"
+              />
             </div>
           </div>
 

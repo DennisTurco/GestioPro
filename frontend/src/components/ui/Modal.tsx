@@ -7,9 +7,10 @@ interface ModalProps {
   icon?: string
   children: ReactNode
   footer?: ReactNode
+  size?: 'md' | 'lg'
 }
 
-export default function Modal({ isOpen, onClose, title, icon, children, footer }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, icon, children, footer, size = 'md' }: ModalProps) {
   const mouseDownOnOverlay = useRef(false)
 
   if (!isOpen) return null
@@ -28,7 +29,7 @@ export default function Modal({ isOpen, onClose, title, icon, children, footer }
           (e.target is this div, not the overlay), only clicks further out do -
           reduces accidental closes from just missing the modal edge */}
       <div className="modal-safe-zone">
-        <div className="modal">
+        <div className={size === 'lg' ? 'modal modal-lg' : 'modal'}>
           <div className="modal-header">
             {icon && <i className={icon} />} {title}
             <button className="btn-close" onClick={onClose}><i className="fa-solid fa-x" /></button>

@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import type { Product } from '../../types'
 import { formatCurrency } from '../../utils/currency'
 
@@ -16,8 +17,20 @@ interface Props {
 }
 
 export default function QuotationProductsPicker({ items, onChange, availableProducts }: Props) {
+  const [categoryFilter, setCategoryFilter] = useState<number | ''>('')
+
+  const categories = useMemo(() => {
+    const seen = new Map<number, string>()
+    for (const p of availableProducts) {
+      if (!seen.has(p.categoryId)) seen.set(p.categoryId, p.categoryName)
+    }
+    return [...seen.entries()].map(([id, name]) => ({ id, name }))
+  }, [availableProducts])
+
   const selectableProducts = availableProducts.filter(
-    p => !items.some(item => item.productId === p.id),
+    p =>
+      !items.some(item => item.productId === p.id) &&
+      (categoryFilter === '' || p.categoryId === categoryFilter),
   )
 
   function addProduct(productId: number) {
@@ -56,18 +69,34 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
 
   return (
     <div>
-      <select
-        className="form-control"
-        value=""
-        onChange={e => addProduct(Number(e.target.value))}
-      >
-        <option value="">+ Aggiungi prodotto</option>
-        {selectableProducts.map(p => (
-          <option key={p.id} value={p.id}>
-            {p.name} ({p.code}) — {formatCurrency(p.price)}
-          </option>
-        ))}
-      </select>
+      <div className="form-row">
+        <div className="form-group">
+          <select
+            className="form-control"
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value === '' ? '' : Number(e.target.value))}
+          >
+            <option value="">Tutte le categorie</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <select
+            className="form-control"
+            value=""
+            onChange={e => addProduct(Number(e.target.value))}
+          >
+            <option value="">+ Aggiungi prodotto</option>
+            {selectableProducts.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.name} ({p.code}) — {formatCurrency(p.price)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {items.length > 0 && (
         <div className="table-wrapper" style={{ marginTop: 12 }}>
