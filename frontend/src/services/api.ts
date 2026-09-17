@@ -1,4 +1,4 @@
-import type { Customer, CustomerRequest, CityLookupResult, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit, Notification } from '../types'
+import type { Customer, CustomerRequest, CityLookupResult, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit, Notification, CustomerDocument } from '../types'
 
 // The packaged Electron app loads the UI via the custom app:// scheme (see
 // electron/main.js) and talks to its own bundled backend over plain loopback
@@ -124,6 +124,59 @@ export const ContractRenewalAPI = {
     getByContractId: (contractId: number)    => apiFetch<ContractRenewal[]>(`/contract-renewals/${contractId}`),
     create: (data: ContractRenewalRequest)   => apiFetch<ContractRenewal>('/contract-renewals', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id: number)                     => apiFetch<null>(`/contract-renewals/${id}`, { method: 'DELETE' }),
+}
+
+export const CustomerDocumentAPI = {
+    getByCustomerId: (customerId: number) => apiFetch<CustomerDocument[]>(`/customers/${customerId}/documents`),
+    upload: async (customerId: number, file: File) => {
+        const token = localStorage.getItem('auth_token')
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch(`${API_BASE}/customers/${customerId}/documents`, {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData,
+        })
+
+        if (!response.ok) {
+            let msg = response.statusText || 'Errore durante il caricamento'
+            try {
+                const data = await response.json()
+                msg = data.title || data.message || msg
+            } catch { /* noop - keep the statusText fallback */ }
+            throw new ApiError(response.status, msg)
+        }
+
+        return response.json() as Promise<CustomerDocument>
+    },
+    download: async (id: number, fileName: string) => {
+        const token = localStorage.getItem('auth_token')
+        const response = await fetch(`${API_BASE}/customer-documents/${id}/download`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        if (!response.ok) throw new ApiError(response.status, 'Errore durante il download del file')
+
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName
+        a.click()
+        URL.revokeObjectURL(url)
+    },
+    open: async (id: number) => {
+        const token = localStorage.getItem('auth_token')
+        const response = await fetch(`${API_BASE}/customer-documents/${id}/download`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        if (!response.ok) throw new ApiError(response.status, 'Errore durante l\'apertura del file')
+
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        window.open(url, '_blank')
+    },
+    delete: (id: number) => apiFetch<null>(`/customer-documents/${id}`, { method: 'DELETE' }),
 }
 
 export const AuditAPI = {

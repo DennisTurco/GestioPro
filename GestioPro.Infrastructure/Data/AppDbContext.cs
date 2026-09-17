@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<ContractRenewal> ContractRenewals => Set<ContractRenewal>();
+    public DbSet<CustomerDocument> CustomerDocuments => Set<CustomerDocument>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Settings> Settings => Set<Settings>();
     public DbSet<HeartBeat> HeartBeats => Set<HeartBeat>();
