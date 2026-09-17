@@ -21,13 +21,15 @@ public static class DataValidatorHelper
             throw new ValidationException("Il link inserito non è valido");
     }
 
-    public static DataType GetTypeByCode(string code)
-        => code switch
+    public static bool TryGetTypeByCode(string code, out DataType type)
+    {
+        switch (code)
         {
-            "Website" => DataType.Website,
-            "Email" => DataType.Email,
-            "VatNumber" => DataType.VatNumber,
-            "FiscalNumber" => DataType.FiscalNumber,
-            _ => throw new NotImplementedException("Non è possibile convertire correttamente il codice fornito"),
-        };
+            case "Website": type = DataType.Website; return true;
+            case "Email": type = DataType.Email; return true;
+            case "VatNumber": type = DataType.VatNumber; return true;
+            case "FiscalNumber": type = DataType.FiscalNumber; return true;
+            default: type = default; return false;
+        }
+    }
 }

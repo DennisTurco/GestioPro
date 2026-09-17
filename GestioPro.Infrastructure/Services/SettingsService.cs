@@ -5,6 +5,7 @@ using GestioPro.Common.Interfaces;
 using GestioPro.Common.Helpers;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
+using GestioPro.Common.Enums;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -30,14 +31,8 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
         var setting = await context.Settings
             .FirstOrDefaultAsync(s => s.Code == code) ?? throw new EntityNotFoundException("Impostazione non trovata");
 
-        try
-        {
-            DataValidatorHelper.ThrowIfInvalidInformation(DataValidatorHelper.GetTypeByCode(code), dto.Value);
-        }
-        catch (NotImplementedException)
-        {
-            // it's not a setting to validate
-        }
+        if (DataValidatorHelper.TryGetTypeByCode(code, out var type))
+            DataValidatorHelper.ThrowIfInvalidInformation(type, dto.Value);
 
         var oldValues = MapToDto(setting);
 
