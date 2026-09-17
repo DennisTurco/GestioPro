@@ -60,10 +60,21 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
             FilePath = dto.FilePath
         };
 
+        var renewal = new ContractRenewal
+        {
+            Contract = contract,
+            Amount = contract.Amount,
+            StartDate = contract.StartDate,
+            EndDate = contract.EndDate,
+            RenewalDate = now,
+        };
+
         await context.AddAsync(contract);
+        await context.AddAsync(renewal);
         await context.SaveChangesAsync();
 
         await auditService.LogAsync("Create", nameof(Contract), contract.Id.ToString(), newValues: MapToDto(contract));
+        await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
     }
 
     public async Task<ContractResponseDTO> UpdateAsync(long id, ContractRequestDTO dto)

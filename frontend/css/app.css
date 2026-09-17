@@ -19,6 +19,10 @@ button { font-family: var(--font-family); }
 ul, ol { list-style: none; }
 img { display: block; max-width: 100%; }
 
+textarea {
+  resize: vertical;
+}
+
 /* ── APP SHELL ───────────────────────────────────── */
 .app-shell {
     display: flex;
