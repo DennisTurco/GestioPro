@@ -116,8 +116,7 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
                 return (
                   <tr key={item.productId}>
                     <td>
-                      <input
-                        type="text"
+                      <textarea
                         className="form-control"
                         value={item.productName}
                         onChange={e => updateProductName(item.productId, e.target.value)}

@@ -84,13 +84,13 @@ export default function Contratti() {
     const rows = contracts.filter((c) => c.status === status);
     return {
       count: rows.length,
-      sum: rows.reduce((s, p) => s + (p.amount ?? 0), 0),
+      sum: rows.reduce((s, p) => s + getTotalAmount(p.amount, p.vatPercentage, 0), 0),
     };
   }
 
   const kpiTotal = {
     count: contracts.length,
-    sum: contracts.reduce((s, c) => s + (c.amount ?? 0), 0),
+    sum: contracts.reduce((s, c) => s + getTotalAmount(c.amount, c.vatPercentage, 0), 0),
   };
   const kpiActive = kpiFor("Attivo");
   const kpiExpiring = kpiFor("In scadenza");
@@ -328,14 +328,24 @@ export default function Contratti() {
 
   function handleVatPercentageChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
         vatPercentage: value,
         finalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(value) || 0)),
     }))
+  }
+
+  function handleVatPercentageBlur() {
+    setForm(prev => {
+      const valNumber = Number(Number(prev.vatPercentage).toFixed(2))
+      const vatPercentage = fixPercentageValueIfOutOfBoundary(valNumber)
+      return {
+        ...prev,
+        vatPercentage,
+        finalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(vatPercentage) || 0)),
+      }
+    })
   }
 
   function handleAmountChange(value: string) {
@@ -355,6 +365,7 @@ export default function Contratti() {
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+  const filteredTotal = filtered.reduce((s, c) => s + getTotalAmount(c.amount, c.vatPercentage, 0), 0);
 
   return (
     <div>
@@ -495,6 +506,7 @@ export default function Contratti() {
                   <th>Tipo</th>
                   <th>Stato</th>
                   <th>Importo</th>
+                  <th>Prezzo finale</th>
                   <th>Inizio</th>
                   <th>Fine</th>
                   <th>Azioni</th>
@@ -512,6 +524,14 @@ export default function Contratti() {
                       <Badge cls={statusBadgeCls(c.status)}>{c.status}</Badge>
                     </td>
                     <td>{formatCurrency(c.amount)}</td>
+                    <td>
+                      <div className="font-semibold">
+                        {formatCurrency(getTotalAmount(c.amount, c.vatPercentage, 0))}
+                      </div>
+                      <div className="text-muted" style={{ fontSize: 11 }}>
+                        IVA: {c.vatPercentage}%
+                      </div>
+                    </td>
                     <td>{formatDate(c.startDate)}</td>
                     <td>
                       {c.endDate ? (
@@ -570,29 +590,34 @@ export default function Contratti() {
               {Math.min(currentPage * pageSize, filtered.length)} di{" "}
               {filtered.length} contratti
             </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {totalPages > 1 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    className="btn btn-ghost btn-sm btn-icon"
+                    title="Pagina precedente"
+                    disabled={currentPage === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    <i className="fa-solid fa-chevron-left" />
+                  </button>
+                  <span className="text-muted text-sm">
+                    Pagina {currentPage} di {totalPages}
+                  </span>
+                  <button
+                    className="btn btn-ghost btn-sm btn-icon"
+                    title="Pagina successiva"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    <i className="fa-solid fa-chevron-right" />
+                  </button>
+                </div>
+              )}
+              <span className="font-semibold">
+                Totale: {formatCurrency(filteredTotal)}
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -779,6 +804,7 @@ export default function Contratti() {
               className="form-control"
               value={form.vatPercentage}
               onChange={(e) => handleVatPercentageChange(e.target.value)}
+              onBlur={handleVatPercentageBlur}
             />
           </div>
 
