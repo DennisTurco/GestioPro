@@ -214,14 +214,24 @@ export default function Prodotti() {
 
   function handleVatPercentageChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
-        vatPercentage: parseFloat(value),
+        vatPercentage: parseFloat(value) || 0,
         totalAmount: getTotalAmount(prev.price || 0, parseFloat(value) || 0),
     }))
+  }
+
+  function handleVatPercentageBlur() {
+    setForm(prev => {
+      const valNumber = Number(prev.vatPercentage.toFixed(2))
+      const vatPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+      return {
+        ...prev,
+        vatPercentage,
+        totalAmount: getTotalAmount(prev.price || 0, vatPercentage),
+      }
+    })
   }
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -541,6 +551,7 @@ export default function Prodotti() {
               className="form-control"
               value={form.vatPercentage}
               onChange={(e) => handleVatPercentageChange(e.target.value)}
+              onBlur={handleVatPercentageBlur}
             />
           </div>
 

@@ -111,8 +111,6 @@ export default function Preventivi() {
 
   function handleVatPercentageChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
@@ -121,16 +119,38 @@ export default function Preventivi() {
     }))
   }
 
+  function handleVatPercentageBlur() {
+    setForm(prev => {
+      const valNumber = Number(Number(prev.vatPercentage).toFixed(2))
+      const vatPercentage = fixPercentageValueIfOutOfBoundary(valNumber)
+      return {
+        ...prev,
+        vatPercentage,
+        totalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(vatPercentage) || 0, parseFloat(prev.discountPercentage) || 0)),
+      }
+    })
+  }
+
   function handleDiscountPercentageChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    value = fixPercentageValueIfOutOfBoundary(valNumber)
 
     setForm(prev => ({
         ...prev,
         discountPercentage: value,
         totalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(prev.vatPercentage) || 0, parseFloat(value) || 0)),
     }))
+  }
+
+  function handleDiscountPercentageBlur() {
+    setForm(prev => {
+      const valNumber = Number(Number(prev.discountPercentage).toFixed(2))
+      const discountPercentage = fixPercentageValueIfOutOfBoundary(valNumber)
+      return {
+        ...prev,
+        discountPercentage,
+        totalAmount: String(getTotalAmount(parseFloat(prev.amount) || 0, parseFloat(prev.vatPercentage) || 0, parseFloat(discountPercentage) || 0)),
+      }
+    })
   }
 
   function handleAmountChange(value: string) {
@@ -175,13 +195,13 @@ export default function Preventivi() {
     const rows = quotations.filter((p) => p.quotationStatus === status);
     return {
       count: rows.length,
-      sum: rows.reduce((s, p) => s + (p.amount ?? 0), 0),
+      sum: rows.reduce((s, p) => s + getTotalAmount(p.amount, p.vatPercentage, p.discountPercentage), 0),
     };
   }
 
   const kpiTotal = {
     count: quotations.length,
-    sum: quotations.reduce((s, p) => s + (p.amount ?? 0), 0),
+    sum: quotations.reduce((s, p) => s + getTotalAmount(p.amount, p.vatPercentage, p.discountPercentage), 0),
   };
   const kpiDraft = kpiFor(QuotationStatus.Draft);
   const kpiSent = kpiFor(QuotationStatus.Sent);
@@ -410,7 +430,7 @@ export default function Preventivi() {
     showToast("CSV esportato", "success");
   }
 
-  const filteredTotal = filtered.reduce((s, p) => s + (p.amount ?? 0), 0);
+  const filteredTotal = filtered.reduce((s, p) => s + getTotalAmount(p.amount, p.vatPercentage, p.discountPercentage), 0);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -748,6 +768,7 @@ export default function Preventivi() {
                   <th>Titolo</th>
                   <th>Cliente</th>
                   <th>Importo</th>
+                  <th>Prezzo finale</th>
                   <th>Data emissione</th>
                   <th>Scadenza</th>
                   <th>Stato</th>
@@ -757,7 +778,7 @@ export default function Preventivi() {
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ padding: 0 }}>
+                    <td colSpan={9} style={{ padding: 0 }}>
                       <EmptyState
                         message="Nessun preventivo trovato"
                         actionLabel="Nuovo preventivo"
@@ -775,6 +796,14 @@ export default function Preventivi() {
                         <td>{q.customerName}</td>
                         <td className="font-semibold">
                           {formatCurrency(q.amount)}
+                        </td>
+                        <td>
+                          <div className="font-semibold">
+                            {formatCurrency(getTotalAmount(q.amount, q.vatPercentage, q.discountPercentage))}
+                          </div>
+                          <div className="text-muted" style={{ fontSize: 11 }}>
+                            IVA: {q.vatPercentage}% · Sconto: {q.discountPercentage}%
+                          </div>
                         </td>
                         <td>{formatDate(q.issueDate)}</td>
                         <td>{formatDate(q.validityDate)}</td>
@@ -844,48 +873,37 @@ export default function Preventivi() {
               {Math.min(currentPage * pageSize, filtered.length)} di{" "}
               {filtered.length} preventivi
             </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {totalPages > 1 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button
+                    className="btn btn-ghost btn-sm btn-icon"
+                    title="Pagina precedente"
+                    disabled={currentPage === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    <i className="fa-solid fa-chevron-left" />
+                  </button>
+                  <span className="text-muted text-sm">
+                    Pagina {currentPage} di {totalPages}
+                  </span>
+                  <button
+                    className="btn btn-ghost btn-sm btn-icon"
+                    title="Pagina successiva"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    <i className="fa-solid fa-chevron-right" />
+                  </button>
+                </div>
+              )}
+              <span className="font-semibold">
+                Totale: {formatCurrency(filteredTotal)}
+              </span>
+            </div>
           </div>
           </div>
         )}
-
-        <div
-          className="card-footer"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <span className="text-muted text-sm">
-            {filtered.length} preventivi
-          </span>
-          <span className="font-semibold">
-            Totale: {formatCurrency(filteredTotal)}
-          </span>
-        </div>
       </div>
 
       <Modal
@@ -1001,6 +1019,7 @@ export default function Preventivi() {
                 className="form-control"
                 value={form.vatPercentage}
                 onChange={(e) => handleVatPercentageChange(e.target.value)}
+                onBlur={handleVatPercentageBlur}
               />
             </div>
             <div className="form-group">
@@ -1011,6 +1030,7 @@ export default function Preventivi() {
                 className="form-control"
                 value={form.discountPercentage}
                 onChange={(e) => handleDiscountPercentageChange(e.target.value)}
+                onBlur={handleDiscountPercentageBlur}
               />
             </div>
           </div>

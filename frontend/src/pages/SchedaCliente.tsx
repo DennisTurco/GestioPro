@@ -135,8 +135,7 @@ export default function SchedaCliente() {
 
   function handleQuotationVatChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    const vatPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+    const vatPercentage = parseFloat(value) || 0
     setQuotationForm(f => ({
       ...f,
       vatPercentage,
@@ -144,15 +143,38 @@ export default function SchedaCliente() {
     }))
   }
 
+  function handleQuotationVatBlur() {
+    setQuotationForm(f => {
+      const valNumber = Number((f.vatPercentage ?? 0).toFixed(2))
+      const vatPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+      return {
+        ...f,
+        vatPercentage,
+        totalAmount: getTotalAmount(f.amount ?? 0, vatPercentage, f.discountPercentage ?? 0),
+      }
+    })
+  }
+
   function handleQuotationDiscountChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    const discountPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+    const discountPercentage = parseFloat(value) || 0
     setQuotationForm(f => ({
       ...f,
       discountPercentage,
       totalAmount: getTotalAmount(f.amount ?? 0, f.vatPercentage ?? 0, discountPercentage),
     }))
+  }
+
+  function handleQuotationDiscountBlur() {
+    setQuotationForm(f => {
+      const valNumber = Number((f.discountPercentage ?? 0).toFixed(2))
+      const discountPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
+      return {
+        ...f,
+        discountPercentage,
+        totalAmount: getTotalAmount(f.amount ?? 0, f.vatPercentage ?? 0, discountPercentage),
+      }
+    })
   }
 
   function openNewQuotation() {
@@ -463,13 +485,23 @@ export default function SchedaCliente() {
 
   function handleContractEditVatChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
-    const vatPercentage = fixPercentageValueIfOutOfBoundary(valNumber)
     setContractEditForm(f => ({
       ...f,
-      vatPercentage,
-      totalAmount: String(getTotalAmount(parseFloat(f.amount) || 0, parseFloat(vatPercentage) || 0)),
+      vatPercentage: value,
+      totalAmount: String(getTotalAmount(parseFloat(f.amount) || 0, parseFloat(value) || 0)),
     }))
+  }
+
+  function handleContractEditVatBlur() {
+    setContractEditForm(f => {
+      const valNumber = Number(Number(f.vatPercentage).toFixed(2))
+      const vatPercentage = fixPercentageValueIfOutOfBoundary(valNumber)
+      return {
+        ...f,
+        vatPercentage,
+        totalAmount: String(getTotalAmount(parseFloat(f.amount) || 0, parseFloat(vatPercentage) || 0)),
+      }
+    })
   }
 
   function handleContractCreateAmountChange(value: string) {
@@ -481,7 +513,13 @@ export default function SchedaCliente() {
 
   function handleContractCreateVatChange(value: string) {
     value = normalizeDecimalInput(value)
-    const valNumber = Number(Number(value).toFixed(2))
+    const vatPercentage = parseFloat(value) || 0
+    setContractCreateForm(f => ({ ...f, vatPercentage }))
+    setContractCreateTotalAmount(getTotalAmount(contractCreateForm.amount ?? 0, vatPercentage))
+  }
+
+  function handleContractCreateVatBlur() {
+    const valNumber = Number((contractCreateForm.vatPercentage ?? 0).toFixed(2))
     const vatPercentage = parseFloat(fixPercentageValueIfOutOfBoundary(valNumber))
     setContractCreateForm(f => ({ ...f, vatPercentage }))
     setContractCreateTotalAmount(getTotalAmount(contractCreateForm.amount ?? 0, vatPercentage))
@@ -1175,6 +1213,7 @@ export default function SchedaCliente() {
               className="form-control"
               value={quotationForm.vatPercentage ?? 22}
               onChange={e => handleQuotationVatChange(e.target.value)}
+              onBlur={handleQuotationVatBlur}
             />
           </div>
           <div className="form-group">
@@ -1185,6 +1224,7 @@ export default function SchedaCliente() {
               className="form-control"
               value={quotationForm.discountPercentage ?? 0}
               onChange={e => handleQuotationDiscountChange(e.target.value)}
+              onBlur={handleQuotationDiscountBlur}
             />
           </div>
           <div className="form-group">
@@ -1435,7 +1475,7 @@ export default function SchedaCliente() {
           </div>
           <div className="form-group">
             <label className="form-label">IVA %</label>
-            <input type="text" inputMode="decimal" className="form-control" value={contractEditForm.vatPercentage} onChange={e => handleContractEditVatChange(e.target.value)} />
+            <input type="text" inputMode="decimal" className="form-control" value={contractEditForm.vatPercentage} onChange={e => handleContractEditVatChange(e.target.value)} onBlur={handleContractEditVatBlur} />
           </div>
           <div className="form-group">
             <label className="form-label">Importo Finale (€)</label>
@@ -1506,7 +1546,7 @@ export default function SchedaCliente() {
           </div>
           <div className="form-group">
             <label className="form-label">IVA %</label>
-            <input type="text" inputMode="decimal" className="form-control" value={contractCreateForm.vatPercentage ?? 22} onChange={e => handleContractCreateVatChange(e.target.value)} />
+            <input type="text" inputMode="decimal" className="form-control" value={contractCreateForm.vatPercentage ?? 22} onChange={e => handleContractCreateVatChange(e.target.value)} onBlur={handleContractCreateVatBlur} />
           </div>
           <div className="form-group">
             <label className="form-label">Importo Finale (€)</label>
