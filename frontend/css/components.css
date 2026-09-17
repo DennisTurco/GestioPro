@@ -330,6 +330,9 @@ select.form-control { cursor: pointer; }
     max-height: 90vh;
     overflow-y: auto;
 }
+.modal.modal-lg {
+    width: min(900px, 95vw);
+}
 .modal-header {
     padding: 20px 24px 16px;
     border-bottom: 1px solid var(--color-border);
@@ -347,6 +350,43 @@ select.form-control { cursor: pointer; }
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+}
+
+/* ── SEARCHABLE SELECT ──────────────────────────── */
+.searchable-select {
+    position: relative;
+}
+.searchable-select-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 8px);
+    box-shadow: var(--shadow-lg);
+    max-height: 220px;
+    overflow-y: auto;
+}
+.searchable-select-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: var(--font-size-sm, 14px);
+}
+.searchable-select-option:hover,
+.searchable-select-option.selected {
+    background: var(--color-surface-hover, rgba(15, 23, 42, 0.06));
+}
+.searchable-select-option-clear {
+    color: var(--color-text-muted);
+    font-style: italic;
+    border-bottom: 1px solid var(--color-border);
+}
+.searchable-select-empty {
+    padding: 8px 12px;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm, 14px);
 }
 
 .btn-close {
