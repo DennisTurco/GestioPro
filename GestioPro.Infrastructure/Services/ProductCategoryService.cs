@@ -33,7 +33,7 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
             .AnyAsync(x => x.Name.Trim().ToLower().Equals(dto.Name.Trim().ToLower()));
 
         if (existing)
-            throw new BusinessException("Esiste già una categoria prodotto con lo stesso nome");
+            throw new DuplicateEntityException("Esiste già una categoria prodotto con lo stesso nome");
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
         var entity = new ProductCategory
@@ -56,7 +56,7 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
     public async Task<ProductCategoryResponseDTO> UpdateAsync(long id, ProductCategoryRequestDTO dto)
     {
         var existing = await context.ProductCategories
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Categoria prodotto non trovata");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Categoria prodotto non trovata");
 
         var oldValues = MapToDto(existing);
 
@@ -75,7 +75,7 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
     public async Task DeleteAsync(long id)
     {
         var entity = await context.ProductCategories
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Categoria prodotto non trovata");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Categoria prodotto non trovata");
 
         var oldValues = MapToDto(entity);
 

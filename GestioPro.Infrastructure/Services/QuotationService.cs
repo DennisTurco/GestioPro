@@ -37,7 +37,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
             .FirstOrDefaultAsync(x => x.Number.Equals(dto.Number));
 
         if (existing is not null)
-            throw new BusinessException("Esiste già un preventivo con lo stesso numero");
+            throw new DuplicateEntityException("Esiste già un preventivo con lo stesso numero");
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
         var quotation = new Quotation
@@ -75,7 +75,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
         var quotation = await context.Quotations
             .Include(q => q.Customer)
             .Include(q => q.Products).ThenInclude(p => p.Product)
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Preventivo non trovato");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);
 
@@ -107,7 +107,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
         var quotation = await context.Quotations
             .Include(q => q.Customer)
             .Include(q => q.Products).ThenInclude(p => p.Product)
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Preventivo non trovato");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);
 
@@ -128,7 +128,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
         var quotation = await context.Quotations
             .Include(q => q.Customer)
             .Include(q => q.Products).ThenInclude(p => p.Product)
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Preventivo non trovato");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);
 
@@ -174,7 +174,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
         foreach (var item in items)
         {
             if (!products.TryGetValue(item.ProductId, out var product))
-                throw new BusinessException($"Prodotto con id {item.ProductId} non trovato");
+                throw new EntityNotFoundException($"Prodotto con id {item.ProductId} non trovato");
 
             await context.QuotationProducts.AddAsync(new QuotationProduct
             {

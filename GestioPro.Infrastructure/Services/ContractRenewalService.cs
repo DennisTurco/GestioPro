@@ -21,7 +21,7 @@ public class ContractRenewalService(AppDbContext context, IAuditService auditSer
     {
         var renewal = await context.ContractRenewals
             .FirstOrDefaultAsync(r => r.Id == id)
-            ?? throw new BusinessException("Rinnovo non trovato");
+            ?? throw new EntityNotFoundException("Rinnovo non trovato");
 
         renewal.IsDisabled = true;
         await context.SaveChangesAsync();

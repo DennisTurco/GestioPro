@@ -12,13 +12,13 @@ public static class DataValidatorHelper
         if (value == null || value.IsNullOrWhiteSpace())
             return;
         if (type == DataType.VatNumber && !ItalianVatCodeValidator.IsValid(value, false, false))
-            throw new BusinessException("La partita IVA inserita non è valida");
+            throw new ValidationException("La partita IVA inserita non è valida");
         if (type == DataType.FiscalNumber && !FiscalCodeValidator.IsValid(value))
-            throw new BusinessException("Il codice fiscale inserito non è valido");
+            throw new ValidationException("Il codice fiscale inserito non è valido");
         if (type == DataType.Email && !value.IsEmail())
-            throw new BusinessException("L'email inserita non è valida");
+            throw new ValidationException("L'email inserita non è valida");
         if (type == DataType.Website && !value.IsUrl())
-            throw new BusinessException("Il link inserito non è valido");
+            throw new ValidationException("Il link inserito non è valido");
     }
 
     public static DataType GetTypeByCode(string code)

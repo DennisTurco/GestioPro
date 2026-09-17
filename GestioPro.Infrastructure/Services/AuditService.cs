@@ -45,7 +45,7 @@ public class AuditService(AppDbContext context, IHttpContextAccessor httpContext
     {
         var log = await context.Audit
             .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == id) ?? throw new BusinessException($"Impossibile trovare il log con id: {id}");
+            .FirstOrDefaultAsync(a => a.Id == id) ?? throw new EntityNotFoundException($"Impossibile trovare il log con id: {id}");
 
         return MapToDto(log);
     }

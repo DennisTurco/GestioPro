@@ -74,7 +74,7 @@ public class NotificationService(AppDbContext context) : INotificationService
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new ArgumentException("Notification log id does not exist");
 
         if (notification.CreationDate > DateTimeOffset.UtcNow.AddMonths(-1))
-            throw new BusinessException("Impossibile eliminare una notifica più recente di un mese");
+            throw new DomainException("Impossibile eliminare una notifica più recente di un mese");
 
         context.Notification.Remove(notification);
         await context.SaveChangesAsync();

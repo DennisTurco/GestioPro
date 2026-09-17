@@ -28,7 +28,7 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
     public async Task<SettingsResponseDTO> UpdateAsync(string code, SettingsRequestDTO dto)
     {
         var setting = await context.Settings
-            .FirstOrDefaultAsync(s => s.Code == code) ?? throw new BusinessException("Impostazione non trovata");
+            .FirstOrDefaultAsync(s => s.Code == code) ?? throw new EntityNotFoundException("Impostazione non trovata");
 
         try
         {

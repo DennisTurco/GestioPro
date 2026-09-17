@@ -27,7 +27,7 @@ public class ContractController(IContractService contractService) : ControllerBa
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
-        var result = contractService.GetByIdAsync(id);
+        var result = await contractService.GetByIdAsync(id);
         return result is null ? NotFound() : Ok(result);
     }
 

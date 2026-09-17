@@ -40,7 +40,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
             .FirstOrDefaultAsync(c => c.Number == dto.Number);
 
         if (existing is not null)
-            throw new BusinessException("Esiste già un contratto con lo stesso numero");
+            throw new DuplicateEntityException("Esiste già un contratto con lo stesso numero");
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
         var contract = new Contract
@@ -70,7 +70,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
     {
         var contract = await context.Contracts
             .Include(x => x.Quotation)
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Contratto non trovato");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Contratto non trovato");
 
         var oldValues = MapToDto(contract);
 
@@ -96,7 +96,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
         var contract = await context.Contracts
             .Include(x => x.Quotation)
             .Include(x => x.Renewals)
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Contratto non trovato");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Contratto non trovato");
 
         var renewal = CreateRenewal(contract);
         var oldValues = MapToDto(contract);
@@ -122,7 +122,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
         var contract = await context.Contracts
             .Include(c => c.Quotation)
             .Include(c => c.Renewals)
-            .FirstOrDefaultAsync(c => c.Id == id) ?? throw new BusinessException("Contratto non trovato");
+            .FirstOrDefaultAsync(c => c.Id == id) ?? throw new EntityNotFoundException("Contratto non trovato");
 
         var oldValues = MapToDto(contract);
 
@@ -135,7 +135,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
     public async Task<string> CalculateNextNumberAsync(long quotationId, string quotationNumber)
     {
         if (quotationNumber.IsNullOrWhiteSpace())
-            throw new BusinessException("Il numero del preventivo non può essere vuoto");
+            throw new ArgumentException("Il numero del preventivo non può essere vuoto");
 
         var lastContract = await context.Contracts
             .OrderByDescending(x => x.Number)
@@ -149,17 +149,17 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
     }
 
     private static ContractRenewal CreateRenewal(Contract contract)
-        => new ()
+        => new()
         {
             ContractId = contract.Id,
-            Amount     = contract.Amount,
-            StartDate  = contract.EndDate,
-            EndDate    = ContractTypeExtensions.ExtendEndDateByContractType(contract.EndDate, contract.ContractType),
+            Amount = contract.Amount,
+            StartDate = contract.EndDate,
+            EndDate = ContractTypeExtensions.ExtendEndDateByContractType(contract.EndDate, contract.ContractType),
             RenewalDate = DateTimeOffset.UtcNow,
         };
 
     private static ContractRenewalResponseDTO MapToDto(ContractRenewal r)
-        => new (
+        => new(
             r.Id,
             r.ContractId,
             r.Amount,
@@ -170,7 +170,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
         );
 
     private static ContractResponseDTO MapToDto(Contract c)
-        => new (
+        => new(
             c.Id,
             c.QuotationId,
             c.ContractType,

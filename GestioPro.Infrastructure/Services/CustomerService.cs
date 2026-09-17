@@ -103,7 +103,7 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
     public async Task<CustomerResponseDTO> UpdateAsync(long id, CustomerRequestDTO dto)
     {
         var entity = await context.Customers
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Customer not found");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Customer not found");
 
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.Email, dto.Email);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
@@ -148,7 +148,7 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
     public async Task DeleteAsync(long id)
     {
         var entity = await context.Customers
-            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new BusinessException("Customer not found");
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Customer not found");
 
         var oldValues = MapToDto(entity);
 
@@ -162,20 +162,20 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
 
     private async Task ThrowIfDuplicatedPhoneNumber(CustomerRequestDTO dto)
     {
-         var existingNumber = await context.Customers
-            .AnyAsync(x => x.Phone.Equals(dto.Phone));
+        var existingNumber = await context.Customers
+           .AnyAsync(x => x.Phone.Equals(dto.Phone));
 
         if (existingNumber && !string.IsNullOrWhiteSpace(dto.Phone))
-            throw new BusinessException("Esiste già un cliente con questo numero associato");
+            throw new DuplicateEntityException("Esiste già un cliente con questo numero associato");
     }
 
     private async Task ThrowIfDuplicatedEmail(CustomerRequestDTO dto)
     {
-         var existingEmail = await context.Customers
-            .AnyAsync(x => x.Email.Equals(dto.Email));
+        var existingEmail = await context.Customers
+           .AnyAsync(x => x.Email.Equals(dto.Email));
 
         if (existingEmail)
-            throw new BusinessException("Questa email è già in uso da un'altro cliente");
+            throw new DuplicateEntityException("Questa email è già in uso da un'altro cliente");
     }
 
     private async Task<(int QuotationCount, int ContractCount)> GetCountsAsync(long customerId)

@@ -34,7 +34,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             return null;
 
         if (user.IsDisabled)
-            throw new BusinessException("L'utente è stato disattivato. Se ritenuto un errore, si praga di contattare l'amministrazione");
+            throw new UserException("L'utente è stato disattivato. Se ritenuto un errore, si praga di contattare l'amministrazione");
 
         return MapToDto(user);
     }
@@ -54,7 +54,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     public async Task CreateAsync(UserRequestDTO dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Password))
-            throw new BusinessException("La password è obbligatoria");
+            throw new ArgumentException("La password è obbligatoria");
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
         var user = new User
@@ -79,7 +79,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     public async Task<UserResponseDTO> UpdateForceAsync(Guid id, UserRequestDTO dto)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException("Utente non trovato");
+            ?? throw new EntityNotFoundException("Utente non trovato");
 
         var oldValues = MapToDto(user);
 
@@ -108,10 +108,10 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     public async Task<UserResponseDTO> UpdateAsync(Guid id, UserUpdateDTO dto)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException("Utente non trovato");
+            ?? throw new EntityNotFoundException("Utente non trovato");
 
         if (user.IsDisabled)
-            throw new BusinessException("L'utente è stato disattivato da uno degli amministratori");
+            throw new UserException("L'utente è stato disattivato da uno degli amministratori");
 
         var oldValues = MapToDto(user);
 
@@ -135,16 +135,16 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     public async Task<UserResponseDTO> UpdatePasswordAsync(Guid id, string oldPassword, string newPassword)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException("Utente non trovato");
+            ?? throw new EntityNotFoundException("Utente non trovato");
 
         if (user.IsDisabled)
-            throw new BusinessException("Impossibile aggiornare la password, l'utente è stato disattivato da uno degli amministratori");
+            throw new UserException("Impossibile aggiornare la password, l'utente è stato disattivato da uno degli amministratori");
 
         if (!PasswordHasher.Verify(oldPassword, user.Password))
-            throw new BusinessException("La password vecchia non è corretta, impossibile aggiornare");
+            throw new ArgumentException("La password vecchia non è corretta, impossibile aggiornare");
 
         if (string.IsNullOrWhiteSpace(newPassword))
-            throw new BusinessException("La nuova password è vuota, impossibile aggiornare");
+            throw new ArgumentException("La nuova password è vuota, impossibile aggiornare");
 
         var oldValues = MapToDto(user);
 
@@ -163,13 +163,13 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     public async Task<UserResponseDTO> UpdatePasswordForcedAsync(Guid id, string password)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException("Utente non trovato");
+            ?? throw new EntityNotFoundException("Utente non trovato");
 
         if (user.IsDisabled)
-            throw new BusinessException("Impossibile aggiornare la password, l'utente è stato disattivato da uno degli amministratori");
+            throw new UserException("Impossibile aggiornare la password, l'utente è stato disattivato da uno degli amministratori");
 
         if (string.IsNullOrWhiteSpace(password))
-            throw new BusinessException("La nuova password è vuota, impossibile aggiornare");
+            throw new ArgumentException("La nuova password è vuota, impossibile aggiornare");
 
         var oldValues = MapToDto(user);
 
@@ -191,7 +191,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     {
         var user = await context.Users
             .FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new BusinessException("Utente non trovato");
+            ?? throw new EntityNotFoundException("Utente non trovato");
 
         var oldValues = MapToDto(user);
 

@@ -13,7 +13,10 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     {
         var (statusCode, title) = exception switch
         {
-            BusinessException => (StatusCodes.Status400BadRequest, exception.Message),
+            DuplicateEntityException => (StatusCodes.Status409Conflict, exception.Message),
+            EntityNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
+            DomainException or ValidationException or ArgumentException => (StatusCodes.Status400BadRequest, exception.Message),
+            UserException => (StatusCodes.Status401Unauthorized, exception.Message),
             NotImplementedException => (StatusCodes.Status501NotImplemented, "Not implemented"),
             _ => (StatusCodes.Status500InternalServerError, "Internal server error")
         };
