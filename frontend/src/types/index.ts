@@ -288,6 +288,15 @@ export enum ContractType {
   Annual    = 3,
 }
 
+export interface CustomerDocument {
+  id: number
+  customerId: number
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  uploadDate: string
+}
+
 export interface Contract {
   id: number
   quotationId: number
