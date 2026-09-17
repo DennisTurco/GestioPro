@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI, ProductAPI, LocationAPI } from '../services/api'
-import type { Contract, ContractRequest, Customer, CustomerRequest, Product, Quotation, QuotationRequest, Setting } from '../types'
+import { ClientiAPI, QuotationAPI, ContractAPI, SettingsAPI, ProductAPI, LocationAPI, CustomerDocumentAPI } from '../services/api'
+import type { Contract, ContractRequest, Customer, CustomerRequest, CustomerDocument, Product, Quotation, QuotationRequest, Setting } from '../types'
 import { QuotationStatus, ContractType, QUOTATION_STATUS_INFO, CUSTOMER_TYPE_LABEL, CONTRACT_TYPE_LABEL, CONTRACT_STATUS_CLS } from '../types'
 import { fixPercentageValueIfOutOfBoundary, formatCurrency, getTotalAmount, normalizeDecimalInput } from '../utils/currency'
 import { formatDate } from '../utils/date'
@@ -12,7 +12,15 @@ import Badge from '../components/ui/Badge'
 import QuotationProductsPicker, { type QuotationProductFormItem } from '../components/quotations/QuotationProductsPicker'
 import { getSettingValue } from '../utils/settings'
 
-type Tab = 'preventivi' | 'contratti' | 'note'
+type Tab = 'preventivi' | 'contratti' | 'documenti' | 'note'
+
+const MAX_DOCUMENT_SIZE_BYTES = 5 * 1024 * 1024
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 type QuotationFilter = 'all' | QuotationStatus
 
 export default function SchedaCliente() {
@@ -64,6 +72,12 @@ export default function SchedaCliente() {
   const [contractCreateSaving, setContractCreateSaving] = useState(false)
   const [contractNumberLoading, setContractNumberLoading] = useState(false)
 
+  const [documents, setDocuments] = useState<CustomerDocument[]>([])
+  const [documentUploading, setDocumentUploading] = useState(false)
+  const [deleteDocTarget, setDeleteDocTarget] = useState<CustomerDocument | null>(null)
+  const [deletingDocument, setDeletingDocument] = useState(false)
+  const documentInputRef = useRef<HTMLInputElement>(null)
+
   const [quotationPage, setQuotationPage] = useState(1)
   const [contractPage, setContractPage] = useState(1)
   const pageSize = 10
@@ -72,8 +86,8 @@ export default function SchedaCliente() {
     if (!id) return
     const numId = Number(id)
     setLoading(true)
-    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll(), SettingsAPI.getAll(), ProductAPI.getAll()])
-      .then(([c, qs, cs, se, pr]) => {
+    Promise.all([ClientiAPI.getById(numId), QuotationAPI.getAll(), ContractAPI.getAll(), SettingsAPI.getAll(), ProductAPI.getAll(), CustomerDocumentAPI.getByCustomerId(numId)])
+      .then(([c, qs, cs, se, pr, docs]) => {
         const customerQuotations = qs.filter(q => q.customerId === numId)
         const quotationIds = new Set(customerQuotations.map(q => q.id))
         setCustomer(c)
@@ -81,6 +95,7 @@ export default function SchedaCliente() {
         setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
         setSettings(se)
         setProducts(pr)
+        setDocuments(docs)
         setNote(c.notes ?? '')
         document.title = `${c.name} ${c.surname} - GestioPro`
       })
@@ -350,6 +365,59 @@ export default function SchedaCliente() {
       showToast(err instanceof Error ? err.message : 'Errore nel rinnovo', 'error')
     } finally {
       setRenewing(false)
+    }
+  }
+
+  async function handleDocumentUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !id) return
+
+    if (file.size > MAX_DOCUMENT_SIZE_BYTES) {
+      showToast('Il file supera la dimensione massima consentita di 5 MB', 'warning')
+      return
+    }
+
+    setDocumentUploading(true)
+    try {
+      const uploaded = await CustomerDocumentAPI.upload(Number(id), file)
+      setDocuments(prev => [uploaded, ...prev])
+      showToast('Documento caricato', 'success')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore durante il caricamento del documento', 'error')
+    } finally {
+      setDocumentUploading(false)
+    }
+  }
+
+  async function handleDocumentOpen(doc: CustomerDocument) {
+    try {
+      await CustomerDocumentAPI.open(doc.id)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Errore durante l'apertura del documento", 'error')
+    }
+  }
+
+  async function handleDocumentDownload(doc: CustomerDocument) {
+    try {
+      await CustomerDocumentAPI.download(doc.id, doc.fileName)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Errore durante il download del documento', 'error')
+    }
+  }
+
+  async function handleDocumentDelete() {
+    if (!deleteDocTarget) return
+    setDeletingDocument(true)
+    try {
+      await CustomerDocumentAPI.delete(deleteDocTarget.id)
+      setDocuments(prev => prev.filter(d => d.id !== deleteDocTarget.id))
+      showToast('Documento eliminato', 'success')
+      setDeleteDocTarget(null)
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Errore durante l'eliminazione del documento", 'error')
+    } finally {
+      setDeletingDocument(false)
     }
   }
 
@@ -690,6 +758,17 @@ export default function SchedaCliente() {
             className="btn btn-ghost"
             style={{
               borderRadius: 0,
+              borderBottom: activeTab === 'documenti' ? '2px solid var(--accent)' : '2px solid transparent',
+            }}
+            onClick={() => setActiveTab('documenti')}
+          >
+            <i className="fa-solid fa-paperclip" style={{ marginRight: 6 }} />
+            Documenti ({documents.length})
+          </button>
+          <button
+            className="btn btn-ghost"
+            style={{
+              borderRadius: 0,
               borderBottom: activeTab === 'note' ? '2px solid var(--accent)' : '2px solid transparent',
             }}
             onClick={() => setActiveTab('note')}
@@ -901,6 +980,71 @@ export default function SchedaCliente() {
               </div>
             )}
           </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'documenti' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 20px 12px' }}>
+              <input
+                type="file"
+                ref={documentInputRef}
+                style={{ display: 'none' }}
+                onChange={handleDocumentUpload}
+              />
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => documentInputRef.current?.click()}
+                disabled={documentUploading}
+              >
+                {documentUploading
+                  ? <span className="spinner" />
+                  : <><i className="fa-solid fa-upload" style={{ marginRight: 6 }} />Carica documento</>
+                }
+              </button>
+            </div>
+            <div className="table-wrapper">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Nome file</th>
+                    <th>Tipo</th>
+                    <th>Dimensione</th>
+                    <th>Data caricamento</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documents.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="text-center text-muted" style={{ padding: '32px 0' }}>
+                        Nessun documento caricato
+                      </td>
+                    </tr>
+                  ) : documents.map(doc => (
+                    <tr key={doc.id}>
+                      <td className="font-medium">{doc.fileName}</td>
+                      <td>{doc.contentType}</td>
+                      <td>{formatFileSize(doc.sizeBytes)}</td>
+                      <td>{formatDate(doc.uploadDate)}</td>
+                      <td>
+                        <div className="row-actions">
+                          <button className="btn btn-ghost btn-sm" title="Apri" onClick={() => handleDocumentOpen(doc)}>
+                            <i className="fa-solid fa-eye" />
+                          </button>
+                          <button className="btn btn-ghost btn-sm" title="Scarica" onClick={() => handleDocumentDownload(doc)}>
+                            <i className="fa-solid fa-download" />
+                          </button>
+                          <button className="btn btn-danger btn-sm" title="Elimina" onClick={() => setDeleteDocTarget(doc)}>
+                            <i className="fa-solid fa-trash" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -1254,6 +1398,15 @@ export default function SchedaCliente() {
         onConfirm={handleRenewal}
         loading={renewing}
         message={renewTarget ? `Rinnova il contratto "${renewTarget.title}"? La data di fine verrà estesa in base al tipo (${CONTRACT_TYPE_LABEL[renewTarget.contractType]}).` : ''}
+      />
+
+      {/* ── ELIMINA DOCUMENTO ── */}
+      <ConfirmModal
+        isOpen={deleteDocTarget !== null}
+        onClose={() => setDeleteDocTarget(null)}
+        onConfirm={handleDocumentDelete}
+        loading={deletingDocument}
+        message={deleteDocTarget ? `Sei sicuro di voler eliminare il documento "${deleteDocTarget.fileName}"? L'operazione non può essere annullata.` : ''}
       />
 
       {/* ── MODIFICA CONTRATTO ── */}
