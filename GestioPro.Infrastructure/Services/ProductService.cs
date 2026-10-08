@@ -4,6 +4,7 @@ using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
+using GestioPro.Infrastructure.Extensions;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -70,6 +71,8 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Prodotto non trovato");
 
         var oldValues = MapToDto(entity);
+
+        if (oldValues.HasChanged(entity, MapToDto)) return oldValues;
 
         entity.ProductStatus = dto.ProductStatus;
         entity.ItemType = dto.ItemType;

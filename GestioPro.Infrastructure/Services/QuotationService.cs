@@ -5,6 +5,7 @@ using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using GestioPro.Common.Models;
 using GestioPro.Infrastructure.Data;
+using GestioPro.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestioPro.Infrastructure.Services;
@@ -78,6 +79,8 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Preventivo non trovato");
 
         var oldValues = MapToDto(quotation);
+
+        if (oldValues.HasChanged(quotation, MapToDto)) return oldValues;
 
         quotation.CustomerId = dto.CustomerId;
         quotation.QuotationStatus = dto.QuotationStatus;

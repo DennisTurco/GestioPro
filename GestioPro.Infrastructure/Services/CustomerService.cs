@@ -5,6 +5,7 @@ using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using GestioPro.Common.Models;
 using GestioPro.Infrastructure.Data;
+using GestioPro.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestioPro.Infrastructure.Services;
@@ -105,6 +106,10 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
         var entity = await context.Customers
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Customer not found");
 
+        var oldValues = MapToDto(entity);
+
+        if (!dto.HasChanged(entity, ToRequestDto)) return oldValues;
+
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.Email, dto.Email);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.FiscalNumber, dto.TaxCode);
         DataValidatorHelper.ThrowIfInvalidInformation(DataType.VatNumber, dto.VatNumber);
@@ -113,8 +118,6 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
             await ThrowIfDuplicatedPhoneNumber(dto);
         if (entity.Email != dto.Email)  // i want to search the duplicated with another entity not with itself
             await ThrowIfDuplicatedEmail(dto);
-
-        var oldValues = MapToDto(entity);
 
         entity.CustomerType = dto.CustomerType;
         entity.Name = dto.Name;
@@ -212,4 +215,10 @@ public class CustomerService(AppDbContext context, IAuditService auditService) :
             quotationCount,
             contractCount
         );
+
+    private static CustomerRequestDTO ToRequestDto(Customer c) => new(
+        c.CustomerType, c.Name, c.Surname, c.Email, c.Phone,
+        c.Country, c.Region, c.City, c.Province, c.Address,
+        c.VatNumber, c.CompanyName, c.TaxCode, c.Landline,
+        c.Lat, c.Lon, c.Notes);
 }

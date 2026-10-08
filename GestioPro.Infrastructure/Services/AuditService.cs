@@ -16,23 +16,24 @@ public class AuditService(AppDbContext context, IHttpContextAccessor httpContext
     {
         var user = httpContextAccessor.HttpContext?.User;
         var userIdClaim = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Guid.TryParse(userIdClaim, out var userId);
-
-        var log = new Audit
+        if (Guid.TryParse(userIdClaim, out var userId))
         {
-            Timestamp = DateTimeOffset.UtcNow,
-            UserId = userId,
-            Username = user?.FindFirst(ClaimTypes.Name)?.Value ?? "unknown",
-            Action = action,
-            EntityType = entityType,
-            EntityId = entityId,
-            OldValues = oldValues is null ? null : JsonSerializer.Serialize(oldValues),
-            NewValues = newValues is null ? null : JsonSerializer.Serialize(newValues),
-            IpAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
-        };
+            var log = new Audit
+            {
+                Timestamp = DateTimeOffset.UtcNow,
+                UserId = userId,
+                Username = user?.FindFirst(ClaimTypes.Name)?.Value ?? "unknown",
+                Action = action,
+                EntityType = entityType,
+                EntityId = entityId,
+                OldValues = oldValues is null ? null : JsonSerializer.Serialize(oldValues),
+                NewValues = newValues is null ? null : JsonSerializer.Serialize(newValues),
+                IpAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
+            };
 
-        await context.Audit.AddAsync(log);
-        await context.SaveChangesAsync();
+            await context.Audit.AddAsync(log);
+            await context.SaveChangesAsync();
+        }
     }
 
     public async Task<List<AuditResponseDTO>> GetAuditsAsync()
@@ -51,7 +52,7 @@ public class AuditService(AppDbContext context, IHttpContextAccessor httpContext
     }
 
     private static AuditResponseDTO MapToDto(Audit log)
-        => new (
+        => new(
             log.Id,
             log.Timestamp,
             log.UserId,

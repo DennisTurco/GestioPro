@@ -6,6 +6,7 @@ using GestioPro.Common.Helpers;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
 using GestioPro.Common.Enums;
+using GestioPro.Infrastructure.Extensions;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -35,6 +36,8 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
             DataValidatorHelper.ThrowIfInvalidInformation(type, dto.Value);
 
         var oldValues = MapToDto(setting);
+
+        if (oldValues.HasChanged(setting, MapToDto)) return oldValues;
 
         setting.Value = dto.Value;
         setting.LastUpdateDate = DateTime.UtcNow;
