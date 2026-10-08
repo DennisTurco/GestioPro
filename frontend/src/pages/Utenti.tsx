@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext";
 import EmptyState from "../components/ui/EmptyState";
 import Modal from "../components/ui/Modal";
 import { UserAPI } from "../services/user.api";
+import TablePagination from '../components/ui/TablePagination'
 
 const EMPTY_FORM: UserCreateRequest = {
     name: '',
@@ -313,22 +314,22 @@ export default function Utenti() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Ruolo</th>
+                  <th className="col-center">Ruolo</th>
                   <th>Username</th>
                   <th>Email</th>
                   <th>Nome</th>
                   <th>Cognome</th>
                   <th>Data creazione</th>
                   <th>Data modifica</th>
-                  <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Attivo</th>
-                  <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Notifiche email</th>
-                  <th>Azioni</th>
+                  <th className="col-center">Attivo</th>
+                  <th className="col-center">Notifiche email</th>
+                  <th className="col-actions">Azioni</th>
                 </tr>
               </thead>
               <tbody>
                 {paginated.map((usr) => (
                   <tr key={usr.id}>
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                    <td className="col-center">
                       <i className={usr.userRole == UserRole.Admin ? "fa-solid fa-user-shield" : "fa-solid fa-user-tie"}></i>
                     </td>
                     <td>
@@ -339,16 +340,16 @@ export default function Utenti() {
                     <td>{usr.surname}</td>
                     <td>{formatDate(usr.createdDate)}</td>
                     <td>{formatDate(usr.lastUpdateDate)}</td>
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                      <i className={usr.isDisabled ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-check"} style={{ color: usr.isDisabled ? 'var(--color-danger)' : 'var(--color-success)'}} />
+                    <td className="col-center">
+                      <i className={usr.isDisabled ? "fa-solid fa-circle-xmark icon-no" : "fa-solid fa-circle-check icon-yes"} />
                     </td>
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                      <i className={usr.emailNotificationsEnabled ? "fa-solid fa-circle-check" : "fa-solid fa-circle-xmark"} style={{ color: usr.emailNotificationsEnabled ? 'var(--color-success)' : 'var(--color-danger)'}} />
+                    <td className="col-center">
+                      <i className={usr.emailNotificationsEnabled ? "fa-solid fa-circle-check icon-yes" : "fa-solid fa-circle-xmark icon-no"} />
                     </td>
-                    <td>
-                      <div className="action-buttons">
+                    <td className="col-actions">
+                      <div className="row-actions">
                         <button
-                          className="btn btn-ghost btn-sm"
+                          className="btn btn-ghost btn-sm btn-icon"
                           title="Modifica"
                           disabled={usr.userRole == UserRole.Admin}
                           onClick={() => openEdit(usr)}
@@ -356,7 +357,7 @@ export default function Utenti() {
                           <i className="fa-solid fa-pen" />
                         </button>
                         <button
-                          className="btn btn-ghost btn-sm btn-warning-hover"
+                          className="btn btn-ghost btn-sm btn-icon btn-icon-warning"
                           title="Resetta la password"
                           disabled={usr.userRole == UserRole.Admin}
                           onClick={() => openPasswordReset(usr)}
@@ -370,43 +371,7 @@ export default function Utenti() {
               </tbody>
             </table>
           </div>
-          <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
-              {filtered.length} utenti
-            </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
+          <TablePagination page={currentPage} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} itemLabel="utenti" onPageChange={setPage} />
         </div>
       )}
 

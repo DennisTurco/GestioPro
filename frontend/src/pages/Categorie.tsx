@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext'
 import Modal from '../components/ui/Modal'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import EmptyState from '../components/ui/EmptyState'
+import TablePagination from '../components/ui/TablePagination'
 
 const EMPTY_FORM: ProductCategoryRequest = { name: '', description: '' }
 
@@ -186,7 +187,7 @@ export default function Categorie() {
                 <th>Descrizione</th>
                 <th>Creata il</th>
                 <th>Ultima modifica</th>
-                <th>Azioni</th>
+                <th className="col-actions">Azioni</th>
               </tr>
             </thead>
             <tbody>
@@ -202,17 +203,17 @@ export default function Categorie() {
                   </td>
                   <td>{formatDate(cat.creationDate)}</td>
                   <td>{formatDate(cat.lastUpdateDate)}</td>
-                  <td>
-                    <div className="action-buttons">
+                  <td className="col-actions">
+                    <div className="row-actions">
                       <button
-                        className="btn btn-ghost btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon"
                         title="Modifica"
                         onClick={() => openEdit(cat)}
                       >
                         <i className="fa-solid fa-pen" />
                       </button>
                       <button
-                        className="btn btn-danger btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                         title="Elimina"
                         onClick={() => setDeleteTarget(cat)}
                       >
@@ -225,43 +226,7 @@ export default function Categorie() {
             </tbody>
           </table>
           </div>
-                 <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
-              {filtered.length} categorie
-            </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
+                 <TablePagination page={currentPage} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} itemLabel="categorie" onPageChange={setPage} />
         </div>
       )}
 

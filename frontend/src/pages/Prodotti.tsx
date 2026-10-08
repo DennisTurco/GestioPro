@@ -9,6 +9,7 @@ import ConfirmModal from '../components/ui/ConfirmModal'
 import Badge from '../components/ui/Badge'
 import EmptyState from '../components/ui/EmptyState'
 import { getSettingValue } from '../utils/settings'
+import TablePagination from '../components/ui/TablePagination'
 
 const EMPTY_FORM: ProductRequest = {
   categoryId: 0,
@@ -254,7 +255,7 @@ export default function Prodotti() {
       </div>
 
       <div className="toolbar">
-        <div className="search-bar" style={{ flex: 1 }}>
+        <div className="search-bar">
           <i className="fa-solid fa-search search-icon" />
           <input
             type="text"
@@ -325,8 +326,8 @@ export default function Prodotti() {
                 <th>Stato</th>
                 <th>Quantità</th>
                 <th>IVA%</th>
-                <th>Prezzo</th>
-                <th>Azioni</th>
+                <th className="col-num">Prezzo</th>
+                <th className="col-actions">Azioni</th>
               </tr>
             </thead>
             <tbody>
@@ -352,18 +353,18 @@ export default function Prodotti() {
                   </td>
                   <td>{p.itemType === ItemType.Service ? '—' : (p.quantity ?? '—')}</td>
                   <td>{p.vatPercentage}%</td>
-                  <td>{formatCurrency(p.price)}</td>
-                  <td>
-                    <div className="action-btns">
+                  <td className="col-num">{formatCurrency(p.price)}</td>
+                  <td className="col-actions">
+                    <div className="row-actions">
                       <button
-                        className="btn btn-ghost btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon"
                         title="Modifica"
                         onClick={() => openEdit(p)}
                       >
                         <i className="fa-solid fa-pen" />
                       </button>
                       <button
-                        className="btn btn-danger btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                         title="Elimina"
                         onClick={() => setDeleteTarget(p)}
                       >
@@ -376,43 +377,7 @@ export default function Prodotti() {
             </tbody>
           </table>
           </div>
-          <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
-              {filtered.length} prodotti
-            </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
+          <TablePagination page={currentPage} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} itemLabel="prodotti" onPageChange={setPage} />
         </div>
       )}
 

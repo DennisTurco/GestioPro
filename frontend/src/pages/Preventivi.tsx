@@ -13,6 +13,7 @@ import EmptyState from "../components/ui/EmptyState";
 import SearchableSelect from "../components/ui/SearchableSelect";
 import QuotationProductsPicker, { type QuotationProductFormItem } from "../components/quotations/QuotationProductsPicker";
 import { getSettingValue } from "../utils/settings";
+import TablePagination from '../components/ui/TablePagination'
 
 interface FormState {
   number: string;
@@ -699,109 +700,99 @@ export default function Preventivi() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="toolbar">
-          <div className="search-bar" style={{ width: 260 }}>
-            <span className="search-icon">
-              <i className="fa-solid fa-magnifying-glass" />
-            </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Cerca per numero, titolo, cliente…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <select
+      <div className="toolbar">
+        <div className="search-bar">
+          <span className="search-icon">
+            <i className="fa-solid fa-magnifying-glass" />
+          </span>
+          <input
+            type="text"
             className="form-control"
-            style={{ width: "auto" }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">Tutti gli stati</option>
-            {Object.entries(QUOTATION_STATUS_INFO).map(([id, info]) => (
-              <option key={id} value={id}>
-                {info.text}
-              </option>
-            ))}
-          </select>
-          <select
-            className="form-control"
-            style={{ width: "auto" }}
-            value={customerFilter}
-            onChange={(e) => setCustomerFilter(e.target.value)}
-          >
-            <option value="">Tutti i clienti</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {[
-                  c.companyName ? `${c.companyName} -` : null,
-                  c.name,
-                  c.surname,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              </option>
-            ))}
-          </select>
-          <div className="toolbar-right">
-            <button className="btn btn-ghost btn-sm" onClick={exportCsv}>
-              <i className="fa-solid fa-download" /> Esporta
-            </button>
-          </div>
+            placeholder="Cerca per numero, titolo, cliente…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
+        <select
+          className="form-control"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">Tutti gli stati</option>
+          {Object.entries(QUOTATION_STATUS_INFO).map(([id, info]) => (
+            <option key={id} value={id}>
+              {info.text}
+            </option>
+          ))}
+        </select>
+        <select
+          className="form-control"
+          value={customerFilter}
+          onChange={(e) => setCustomerFilter(e.target.value)}
+        >
+          <option value="">Tutti i clienti</option>
+          {customers.map((c) => (
+            <option key={c.id} value={c.id}>
+              {[
+                c.companyName ? `${c.companyName} -` : null,
+                c.name,
+                c.surname,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            </option>
+          ))}
+        </select>
+        <div className="toolbar-right">
+          <button className="btn btn-ghost btn-sm" onClick={exportCsv}>
+            <i className="fa-solid fa-download" /> Esporta
+          </button>
+        </div>
+      </div>
 
-        {loading ? (
-          <div className="text-center" style={{ padding: "48px 0" }}>
-            <div className="spinner" />
-          </div>
-        ) : (
-          <div
-            className="table-wrapper"
-            style={{ border: "none", borderRadius: 0 }}
-          >
+      {loading ? (
+        <div className="loading-wrapper">
+          <div className="spinner" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          message="Nessun preventivo trovato"
+          actionLabel="Nuovo preventivo"
+          onAction={openNew}
+        />
+      ) : (
+        <div className="table-card">
+          <div className="table-wrapper">
             <table className="data-table">
               <thead>
                 <tr>
                   <th>N&#176; Preventivo</th>
                   <th>Titolo</th>
                   <th>Cliente</th>
-                  <th>Importo</th>
-                  <th>Prezzo finale</th>
+                  <th className="col-num">Importo</th>
+                  <th className="col-num">Prezzo finale</th>
                   <th>Data emissione</th>
                   <th>Scadenza</th>
                   <th>Stato</th>
-                  <th>Azioni</th>
+                  <th className="col-actions">Azioni</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} style={{ padding: 0 }}>
-                      <EmptyState
-                        message="Nessun preventivo trovato"
-                        actionLabel="Nuovo preventivo"
-                        onAction={openNew}
-                      />
-                    </td>
-                  </tr>
-                ) : (
-                  paginated.map((q) => {
+                {paginated.map((q) => {
                     const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus];
                     return (
                       <tr key={q.id}>
-                        <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
+                        <td><code className="cell-code">{q.number}</code></td>
                         <td>{q.title}</td>
                         <td>{q.customerName}</td>
-                        <td className="font-semibold">
+                        <td className="col-num font-semibold">
                           {formatCurrency(q.amount)}
                         </td>
-                        <td>
+                        <td className="col-num">
                           <div className="font-semibold">
                             {formatCurrency(getTotalAmount(q.amount, q.vatPercentage, q.discountPercentage))}
                           </div>
-                          <div className="text-muted" style={{ fontSize: 11 }}>
+                          <div className="cell-sub">
                             IVA: {q.vatPercentage}% · Sconto: {q.discountPercentage}%
                           </div>
                         </td>
@@ -812,8 +803,8 @@ export default function Preventivi() {
                             <Badge cls={statusInfo.cls}>{statusInfo.text}</Badge>
                           )}
                         </td>
-                        <td>
-                          <div style={{ display: "flex", gap: 6 }}>
+                        <td className="col-actions">
+                          <div className="row-actions">
                             <button
                               className="btn btn-ghost btn-sm btn-icon"
                               title="Modifica"
@@ -822,31 +813,28 @@ export default function Preventivi() {
                               <i className="fa-solid fa-pen" />
                             </button>
                             <button
-                              className="btn btn-ghost btn-sm btn-icon"
+                              className="btn btn-ghost btn-sm btn-icon btn-icon-success"
                               title="Segna accettato"
                               onClick={() => handleMarkAccepted(q)}
-                              style={{ color: 'var(--color-success)' }}
                             >
                               <i className="fa-solid fa-calendar-check" />
                             </button>
                             <button
-                              className="btn btn-ghost btn-sm btn-icon"
+                              className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                               title="Segna rifiutato"
                               onClick={() => handleMarkRejected(q)}
-                              style={{ color: 'var(--color-danger)' }}
                             >
                               <i className="fa-solid fa-calendar-xmark" />
                             </button>
                             <button
-                              className="btn btn-ghost btn-sm btn-icon"
+                              className="btn btn-ghost btn-sm btn-icon btn-icon-primary"
                               title="Genera PDF"
                               onClick={() => generatePdf(q)}
-                              style={{ color: 'var(--color-primary)' }}
                             >
                               <i className="fa-solid fa-file-pdf" />
                             </button>
                             <button
-                              className="btn btn-danger btn-sm btn-icon"
+                              className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                               title="Elimina"
                               onClick={() => setDeleteTarget(q)}
                             >
@@ -856,55 +844,13 @@ export default function Preventivi() {
                         </td>
                       </tr>
                     );
-                  })
-                )}
+                  })}
               </tbody>
             </table>
-            <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
-              {filtered.length} preventivi
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              {totalPages > 1 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <button
-                    className="btn btn-ghost btn-sm btn-icon"
-                    title="Pagina precedente"
-                    disabled={currentPage === 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    <i className="fa-solid fa-chevron-left" />
-                  </button>
-                  <span className="text-muted text-sm">
-                    Pagina {currentPage} di {totalPages}
-                  </span>
-                  <button
-                    className="btn btn-ghost btn-sm btn-icon"
-                    title="Pagina successiva"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  >
-                    <i className="fa-solid fa-chevron-right" />
-                  </button>
-                </div>
-              )}
-              <span className="font-semibold">
-                Totale: {formatCurrency(filteredTotal)}
-              </span>
-            </div>
           </div>
-          </div>
-        )}
-      </div>
+          <TablePagination page={currentPage} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} itemLabel="preventivi" onPageChange={setPage} extra={<>Totale: {formatCurrency(filteredTotal)}</>} />
+        </div>
+      )}
 
       <Modal
         isOpen={modalOpen}

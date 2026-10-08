@@ -101,6 +101,12 @@ export default function Layout() {
       <Sidebar />
       <div className="main-content">
         <header className="topbar">
+          <div className="topbar-title">
+            <span className="topbar-greeting">Ciao, {user.name || user.username}</span>
+            <span className="topbar-date">
+              {new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </span>
+          </div>
           <div className="topbar-actions">
             <a href={SUPPORT_PROJECT_URL} target="_blank" rel="noopener noreferrer"
                className="btn btn-ghost btn-sm btn-support" title="Supporta">
@@ -118,7 +124,7 @@ export default function Layout() {
               <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`} />
             </button>
           </div>
-          <div className="notif-center" style={{ marginLeft: 'auto' }}>
+          <div className="notif-center">
             <button className="btn btn-ghost btn-sm" onClick={toggleNotifications} title="Centro notifiche">
               <i className="fa-solid fa-bell" />
               {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}

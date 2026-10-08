@@ -119,7 +119,7 @@ export default function Impostazioni() {
   if (loading) {
     return (
       <div className="page-body">
-        <div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Caricamento...</div>
+        <div style={{ padding: '2rem', color: 'var(--color-text-muted)' }}>Caricamento...</div>
       </div>
     )
   }
@@ -157,12 +157,12 @@ export default function Impostazioni() {
                       style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                     />
                   ) : (
-                    <i className="fa-solid fa-image" style={{ color: 'var(--text-secondary)' }} />
+                    <i className="fa-solid fa-image" style={{ color: 'var(--color-text-muted)' }} />
                   )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <label
-                    className="btn btn-secondary btn-sm"
+                    className="btn btn-ghost btn-sm"
                     style={{
                       cursor: UserRole.Operator == user?.userRole ? 'not-allowed' : 'pointer',
                       opacity: UserRole.Operator == user?.userRole ? 0.6 : 1,
@@ -329,25 +329,25 @@ export default function Impostazioni() {
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.5rem' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 0', color: 'var(--text-secondary)', width: 160 }}>Server</td>
+                  <td style={{ padding: '6px 0', color: 'var(--color-text-muted)', width: 160 }}>Server</td>
                   <td style={{ padding: '6px 0', fontFamily: 'monospace', fontSize: 13 }}>{window.location.origin}</td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '6px 0', color: 'var(--text-secondary)' }}>Versione</td>
+                  <td style={{ padding: '6px 0', color: 'var(--color-text-muted)' }}>Versione</td>
                   <td style={{ padding: '6px 0' }}>0.7.0-beta</td>
                 </tr>
                 {user && (
                   <>
                     <tr>
-                      <td style={{ padding: '6px 0', color: 'var(--text-secondary)' }}>Utente</td>
+                      <td style={{ padding: '6px 0', color: 'var(--color-text-muted)' }}>Utente</td>
                       <td style={{ padding: '6px 0' }}>{user.name} {user.surname}</td>
                     </tr>
                     <tr>
-                      <td style={{ padding: '6px 0', color: 'var(--text-secondary)' }}>Username</td>
+                      <td style={{ padding: '6px 0', color: 'var(--color-text-muted)' }}>Username</td>
                       <td style={{ padding: '6px 0' }}>{user.username}</td>
                     </tr>
                     <tr>
-                      <td style={{ padding: '6px 0', color: 'var(--text-secondary)' }}>Email utente</td>
+                      <td style={{ padding: '6px 0', color: 'var(--color-text-muted)' }}>Email utente</td>
                       <td style={{ padding: '6px 0' }}>{user.email}</td>
                     </tr>
                   </>
@@ -355,7 +355,7 @@ export default function Impostazioni() {
               </tbody>
             </table>
             <button
-              className="btn btn-secondary btn-sm"
+              className="btn btn-ghost btn-sm"
               onClick={handleTestConnection}
               disabled={testing}
             >

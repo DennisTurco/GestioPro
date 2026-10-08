@@ -6,6 +6,7 @@ import { QUOTATION_STATUS_INFO } from '../types'
 import { formatCurrency } from '../utils/currency'
 import { formatDate } from '../utils/date'
 import { hasActiveTextSelection } from '../utils/dom'
+import { avatarColor, getInitials } from '../utils/user'
 import { useToast } from '../context/ToastContext'
 import Badge from '../components/ui/Badge'
 import EmptyState from '../components/ui/EmptyState'
@@ -125,17 +126,19 @@ export default function Dashboard() {
                   {recentCustomers.map(c => (
                     <tr
                       key={c.id}
-                      style={{ cursor: 'pointer' }}
+                      className="row-clickable"
                       onClick={() => { if (!hasActiveTextSelection()) navigate(`/clienti/${c.id}`) }}
                     >
-                      <td style={{ width: 40 }}>
-                        <div className="avatar">
-                          {(c.name?.[0] ?? '').toUpperCase()}{(c.surname?.[0] ?? '').toUpperCase()}
-                        </div>
-                      </td>
                       <td>
-                        <strong>{c.name} {c.surname}</strong>
-                        {c.companyName && <div className="text-muted" style={{ fontSize: '0.8em' }}>{c.companyName}</div>}
+                        <div className="customer-cell">
+                          <div className="avatar avatar-solid" style={{ backgroundColor: avatarColor(c.id) }}>
+                            {getInitials(c.name, c.surname)}
+                          </div>
+                          <div className="customer-info">
+                            <span className="customer-name">{c.name} {c.surname}</span>
+                            {c.companyName && <span className="customer-company">{c.companyName}</span>}
+                          </div>
+                        </div>
                       </td>
                       <td className="text-muted">{c.email}</td>
                     </tr>
@@ -162,11 +165,11 @@ export default function Dashboard() {
                   {recentProducts.map(p => (
                     <tr key={p.id}>
                       <td>
-                        <strong>{p.name}</strong>
-                        <div className="text-muted" style={{ fontSize: '0.8em' }}>{p.code}</div>
+                        <span className="cell-main">{p.name}</span>
+                        <span className="cell-sub">{p.code}</span>
                       </td>
                       <td className="text-muted">{p.categoryName}</td>
-                      <td style={{ textAlign: 'right' }}>{formatCurrency(p.price)}</td>
+                      <td className="col-num">{formatCurrency(p.price)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -193,7 +196,7 @@ export default function Dashboard() {
                   <th>N&#176; Preventivo</th>
                   <th>Titolo</th>
                   <th>Cliente</th>
-                  <th>Importo</th>
+                  <th className="col-num">Importo</th>
                   <th>Data emissione</th>
                   <th>Scadenza</th>
                   <th>Stato</th>
@@ -203,11 +206,11 @@ export default function Dashboard() {
                 {recentQuotations.map(q => {
                   const statusInfo = QUOTATION_STATUS_INFO[q.quotationStatus]
                   return (
-                    <tr key={q.id} style={{ cursor: 'pointer' }} onClick={() => { if (!hasActiveTextSelection()) navigate('/preventivi') }}>
-                      <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
+                    <tr key={q.id} className="row-clickable" onClick={() => { if (!hasActiveTextSelection()) navigate('/preventivi') }}>
+                      <td><code className="cell-code">{q.number}</code></td>
                       <td><strong>{q.title}</strong></td>
                       <td>{q.customerName}</td>
-                      <td>{formatCurrency(q.amount)}</td>
+                      <td className="col-num">{formatCurrency(q.amount)}</td>
                       <td>{formatDate(q.issueDate)}</td>
                       <td>{formatDate(q.validityDate)}</td>
                       <td>

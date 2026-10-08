@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import type { ContractRenewal } from "../types";
 import { formatDate } from "../utils/date";
+import { formatCurrency } from "../utils/currency";
 import { useToast } from "../context/ToastContext";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import { ContractRenewalAPI } from "../services/api";
 import { useParams } from "react-router-dom";
+import TablePagination from '../components/ui/TablePagination'
 
 export default function RinnoviContratto() {
   const { id } = useParams<{ id: string }>()
@@ -159,24 +161,24 @@ export default function RinnoviContratto() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Importo</th>
-                  <th>DataInizio</th>
-                  <th>DataFine</th>
-                  <th>DataRinnovo</th>
-                  {/* <th>Azioni</th> */}
+                  <th className="col-num">Importo</th>
+                  <th>Data inizio</th>
+                  <th>Data fine</th>
+                  <th>Data rinnovo</th>
+                  {/* <th className="col-actions">Azioni</th> */}
                 </tr>
               </thead>
               <tbody>
                 {paginated.map((ren) => (
                   <tr key={ren.id}>
-                    <td>{ren.amount}</td>
+                    <td className="col-num">{formatCurrency(ren.amount)}</td>
                     <td>{formatDate(ren.startDate)}</td>
                     <td>{formatDate(ren.endDate)}</td>
                     <td>{formatDate(ren.renewalDate)}</td>
-                    {/* <td>
-                      <div className="action-buttons">
+                    {/* <td className="col-actions">
+                      <div className="row-actions">
                         <button
-                          className="btn btn-danger btn-sm"
+                          className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                           title="Elimina"
                           onClick={() => setDeleteTarget(ren)}
                         >
@@ -189,43 +191,7 @@ export default function RinnoviContratto() {
               </tbody>
             </table>
           </div>
-          <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, filteredRenewals.length)} di{" "}
-              {filteredRenewals.length} utenti
-            </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
+          <TablePagination page={currentPage} totalPages={totalPages} totalItems={filteredRenewals.length} pageSize={pageSize} itemLabel="rinnovi" onPageChange={setPage} />
         </div>
 
       <ConfirmModal

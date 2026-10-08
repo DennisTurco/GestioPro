@@ -152,10 +152,8 @@ export default function Sidebar() {
         <div className="user-info" title={collapsed ? `${user?.username ?? ''} — ${user?.email ?? ''}` : undefined}>
           <div className="user-avatar">{user ? getInitials(user.name, user.surname) : 'U'}</div>
           <div className="user-details">
-            <div className="font-medium user-username" style={{ color: '#E2E8F0', fontSize: 13 }}>
-              {user?.username ?? ''}
-            </div>
-            <div style={{ fontSize: 11 }} className="user-email">{user?.email ?? ''}</div>
+            <div className="user-username">{user?.username ?? ''}</div>
+            <div className="user-email">{user?.email ?? ''}</div>
           </div>
           <button
             className="sidebar-profile-btn"

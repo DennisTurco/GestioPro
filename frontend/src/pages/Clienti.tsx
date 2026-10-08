@@ -9,6 +9,7 @@ import ConfirmModal from '../components/ui/ConfirmModal'
 import EmptyState from '../components/ui/EmptyState'
 import { getInitials,  avatarColor } from '../utils/user'
 import { hasActiveTextSelection } from '../utils/dom'
+import TablePagination from '../components/ui/TablePagination'
 
 const COMPANY_TYPES = new Set<CustomerType>([
   CustomerType.Company,
@@ -290,9 +291,9 @@ export default function Clienti() {
                 <th>Email</th>
                 <th>Telefono</th>
                 <th>Città</th>
-                <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Contratti Attivi</th>
-                <th style={{ textAlign: 'center', verticalAlign: 'middle' }}>Preventivi</th>
-                <th>Azioni</th>
+                <th className="col-center">Contratti Attivi</th>
+                <th className="col-center">Preventivi</th>
+                <th className="col-actions">Azioni</th>
               </tr>
             </thead>
             <tbody>
@@ -300,13 +301,13 @@ export default function Clienti() {
                 <tr
                   key={c.id}
                   onClick={() => { if (!hasActiveTextSelection()) navigate(`/clienti/${c.id}`) }}
-                  style={{ cursor: 'pointer' }}
+                  className="row-clickable"
                 >
                   <td className="col-id">{c.id}</td>
                   <td>
                     <div className="customer-cell">
                       <div
-                        className="avatar"
+                        className="avatar avatar-solid"
                         style={{ backgroundColor: avatarColor(c.id) }}
                       >
                         {getInitials(c.name, c.surname)}
@@ -320,34 +321,34 @@ export default function Clienti() {
                     </div>
                   </td>
                   <td>{c.email}</td>
-                  <td>{c.phone || '-'}</td>
-                  <td>{c.city || '-'}</td>
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }} title={c.contractCount > 0 ? String(c.contractCount) : ""}>
-                      <i className={c.contractCount > 0 ? "fa-solid fa-circle-check" : ""} style={{color: 'var(--color-success)'}}></i>
+                  <td>{c.phone || '—'}</td>
+                  <td>{c.city || '—'}</td>
+                  <td className="col-center" title={c.contractCount > 0 ? String(c.contractCount) : ""}>
+                      {c.contractCount > 0 ? <i className="fa-solid fa-circle-check icon-yes" /> : <span className="cell-empty">—</span>}
                   </td>
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                  <td className="col-center">
                     <span className="badge badge-info">
                       {c.quotationCount ?? '0'}
                     </span>
                   </td>
-                  <td onClick={e => e.stopPropagation()}>
+                  <td className="col-actions" onClick={e => e.stopPropagation()}>
                     <div className="row-actions">
                       <button
-                        className="btn btn-ghost btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon"
                         title="Apri scheda"
                         onClick={() => navigate(`/clienti/${c.id}`)}
                       >
                         <i className="fa-solid fa-arrow-up-right-from-square" />
                       </button>
                       <button
-                        className="btn btn-ghost btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon"
                         title="Modifica"
                         onClick={() => openEdit(c)}
                       >
                         <i className="fa-solid fa-pen" />
                       </button>
                       <button
-                        className="btn btn-danger btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                         title="Elimina"
                         onClick={() => setDeleteId(c.id)}
                       >
@@ -360,43 +361,7 @@ export default function Clienti() {
             </tbody>
           </table>
           </div>
-          <div
-            className="card-footer"
-            style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-                {(currentPage - 1) * pageSize + 1}-
-                {Math.min(currentPage * pageSize, filtered.length)} di {" "}
-                {filtered.length} clienti
-            </span>
-            {totalPages > 1 && (
-                <div style={{display: "flex", alignItems: "center", gap: 8}}>
-                    <button
-                        className="btn btn-ghost btn-sm btn-icon"
-                        title="Pagina precedente"
-                        disabled={currentPage === 1}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    >
-                        <i className="fa-solid fa-chevron-left" />
-                    </button>
-                    <span className="text-muted text-sm">
-                        Pagina {currentPage} di {totalPages}
-                    </span>
-                    <button
-                        className="btn btn-ghost btn-sm btn-icon"
-                        title="Pagina successiva"
-                        disabled={currentPage === totalPages}
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    >
-                        <i className="fa-solid fa-chevron-right" />
-                    </button>
-                </div>
-            )}
-            </div>
+          <TablePagination page={currentPage} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} itemLabel="clienti" onPageChange={setPage} />
             </div>
       )}
 

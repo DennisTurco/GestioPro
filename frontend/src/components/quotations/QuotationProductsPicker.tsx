@@ -104,10 +104,10 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
             <thead>
               <tr>
                 <th>Prodotto</th>
-                <th>Prezzo unit.</th>
+                <th className="col-num">Prezzo unit.</th>
                 <th style={{ width: 90 }}>Quantità</th>
-                <th>Totale</th>
-                <th style={{ width: 40 }}></th>
+                <th className="col-num">Totale</th>
+                <th className="col-actions"></th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +121,7 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
                         value={item.productName}
                         onChange={e => updateProductName(item.productId, e.target.value)}
                       />
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>({item.productCode})</span>
+                      <span className="cell-sub">({item.productCode})</span>
                       {!stillAvailable && (
                         <span className="badge badge-muted" style={{ marginLeft: 6, fontSize: 11 }} title="Il prodotto non è più disponibile nel catalogo">
                           non disponibile
@@ -147,11 +147,11 @@ export default function QuotationProductsPicker({ items, onChange, availableProd
                         onChange={e => updateQuantity(item.productId, Math.max(1, Number(e.target.value)))}
                       />
                     </td>
-                    <td>{formatCurrency(item.unitPrice * item.quantity)}</td>
-                    <td>
+                    <td className="col-num">{formatCurrency(item.unitPrice * item.quantity)}</td>
+                    <td className="col-actions">
                       <button
                         type="button"
-                        className="btn btn-danger btn-sm"
+                        className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                         title="Rimuovi"
                         onClick={() => removeProduct(item.productId)}
                       >

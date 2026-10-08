@@ -11,6 +11,7 @@ import ConfirmModal from '../components/ui/ConfirmModal'
 import Badge from '../components/ui/Badge'
 import QuotationProductsPicker, { type QuotationProductFormItem } from '../components/quotations/QuotationProductsPicker'
 import { getSettingValue } from '../utils/settings'
+import TablePagination from '../components/ui/TablePagination'
 
 type Tab = 'preventivi' | 'contratti' | 'documenti' | 'note'
 
@@ -704,12 +705,12 @@ export default function SchedaCliente() {
           <i className="fa-solid fa-arrow-left" style={{ marginRight: 6 }} />
           Clienti
         </button>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-ghost btn-sm" onClick={openEditCustomer}>
+        <div className="row-actions">
+          <button className="btn btn-ghost btn-sm btn-icon" onClick={openEditCustomer}>
             <i className="fa-solid fa-pen" style={{ marginRight: 6 }} />
             Modifica
           </button>
-          <button className="btn btn-danger btn-sm" onClick={() => setDeleteModalOpen(true)}>
+          <button className="btn btn-ghost btn-sm btn-icon btn-icon-danger" onClick={() => setDeleteModalOpen(true)}>
             <i className="fa-solid fa-trash" style={{ marginRight: 6 }} />
             Elimina
           </button>
@@ -842,15 +843,15 @@ export default function SchedaCliente() {
                   <tr>
                     <th>N&#176;</th>
                     <th>Titolo</th>
-                    <th>Importo</th>
+                    <th className="col-num">Importo</th>
                     <th>Stato</th>
-                    <th>Azioni</th>
+                    <th className="col-actions">Azioni</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedQuotation.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="text-center text-muted" style={{ padding: '32px 0' }}>
+                    <tr className="table-empty-row">
+                      <td colSpan={5}>
                         Nessun preventivo trovato
                       </td>
                     </tr>
@@ -858,21 +859,21 @@ export default function SchedaCliente() {
                     const si = QUOTATION_STATUS_INFO[q.quotationStatus]
                     return (
                       <tr key={q.id}>
-                        <td className="font-medium"><code style={{ fontSize: 12 }}>{q.number}</code></td>
+                        <td><code className="cell-code">{q.number}</code></td>
                         <td>{q.title}</td>
-                        <td>{formatCurrency(q.amount)}</td>
+                        <td className="col-num">{formatCurrency(q.amount)}</td>
                         <td><Badge cls={si.cls}>{si.text}</Badge></td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 4 }}>
+                        <td className="col-actions">
+                          <div className="row-actions">
                             <button
-                              className="btn btn-ghost btn-sm"
+                              className="btn btn-ghost btn-sm btn-icon"
                               title="Modifica"
                               onClick={() => openEditQuotation(q)}
                             >
                               <i className="fa-solid fa-pen" />
                             </button>
                             <button
-                              className="btn btn-danger btn-sm"
+                              className="btn btn-ghost btn-sm btn-icon btn-icon-danger"
                               title="Elimina"
                               onClick={() => { setDeletingQuotationId(q.id); setDeleteQuotationModalOpen(true) }}
                             >
@@ -886,43 +887,7 @@ export default function SchedaCliente() {
                 </tbody>
               </table>
             </div>
-            <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentQuotationPage - 1) * pageSize + 1}-
-              {Math.min(currentQuotationPage * pageSize, filteredQuotations.length)} di{" "}
-              {filteredQuotations.length} preventivi
-            </span>
-            {totalQuotationPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentQuotationPage === 1}
-                  onClick={() => setQuotationPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentQuotationPage} di {totalQuotationPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentQuotationPage === totalQuotationPages}
-                  onClick={() => setQuotationPage((p) => Math.min(totalQuotationPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
+            <TablePagination page={currentQuotationPage} totalPages={totalQuotationPages} totalItems={filteredQuotations.length} pageSize={pageSize} itemLabel="preventivi" onPageChange={setQuotationPage} />
             </div>
           </div>
         )}
@@ -943,36 +908,36 @@ export default function SchedaCliente() {
                     <th>Titolo</th>
                     <th>Tipo</th>
                     <th>Stato</th>
-                    <th>Importo</th>
+                    <th className="col-num">Importo</th>
                     <th>Inizio</th>
                     <th>Fine</th>
-                    <th>Azioni</th>
+                    <th className="col-actions">Azioni</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedContract.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="text-center text-muted" style={{ padding: '32px 0' }}>
+                    <tr className="table-empty-row">
+                      <td colSpan={8}>
                         Nessun contratto trovato
                       </td>
                     </tr>
                   ) : paginatedContract.map(c => (
                     <tr key={c.id}>
-                      <td className="font-medium"><code style={{ fontSize: 12 }}>{c.number}</code></td>
+                      <td><code className="cell-code">{c.number}</code></td>
                       <td><strong>{c.title}</strong></td>
                       <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? '—'}</td>
                       <td>
                         <Badge cls={CONTRACT_STATUS_CLS[c.status] ?? 'badge-muted'}>{c.status}</Badge>
                       </td>
-                      <td>{formatCurrency(c.amount)}</td>
+                      <td className="col-num">{formatCurrency(c.amount)}</td>
                       <td>{formatDate(c.startDate)}</td>
                       <td>{c.endDate ? formatDate(c.endDate) : <span className="text-muted">—</span>}</td>
-                      <td>
+                      <td className="col-actions">
                         <div className="row-actions">
-                          <button className="btn btn-ghost btn-sm" title="Rinnova" onClick={() => setRenewTarget(c)}>
+                          <button className="btn btn-ghost btn-sm btn-icon" title="Rinnova" onClick={() => setRenewTarget(c)}>
                             <i className="fa-solid fa-rotate-right" />
                           </button>
-                          <button className="btn btn-ghost btn-sm" title="Modifica" onClick={() => openEditContract(c)}>
+                          <button className="btn btn-ghost btn-sm btn-icon" title="Modifica" onClick={() => openEditContract(c)}>
                             <i className="fa-solid fa-pen" />
                           </button>
                         </div>
@@ -981,44 +946,8 @@ export default function SchedaCliente() {
                   ))}
                 </tbody>
               </table>
-              <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentContractPage - 1) * pageSize + 1}-
-              {Math.min(currentContractPage * pageSize, contracts.length)} di{" "}
-              {contracts.length} contratti
-            </span>
-            {totalContractPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentContractPage === 1}
-                  onClick={() => setContractPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentContractPage} di {totalContractPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentContractPage === totalContractPages}
-                  onClick={() => setContractPage((p) => Math.min(totalContractPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
             </div>
+            <TablePagination page={currentContractPage} totalPages={totalContractPages} totalItems={contracts.length} pageSize={pageSize} itemLabel="contratti" onPageChange={setContractPage} />
           </div>
         )}
 
@@ -1050,13 +979,13 @@ export default function SchedaCliente() {
                     <th>Tipo</th>
                     <th>Dimensione</th>
                     <th>Data caricamento</th>
-                    <th>Azioni</th>
+                    <th className="col-actions">Azioni</th>
                   </tr>
                 </thead>
                 <tbody>
                   {documents.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="text-center text-muted" style={{ padding: '32px 0' }}>
+                    <tr className="table-empty-row">
+                      <td colSpan={5}>
                         Nessun documento caricato
                       </td>
                     </tr>
@@ -1066,15 +995,15 @@ export default function SchedaCliente() {
                       <td>{doc.contentType}</td>
                       <td>{formatFileSize(doc.sizeBytes)}</td>
                       <td>{formatDate(doc.uploadDate)}</td>
-                      <td>
+                      <td className="col-actions">
                         <div className="row-actions">
-                          <button className="btn btn-ghost btn-sm" title="Apri" onClick={() => handleDocumentOpen(doc)}>
+                          <button className="btn btn-ghost btn-sm btn-icon" title="Apri" onClick={() => handleDocumentOpen(doc)}>
                             <i className="fa-solid fa-eye" />
                           </button>
-                          <button className="btn btn-ghost btn-sm" title="Scarica" onClick={() => handleDocumentDownload(doc)}>
+                          <button className="btn btn-ghost btn-sm btn-icon" title="Scarica" onClick={() => handleDocumentDownload(doc)}>
                             <i className="fa-solid fa-download" />
                           </button>
-                          <button className="btn btn-danger btn-sm" title="Elimina" onClick={() => setDeleteDocTarget(doc)}>
+                          <button className="btn btn-ghost btn-sm btn-icon btn-icon-danger" title="Elimina" onClick={() => setDeleteDocTarget(doc)}>
                             <i className="fa-solid fa-trash" />
                           </button>
                         </div>

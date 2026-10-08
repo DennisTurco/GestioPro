@@ -5,6 +5,7 @@ import EmptyState from "../components/ui/EmptyState";
 import { AuditAPI } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { hasActiveTextSelection } from "../utils/dom";
+import TablePagination from '../components/ui/TablePagination'
 
 export default function Audit() {
   const navigate = useNavigate();
@@ -228,7 +229,7 @@ export default function Audit() {
                   <th>Entità</th>
                   <th>Id Entità</th>
                   <th>Indirizzo IP</th>
-                  <th>Azioni</th>
+                  <th className="col-actions">Azioni</th>
                 </tr>
               </thead>
               <tbody>
@@ -236,7 +237,7 @@ export default function Audit() {
                   <tr
                     key={log.id}
                     onClick={() => { if (!hasActiveTextSelection()) navigate(`/audit-details/${log.id}`) }}
-                    style={{ cursor: "pointer" }}
+                    className="row-clickable"
                   >
                     <td>{new Date(log.timestamp).toLocaleString("it-IT")}</td>
                     <td>{log.userId.toString()}</td>
@@ -247,10 +248,10 @@ export default function Audit() {
                     </td>
                     <td>{log.entityId}</td>
                     <td>{log.ipAddress}</td>
-                    <td>
-                      <div className="action-buttons">
+                    <td className="col-actions">
+                      <div className="row-actions">
                         <button
-                          className="btn btn-ghost btn-sm"
+                          className="btn btn-ghost btn-sm btn-icon"
                           title="Pagina Dettagli"
                           onClick={() => navigate(`/audit-details/${log.id}`)}
                         >
@@ -263,43 +264,7 @@ export default function Audit() {
               </tbody>
             </table>
           </div>
-          <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span className="text-muted text-sm">
-              {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, filtered.length)} di{" "}
-              {filtered.length} log
-            </span>
-            {totalPages > 1 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina precedente"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  <i className="fa-solid fa-chevron-left" />
-                </button>
-                <span className="text-muted text-sm">
-                  Pagina {currentPage} di {totalPages}
-                </span>
-                <button
-                  className="btn btn-ghost btn-sm btn-icon"
-                  title="Pagina successiva"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  <i className="fa-solid fa-chevron-right" />
-                </button>
-              </div>
-            )}
-          </div>
+          <TablePagination page={currentPage} totalPages={totalPages} totalItems={filtered.length} pageSize={pageSize} itemLabel="log" onPageChange={setPage} />
         </div>
       )}
     </div>
