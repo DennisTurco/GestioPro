@@ -7,6 +7,7 @@ using GestioPro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using StringKit;
 using GestioPro.Common;
+using GestioPro.Infrastructure.Extensions;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -84,6 +85,8 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Contratto non trovato");
 
         var oldValues = MapToDto(contract);
+
+        if (!oldValues.HasChanged(contract, MapToDto)) return oldValues;
 
         contract.QuotationId = dto.QuotationId;
         contract.Title = dto.Title;

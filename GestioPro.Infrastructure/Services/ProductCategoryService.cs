@@ -4,6 +4,7 @@ using GestioPro.Common.Exceptions;
 using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
+using GestioPro.Infrastructure.Extensions;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -59,6 +60,8 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Categoria prodotto non trovata");
 
         var oldValues = MapToDto(existing);
+
+        if (oldValues.HasChanged(existing, MapToDto)) return oldValues;
 
         existing.Name = dto.Name;
         existing.Description = dto.Description;

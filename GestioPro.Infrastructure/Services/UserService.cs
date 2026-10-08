@@ -6,6 +6,7 @@ using GestioPro.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
 using GestioPro.Common;
+using GestioPro.Infrastructure.Extensions;
 
 namespace GestioPro.Infrastructure.Services;
 
@@ -114,6 +115,8 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             throw new UserException("L'utente è stato disattivato da uno degli amministratori");
 
         var oldValues = MapToDto(user);
+
+        if (oldValues.HasChanged(user, MapToDto)) return oldValues;
 
         user.Username = dto.Username;
         user.Email = dto.Email;
