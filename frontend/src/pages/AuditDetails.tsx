@@ -14,6 +14,42 @@ function prettyJson(raw?: string) {
   }
 }
 
+type JsonObject = Record<string, unknown>;
+
+function parseObject(raw?: string): JsonObject | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function JsonDiff({ values, other, color }: { values: JsonObject; other: JsonObject | null; color: string }) {
+  const entries = Object.entries(values);
+  return (
+    <>
+      <div>{"{"}</div>
+      {entries.map(([key, value], i) => {
+        const changed = other !== null && JSON.stringify(value) !== JSON.stringify(other[key]);
+        const text = JSON.stringify(value, null, 2).replace(/\n/g, "\n  ");
+        const comma = i < entries.length - 1 ? "," : "";
+        return (
+            <div key={key}>
+                {`  ${JSON.stringify(key)}: `}
+                <span style={changed ? { color } : undefined}>
+                    {`${text}`}
+                </span>
+                {`${comma}`}
+            </div>
+        );
+      })}
+      <div>{"}"}</div>
+    </>
+  );
+}
+
 export default function AuditDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -66,6 +102,8 @@ export default function AuditDetails() {
 
   const oldValues = prettyJson(log.oldValues);
   const newValues = prettyJson(log.newValues);
+  const oldObject = parseObject(log.oldValues);
+  const newObject = parseObject(log.newValues);
 
   return (
     <div>
@@ -121,7 +159,7 @@ export default function AuditDetails() {
           <div className="card-body">
             {oldValues ? (
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: 13, margin: 0 }}>
-                {oldValues}
+                {oldObject ? <JsonDiff values={oldObject} other={newObject} color="red" /> : oldValues}
               </pre>
             ) : (
               <span className="text-muted">Nessun valore precedente</span>
@@ -134,7 +172,7 @@ export default function AuditDetails() {
           <div className="card-body">
             {newValues ? (
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace", fontSize: 13, margin: 0 }}>
-                {newValues}
+                {newObject ? <JsonDiff values={newObject} other={oldObject} color="green" /> : newValues}
               </pre>
             ) : (
               <span className="text-muted">Nessun nuovo valore</span>
