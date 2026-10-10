@@ -1,0 +1,68 @@
+# Publishes a GitHub Release with the Windows, Linux and macOS installers
+# whenever a version tag is pushed:
+#   git tag v0.8.0 && git push origin v0.8.0
+# The tag (without the "v") becomes the installers' version. Tags with a
+# pre-release suffix (e.g. v0.8.0-beta) are published as pre-releases.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          ISS_VERSION=$(sed -n 's/.*#define AppVersion *"\(.*\)".*/\1/p' installer/GestioPro.iss)
+          if [ "$VERSION" != "$ISS_VERSION" ]; then
+            echo "::warning::Tag version $VERSION differs from installer/GestioPro.iss ($ISS_VERSION): the tag wins, remember to bump the .iss too"
+          fi
+
+  windows:
+    needs: version
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+    secrets: inherit
+
+  linux:
+    needs: version
+    uses: ./.github/workflows/build-linux.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+    secrets: inherit
+
+  mac:
+    needs: version
+    uses: ./.github/workflows/build-mac.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+    secrets: inherit
+
+  release:
+    needs: [version, windows, linux, mac]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: GestioPro-*
+          path: installers
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: GestioPro ${{ needs.version.outputs.version }}
+          files: installers/*
+          generate_release_notes: true
+          prerelease: ${{ contains(needs.version.outputs.version, '-') }}

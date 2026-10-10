@@ -1,5 +1,6 @@
 const { app, BrowserWindow, shell, Tray, Menu, nativeImage, protocol, net, dialog } = require('electron');
 const { spawn } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { pathToFileURL } = require('url');
@@ -9,13 +10,20 @@ const FRONTEND_URL = 'http://localhost:3000';
 // Plain HTTP: the packaged backend only ever talks to this same app over
 // loopback, and an end-user machine has no trusted cert for HTTPS anyway.
 const BACKEND_URL  = 'http://localhost:7160';
-const TRAY_ICON_PATH = path.join(__dirname, '..', 'public', 'icon.ico');
+// .ico is only understood by Windows: Linux and macOS need a PNG
+const APP_ICON_PATH = path.join(__dirname, '..', 'public', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
 const HIDDEN_ARG = '--hidden';
 const APP_SCHEME = 'app';
 
 // when the OS launches the app at login (autostart), it's passed --hidden so it
-// comes up minimized to the tray instead of popping a window on top of everything
-const startedHidden = process.argv.includes(HIDDEN_ARG);
+// comes up minimized to the tray instead of popping a window on top of everything.
+// macOS login items don't receive command-line args: there the OS reports
+// whether this launch came from the login item instead.
+// (only queried once the app is ready)
+function isStartedHidden() {
+    return process.argv.includes(HIDDEN_ARG) ||
+        (process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAtLogin);
+}
 
 let backendProcess = null;
 let backendExitInfo = null; // set if the backend process exits before we stop waiting on it
@@ -45,8 +53,42 @@ function registerAppProtocol() {
 
 // ── Autostart ─────────────────────────────────────────
 
+// Electron's login item API is Windows/macOS only: on Linux, desktops follow
+// the XDG autostart spec, i.e. a .desktop file in ~/.config/autostart.
+function configureLinuxAutoLaunch() {
+    const configHome = process.env.XDG_CONFIG_HOME || path.join(app.getPath('home'), '.config');
+    const file = path.join(configHome, 'autostart', 'gestiopro.desktop');
+
+    // Inside an AppImage, execPath points into a temporary mount that changes
+    // every run: APPIMAGE is the path of the .AppImage file itself. Packaged
+    // builds run as "<name>.bin" behind the sandbox-detecting launcher script
+    // (build/after-pack.cjs): autostart goes through the launcher too.
+    const exec = process.env.APPIMAGE || process.execPath.replace(/\.bin$/, '');
+    const entry = [
+        '[Desktop Entry]',
+        'Type=Application',
+        'Name=GestioPro',
+        `Exec="${exec}" ${HIDDEN_ARG}`,
+        'Terminal=false',
+        'X-GNOME-Autostart-enabled=true',
+        '',
+    ].join('\n');
+
+    try {
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, entry);
+    } catch (err) {
+        console.error('[electron] autostart', err);
+    }
+}
+
 function configureAutoLaunch() {
     if (isDev) return; // don't register the dev binary as a login item
+
+    if (process.platform === 'linux') {
+        configureLinuxAutoLaunch();
+        return;
+    }
 
     app.setLoginItemSettings({
         openAtLogin: true,
@@ -63,7 +105,7 @@ function startBackend() {
     }
 
     const backendDir = path.join(process.resourcesPath, 'backend');
-    const exePath = path.join(backendDir, 'GestioPro.Api.exe');
+    const exePath = path.join(backendDir, process.platform === 'win32' ? 'GestioPro.Api.exe' : 'GestioPro.Api');
     backendProcess = spawn(exePath, [], {
         cwd: backendDir, // ASP.NET Core loads appsettings.json relative to the
                           // working directory, which otherwise defaults to
@@ -113,7 +155,7 @@ function createWindow(startHidden = false) {
         minWidth: 900,
         minHeight: 600,
         title: 'GestioPro',
-        icon: path.join(__dirname, '..', 'public', 'icon.svg'),
+        icon: APP_ICON_PATH,
         webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
@@ -179,6 +221,22 @@ function showWindow() {
     mainWindow.focus();
 }
 
+// macOS keeps an app in the Dock for as long as it runs, even with every
+// window hidden: show the Dock icon only while the window is visible, so the
+// app looks tray-only while it runs in the background, like on Windows.
+function updateDockVisibility() {
+    if (process.platform !== 'darwin') return;
+
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) app.dock.show();
+    else app.dock.hide();
+}
+
+app.on('browser-window-created', (_event, win) => {
+    win.on('show', updateDockVisibility);
+    win.on('hide', updateDockVisibility);
+    win.on('closed', updateDockVisibility);
+});
+
 function quitApp() {
     app.isQuitting = true;
     if (backendProcess) backendProcess.kill();
@@ -187,9 +245,23 @@ function quitApp() {
 
 // ── Tray ──────────────────────────────────────────────
 
+function getTrayImage() {
+    const source = nativeImage.createFromPath(APP_ICON_PATH);
+    if (source.isEmpty()) return source;
+    if (process.platform !== 'darwin') return source.resize({ width: 16, height: 16 });
+
+    // The macOS menu bar shows tray images at their pixel size: shrink to the
+    // standard 18pt height, with a 2x representation for Retina displays.
+    const image = nativeImage.createEmpty();
+    for (const scaleFactor of [1, 2]) {
+        const resized = source.resize({ height: 18 * scaleFactor, quality: 'best' });
+        image.addRepresentation({ scaleFactor, buffer: resized.toPNG() });
+    }
+    return image;
+}
+
 function createTray() {
-    const icon = nativeImage.createFromPath(TRAY_ICON_PATH);
-    tray = new Tray(icon.isEmpty() ? icon : icon.resize({ width: 16, height: 16 }));
+    tray = new Tray(getTrayImage());
     tray.setToolTip('GestioPro');
 
     const contextMenu = Menu.buildFromTemplate([
@@ -198,6 +270,8 @@ function createTray() {
     ]);
     tray.setContextMenu(contextMenu);
     tray.on('double-click', showWindow);
+    // Linux tray implementations don't emit double-click
+    if (process.platform === 'linux') tray.on('click', showWindow);
 }
 
 // ── Lifecycle ─────────────────────────────────────────
@@ -219,8 +293,10 @@ app.whenReady().then(async () => {
         }
     }
 
-    createWindow(startedHidden);
+    createWindow(isStartedHidden());
     createTray();
+    // Started hidden (login item): no "show" event will fire, hide the Dock icon now
+    updateDockVisibility();
 });
 
 app.on('window-all-closed', () => {
@@ -233,6 +309,8 @@ app.on('activate', () => {
     showWindow();
 });
 
+// also covers quitting from outside the tray menu (Cmd+Q on macOS, logout/shutdown)
 app.on('before-quit', () => {
     app.isQuitting = true;
+    if (backendProcess) backendProcess.kill();
 });

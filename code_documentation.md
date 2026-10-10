@@ -35,7 +35,9 @@ GestioPro/
 │  ├─ src/services/api.ts      HTTP client towards the backend (fetch)
 │  ├─ src/context/             AuthContext, ToastContext
 │  └─ electron/main.js         Electron main process (window, tray, backend startup)
+├─ frontend/build/after-pack.cjs  electron-builder hook (Linux sandbox launcher, backend exec bit)
 ├─ installer/GestioPro.iss     Inno Setup script that generates the setup.exe
+├─ .github/workflows/          Installer builds (Windows/Linux/macOS) and tag-driven GitHub Releases
 └─ .vscode/tasks.json          "Avvia tutto" task (DB + backend + frontend in parallel)
 ```
 
@@ -66,9 +68,9 @@ Three-layer architecture:
 `frontend/electron/main.js` is the main process:
 
 - **Dev** (`npm run electron:dev`): opens only the window pointed at Vite (`localhost:3000`); the backend must be started separately (dotnet run, or the VS Code "Avvia tutto" task).
-- **Production** (installed package): also launches the backend as a child process (`GestioPro.Api.exe`, published under `resources/backend`), waits for it to respond on `/api/v1/health`, then shows the window.
+- **Production** (installed package): also launches the backend as a child process (`GestioPro.Api.exe`, or `GestioPro.Api` on Linux/macOS, published self-contained under `resources/backend`), waits for it to respond on `/api/v1/health`, then shows the window.
 - **Tray icon**: always created, with an "Apri" / "Esci" menu. Closing the window (X) hides it to the tray instead of terminating the app; only "Esci" actually quits (app + backend process).
-- **Auto-start**: in production the app registers itself as a Windows login item (`app.setLoginItemSettings`), passing the `--hidden` flag, so on PC reboot it starts in the background without opening the window.
+- **Auto-start**: in production the app registers itself as a login item (`app.setLoginItemSettings` on Windows/macOS, an XDG `~/.config/autostart/gestiopro.desktop` entry on Linux), passing the `--hidden` flag, so on PC reboot it starts in the background without opening the window. On macOS the Dock icon is hidden while the window is.
 
 ## Database and Heartbeat (Supabase)
 
@@ -152,6 +154,19 @@ Public registration (`POST /auth/register`) always creates an `Operator`, by des
 
 1. Register a normal account (UI "Registrati", or `POST /auth/register`).
 2. Promote it with SQL: `UPDATE users SET "UserRole" = 1 WHERE "Username" = '<username>';` (`1` = Admin, `2` = Operator — see `GestioPro.Common/Enums/UserRole.cs`). From then on, every other Admin can be created normally through the Utenti page.
+
+## Automated builds and releases (GitHub Actions)
+
+- `.github/workflows/build-windows.yml`, `build-linux.yml`, `build-mac.yml` run on every push to `master` (or manually from the Actions tab) and upload the installers as workflow artifacts: Inno Setup `.exe` (Windows x64), `.AppImage` + `.deb` (Linux x64), `.dmg` (macOS Apple Silicon and Intel, ad-hoc signed only — no notarization, so Gatekeeper asks for confirmation on first launch).
+- `.github/workflows/release.yml` runs when a `v*` tag is pushed: it calls the three builds with the tag's version and publishes a GitHub Release with every installer attached (tags with a suffix like `v0.8.0-beta` become pre-releases):
+  ```
+  git tag v0.8.0
+  git push origin v0.8.0
+  ```
+  The tag version overrides the one in `installer/GestioPro.iss` (a warning is shown if they differ), so still bump the `.iss` (step 1 below) to keep local builds consistent.
+- `appsettings.Production.json` is gitignored, so CI writes it from the **`APPSETTINGS_PRODUCTION_JSON`** repository secret (Settings > Secrets and variables > Actions), holding the whole file content. Without it, push builds only warn (installers fall back to the dev settings), while release builds fail. Note that the file ends up inside every installer, so anyone who downloads a release can read it.
+
+Steps 0, 1 and 5 below still apply to automated releases; steps 2–4 are what the workflows do for you.
 
 ## Release checklist
 

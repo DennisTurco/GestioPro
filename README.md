@@ -1,6 +1,6 @@
 ![logo](.github/banner.svg)
 
-Business management application for **freelancers and self-employed professionals**, available both as a **web app** and as a **Windows desktop app**.
+Business management application for **freelancers and self-employed professionals**, available both as a **web app** and as a **desktop app** for Windows, Linux and macOS.
 
 ## Features
 
@@ -13,7 +13,11 @@ Business management application for **freelancers and self-employed professional
 - **Users & roles**: Admin and Operator roles; Operators have read/limited access to sensitive areas.
 - **Audit log** *(Admin only)*: a full history of who created, changed or deleted what and when, with before/after values.
 - **Dark mode**: light/dark theme toggle, remembered across sessions.
-- **Desktop app**: installs like a normal Windows application, starts automatically at login, and lives in the system tray (Apri/Esci) instead of cluttering the taskbar.
+- **Desktop app**: installs like a normal application on Windows, Linux and macOS, starts automatically at login, and lives in the system tray (Apri/Esci) instead of cluttering the taskbar.
+
+## Download
+
+Installers for every platform are attached to each [GitHub Release](https://github.com/DennisTurco/GestioPro/releases): `GestioPro_Setup_<version>.exe` (Windows), `.AppImage` / `.deb` (Linux), `.dmg` (macOS, `arm64` for Apple Silicon, `x64` for Intel).
 
 ## Screenshots
 

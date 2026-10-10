@@ -14,7 +14,10 @@
 ; quella registrazione.
 
 #define AppName      "GestioPro"
-#define AppVersion   "0.7.0-beta"
+; Sovrascrivibile da riga di comando (/DAppVersion=...), come fa la workflow di release
+#ifndef AppVersion
+  #define AppVersion "0.7.0-beta"
+#endif
 #define AppPublisher "DennisTurco"
 #define AppURL       "https://github.com/DennisTurco/GestioPro"
 #define AppExeName   "GestioPro.exe"
