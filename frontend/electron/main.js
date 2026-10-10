@@ -288,7 +288,10 @@ app.whenReady().then(async () => {
                 'GestioPro',
                 'Il servizio in background non ha risposto in tempo.\n\n' +
                 (backendExitInfo ? `Dettagli: ${backendExitInfo}\n\n` : '') +
-                'Prova a riavviare l\'app. Se il problema persiste, controlla che l\'antivirus non stia bloccando GestioPro.exe o GestioPro.Api.exe.'
+                'Prova a riavviare l\'app. Se il problema persiste, ' +
+                (process.platform === 'win32'
+                    ? 'controlla che l\'antivirus non stia bloccando GestioPro.exe o GestioPro.Api.exe.'
+                    : 'reinstalla l\'app o controlla che il file GestioPro.Api in ' + path.join(process.resourcesPath, 'backend') + ' si avvii correttamente.')
             );
         }
     }

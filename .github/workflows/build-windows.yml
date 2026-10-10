@@ -64,6 +64,12 @@ jobs:
         run: |
           if [ -n "$APPSETTINGS_PRODUCTION_JSON" ]; then
             printf '%s' "$APPSETTINGS_PRODUCTION_JSON" > GestioPro.Api/appsettings.Production.json
+            # The secret must hold the whole file, not a single value: an invalid
+            # file makes the packaged backend crash at startup
+            node -e "JSON.parse(require('fs').readFileSync('GestioPro.Api/appsettings.Production.json', 'utf8'))" 2>/dev/null || {
+              echo "::error::APPSETTINGS_PRODUCTION_JSON is not valid JSON: paste the whole appsettings.Production.json content, braces and quotes included"
+              exit 1
+            }
           elif [ -n "${{ inputs.version }}" ]; then
             echo "::error::APPSETTINGS_PRODUCTION_JSON secret not set: a release would ship without a database connection"
             exit 1
