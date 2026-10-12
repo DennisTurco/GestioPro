@@ -820,6 +820,7 @@ export default function Contratti() {
         loading={renewing}
         buttonText={"Rinnova"}
         title={"Conferma Rinnovo"}
+        danger={false}
         message={
           renewTarget
             ? `Rinnova il contratto "${renewTarget.title}"? La data di fine verrà estesa in base al tipo (${CONTRACT_TYPE_LABEL[renewTarget.contractType]}).`

@@ -371,6 +371,12 @@ namespace GestioPro.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<bool>("EmailRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("EmailSentDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean");
 
@@ -651,6 +657,31 @@ namespace GestioPro.Infrastructure.Migrations
                         {
                             Code = "CompanyLogo",
                             Description = "company logo, stored as a base64 data URL"
+                        },
+                        new
+                        {
+                            Code = "SmtpHost",
+                            Description = "SMTP server host for outgoing emails (empty = emails disabled)"
+                        },
+                        new
+                        {
+                            Code = "SmtpPort",
+                            Description = "SMTP server port"
+                        },
+                        new
+                        {
+                            Code = "SmtpSecurity",
+                            Description = "SMTP connection security: None, Auto, StartTls, SslOnConnect"
+                        },
+                        new
+                        {
+                            Code = "SmtpUsername",
+                            Description = "SMTP login username"
+                        },
+                        new
+                        {
+                            Code = "SmtpPassword",
+                            Description = "SMTP login password, never returned by the API"
                         });
                 });
 

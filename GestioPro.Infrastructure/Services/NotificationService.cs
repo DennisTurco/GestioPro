@@ -31,7 +31,8 @@ public class NotificationService(AppDbContext context) : INotificationService
             UserId = userId,
             Summary = dto.Summary,
             Description = dto.Description,
-            CreationDate = DateTimeOffset.UtcNow
+            CreationDate = DateTimeOffset.UtcNow,
+            EmailRequired = dto.SendEmail
         }).ToList();
 
         await context.AddRangeAsync(notifications);
@@ -47,7 +48,8 @@ public class NotificationService(AppDbContext context) : INotificationService
             UserId = userId,
             Summary = dto.Summary,
             Description = dto.Description,
-            CreationDate = DateTimeOffset.UtcNow
+            CreationDate = DateTimeOffset.UtcNow,
+            EmailRequired = dto.SendEmail
         };
 
         await context.AddAsync(notification);
@@ -79,6 +81,27 @@ public class NotificationService(AppDbContext context) : INotificationService
         context.Notification.Remove(notification);
         await context.SaveChangesAsync();
     }
+
+    public async Task<List<PendingEmailNotificationDTO>> GetPendingEmailsAsync(DateTimeOffset since)
+        => await context.Notification
+            .AsNoTracking()
+            .Where(x => x.EmailRequired && x.EmailSentDate == null && x.CreationDate >= since
+                && x.User.EmailNotificationsEnabled && !x.User.IsDisabled && x.User.Email != "")
+            .OrderBy(x => x.Id)
+            .Select(x => new PendingEmailNotificationDTO(x.Id, x.Summary, x.Description, x.User.Name + " " + x.User.Surname, x.User.Email))
+            .ToListAsync();
+
+    // Every installed app runs its own backend on the same database: the
+    // conditional update is atomic, so only one of them sends each email
+    public async Task<bool> TryClaimEmailAsync(long id)
+        => await context.Notification
+            .Where(x => x.Id == id && x.EmailSentDate == null)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => x.EmailSentDate, DateTimeOffset.UtcNow)) == 1;
+
+    public async Task ReleaseEmailClaimAsync(long id)
+        => await context.Notification
+            .Where(x => x.Id == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => x.EmailSentDate, (DateTimeOffset?)null));
 
     private static NotificationResponseDTO MapToDTO(Notification n)
         => new (

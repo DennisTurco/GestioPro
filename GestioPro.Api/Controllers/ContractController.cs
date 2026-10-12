@@ -71,7 +71,7 @@ public class ContractController(IContractService contractService) : ControllerBa
     /// <summary>
     /// Renewal contract based on contract type
     /// </summary>
-    [HttpGet("renewal")]
+    [HttpPost("renewal")]
     public async Task<IActionResult> RenewalAsync(long contractId)
     {
         var result = await contractService.RenewalAsync(contractId);

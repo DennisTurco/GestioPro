@@ -1,4 +1,4 @@
-import type { Customer, CustomerRequest, CityLookupResult, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit, Notification, CustomerDocument } from '../types'
+import type { Customer, CustomerRequest, CityLookupResult, Product, ProductRequest, ProductCategory, ProductCategoryRequest, Quotation, QuotationRequest, QuotationStatus, Setting, SmtpSettings, SmtpSettingsRequest, Contract, ContractRequest, ContractRenewal, ContractRenewalRequest, Audit, Notification, CustomerDocument } from '../types'
 
 // The packaged Electron app loads the UI via the custom app:// scheme (see
 // electron/main.js) and talks to its own bundled backend over plain loopback
@@ -108,6 +108,9 @@ export const QuotationAPI = {
 export const SettingsAPI = {
     getAll: () => apiFetch<Setting[]>('/settings'),
     update: (code: string, value: string) => apiFetch<null>(`/settings/${code}`, { method: 'PUT', body: JSON.stringify({ value }) }),
+    getSmtp: ()                          => apiFetch<SmtpSettings>('/settings/smtp'),
+    updateSmtp: (data: SmtpSettingsRequest) => apiFetch<SmtpSettings>('/settings/smtp', { method: 'PUT', body: JSON.stringify(data) }),
+    testSmtp: (data: SmtpSettingsRequest)   => apiFetch<{ sentTo: string }>('/settings/smtp/test', { method: 'POST', body: JSON.stringify(data) }),
 }
 
 export const ContractAPI = {
@@ -116,7 +119,7 @@ export const ContractAPI = {
     create: (data: ContractRequest)         => apiFetch<Contract>('/contracts', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: number, data: ContractRequest) => apiFetch<Contract>(`/contracts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     getNextNumber: (quotationId: number, quotationNumber: string) => apiFetch<string>(`/contracts/next-number?quotationId=${quotationId}&quotationNumber=${encodeURIComponent(quotationNumber)}`),
-    renewal: (id: number)                   => apiFetch<Contract>(`/contracts/renewal?contractId=${id}`),
+    renewal: (id: number)                   => apiFetch<Contract>(`/contracts/renewal?contractId=${id}`, { method: 'POST' }),
     delete: (id: number)                     => apiFetch<null>(`/contracts/${id}`, { method: 'DELETE' }),
 }
 

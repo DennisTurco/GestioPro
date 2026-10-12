@@ -1,7 +1,7 @@
 services:
   db:
     container_name: postgres-gestiopro
-    image: postgres:latest
+    image: postgres:18 # pinned: a newer major version can't read the existing data
     environment:
       POSTGRES_DB: gestiopro
       POSTGRES_USER: sa

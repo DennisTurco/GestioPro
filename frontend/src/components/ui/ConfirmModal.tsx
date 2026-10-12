@@ -8,9 +8,11 @@ interface ConfirmModalProps {
   buttonText?: string
   message: string
   loading?: boolean
+  // false for non-destructive confirmations (e.g. renewal): primary button instead of red
+  danger?: boolean
 }
 
-export default function ConfirmModal({ isOpen, onClose, onConfirm, title = 'Conferma eliminazione', buttonText = 'Elimina', message, loading }: ConfirmModalProps) {
+export default function ConfirmModal({ isOpen, onClose, onConfirm, title = 'Conferma eliminazione', buttonText = 'Elimina', message, loading, danger = true }: ConfirmModalProps) {
   return (
     <Modal
       isOpen={isOpen}
@@ -20,7 +22,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title = 'Conf
       footer={
         <>
           <button className="btn btn-ghost" onClick={onClose} disabled={loading}>Annulla</button>
-          <button className="btn btn-danger" onClick={onConfirm} disabled={loading}>
+          <button className={danger ? 'btn btn-danger' : 'btn btn-primary'} onClick={onConfirm} disabled={loading}>
             {loading ? <span className="spinner" /> : buttonText}
           </button>
         </>

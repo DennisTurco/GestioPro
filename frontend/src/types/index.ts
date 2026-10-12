@@ -215,6 +215,25 @@ export interface Setting {
   lastUpdateDate?: string
 }
 
+export type SmtpSecurity = 'None' | 'Auto' | 'StartTls' | 'SslOnConnect'
+
+export interface SmtpSettings {
+  host?: string
+  port?: number
+  security: SmtpSecurity
+  username?: string
+  hasPassword: boolean
+}
+
+// password: undefined keeps the saved one, '' removes it
+export interface SmtpSettingsRequest {
+  host?: string
+  port?: number
+  security: SmtpSecurity
+  username?: string
+  password?: string
+}
+
 export interface Notification {
   id: number
   userId: string

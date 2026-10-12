@@ -14,5 +14,5 @@ public static class NotificationMessages
         => new ("Contratto rinnovato", $"Il contratto '{contractTitle}' ({number}) è stato rinnovato fino al {endDate.Day}/{endDate.Month}/{endDate.Year}!");
 
     public static NotificationRequestDTO ContractExpiration(string contractTitle, string number, DateOnly endDate)
-        => new ("Contratto in scadenza", $"Il contratto '{contractTitle}' ({number}) è in scadenza. Scadenza prevista in data {endDate.Day}/{endDate.Month}/{endDate.Year}");
+        => new ("Contratto in scadenza", $"Il contratto '{contractTitle}' ({number}) è in scadenza. Scadenza prevista in data {endDate.Day}/{endDate.Month}/{endDate.Year}", SendEmail: true);
 }

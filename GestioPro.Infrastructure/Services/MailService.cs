@@ -1,6 +1,9 @@
 using GestioPro.Common;
 using GestioPro.Common.Interfaces;
 using MailKit.Net.Smtp;
+using System.Net.Sockets;
+using GestioPro.Common.Exceptions;
+using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 
@@ -8,18 +11,27 @@ namespace GestioPro.Infrastructure.Services;
 
 public class MailService(ISettingsService settingService, IConfiguration configuration) : IMailService
 {
-    public async Task SendEmailAsync(IEnumerable<Address> to, string subject, string htmlBody)
+    public async Task<bool> IsConfiguredAsync()
+        => await GetSmtpConfigurationAsync() is not null;
+
+    public async Task SendEmailAsync(IEnumerable<Address> to, string subject, string htmlBody, SmtpConfiguration? smtpConfig = null)
     {
+        smtpConfig ??= await GetSmtpConfigurationAsync()
+            ?? throw new DomainException("Server email non configurato: impostalo in Impostazioni > Server email");
+
         if (!to.Any())
-            throw new InvalidDataException("Impossible send the email because there are not destination address");
+            throw new DomainException("Impossibile inviare l'email: nessun destinatario");
 
         var companyName = (await settingService.GetByCodeAsync("CompanyName"))?.Value;
         var companyEmail = (await settingService.GetByCodeAsync("Email"))?.Value;
 
         if (string.IsNullOrWhiteSpace(companyName))
             companyName = "GestioPro";
+        // most providers only accept the authenticated account as sender
+        if (string.IsNullOrWhiteSpace(companyEmail) && smtpConfig.Username?.Contains('@') == true)
+            companyEmail = smtpConfig.Username;
         if (string.IsNullOrWhiteSpace(companyEmail))
-            throw new InvalidDataException("Impossible send the email because the Email filed in settings form is empty");
+            throw new DomainException("Impossibile inviare l'email: compila il campo Email in Impostazioni > Azienda");
 
         var fromAddress = new MailboxAddress(companyName, companyEmail);
 
@@ -36,13 +48,50 @@ public class MailService(ISettingsService settingService, IConfiguration configu
             HtmlBody = BuildHtmlEmail(companyName, subject, htmlBody)
         };
         message.Body = bb.ToMessageBody();
-        var smtpHost = configuration.GetValue<string>("Smtp:Host") ?? "localhost";
-        var smtpPort = configuration.GetValue<int?>("Smtp:Port") ?? 1025;
 
-        using var smtp = new SmtpClient();
-        await smtp.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.None);
-        await smtp.SendAsync(message);
+        using var smtp = new SmtpClient { Timeout = 20_000 }; // a wrong host/port fails fast instead of hanging for minutes
+        try
+        {
+            await smtp.ConnectAsync(smtpConfig.Host, smtpConfig.Port, Enum.Parse<SecureSocketOptions>(smtpConfig.Security));
+            if (!string.IsNullOrWhiteSpace(smtpConfig.Username))
+                await smtp.AuthenticateAsync(smtpConfig.Username, smtpConfig.Password ?? "");
+        }
+        catch (AuthenticationException)
+        {
+            throw new DomainException("Autenticazione SMTP fallita: controlla username e password");
+        }
+        catch (Exception ex) when (ex is SocketException or SslHandshakeException or SmtpProtocolException or IOException or TimeoutException or OperationCanceledException)
+        {
+            throw new DomainException($"Impossibile connettersi al server SMTP {smtpConfig.Host}:{smtpConfig.Port} ({ex.Message})");
+        }
+
+        try
+        {
+            await smtp.SendAsync(message);
+        }
+        catch (SmtpCommandException ex)
+        {
+            throw new DomainException($"Il server SMTP ha rifiutato l'email: {ex.Message}");
+        }
         await smtp.DisconnectAsync(true);
+    }
+
+    // The server configured by an admin in Impostazioni wins; appsettings "Smtp"
+    // is only a fallback for development (Mailpit, see appsettings.Development.json)
+    private async Task<SmtpConfiguration?> GetSmtpConfigurationAsync()
+    {
+        var saved = await settingService.GetSmtpConfigurationAsync();
+        if (saved is not null) return saved;
+
+        var host = configuration.GetValue<string>("Smtp:Host");
+        if (string.IsNullOrWhiteSpace(host)) return null;
+
+        return new SmtpConfiguration(
+            host,
+            configuration.GetValue<int?>("Smtp:Port") ?? 25,
+            configuration.GetValue<string>("Smtp:Security") ?? "None",
+            configuration.GetValue<string>("Smtp:Username"),
+            configuration.GetValue<string>("Smtp:Password"));
     }
 
     private static string BuildHtmlEmail(string companyName, string subject, string bodyText)

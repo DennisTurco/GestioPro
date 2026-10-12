@@ -25,4 +25,10 @@ public class Notification
     public bool IsRead { get; set; } = false;
 
     public DateTimeOffset CreationDate { get; set; }
+
+    // email delivery: EmailSentDate stays null until the email actually goes out,
+    // so a failed send (SMTP down or not configured yet) is retried later
+    public bool EmailRequired { get; set; } = false;
+
+    public DateTimeOffset? EmailSentDate { get; set; }
 }

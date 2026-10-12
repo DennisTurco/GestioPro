@@ -706,11 +706,11 @@ export default function SchedaCliente() {
           Clienti
         </button>
         <div className="row-actions">
-          <button className="btn btn-ghost btn-sm btn-icon" onClick={openEditCustomer}>
+          <button className="btn btn-ghost btn-sm" onClick={openEditCustomer}>
             <i className="fa-solid fa-pen" style={{ marginRight: 6 }} />
             Modifica
           </button>
-          <button className="btn btn-ghost btn-sm btn-icon btn-icon-danger" onClick={() => setDeleteModalOpen(true)}>
+          <button className="btn btn-ghost btn-sm btn-icon-danger" onClick={() => setDeleteModalOpen(true)}>
             <i className="fa-solid fa-trash" style={{ marginRight: 6 }} />
             Elimina
           </button>
@@ -1366,6 +1366,9 @@ export default function SchedaCliente() {
         onClose={() => setRenewTarget(null)}
         onConfirm={handleRenewal}
         loading={renewing}
+        title="Conferma rinnovo"
+        buttonText="Rinnova"
+        danger={false}
         message={renewTarget ? `Rinnova il contratto "${renewTarget.title}"? La data di fine verrà estesa in base al tipo (${CONTRACT_TYPE_LABEL[renewTarget.contractType]}).` : ''}
       />
 

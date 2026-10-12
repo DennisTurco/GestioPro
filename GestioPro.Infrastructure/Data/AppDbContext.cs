@@ -118,6 +118,41 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Value = null,
                 Description = "company logo, stored as a base64 data URL",
                 LastUpdateDate = null
+            },
+            new Settings
+            {
+                Code = "SmtpHost",
+                Value = null,
+                Description = "SMTP server host for outgoing emails (empty = emails disabled)",
+                LastUpdateDate = null
+            },
+            new Settings
+            {
+                Code = "SmtpPort",
+                Value = null,
+                Description = "SMTP server port",
+                LastUpdateDate = null
+            },
+            new Settings
+            {
+                Code = "SmtpSecurity",
+                Value = null,
+                Description = "SMTP connection security: None, Auto, StartTls, SslOnConnect",
+                LastUpdateDate = null
+            },
+            new Settings
+            {
+                Code = "SmtpUsername",
+                Value = null,
+                Description = "SMTP login username",
+                LastUpdateDate = null
+            },
+            new Settings
+            {
+                Code = "SmtpPassword",
+                Value = null,
+                Description = "SMTP login password, never returned by the API",
+                LastUpdateDate = null
             }
         );
 

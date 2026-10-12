@@ -136,7 +136,9 @@ dotnet bin/Release/net10.0/GestioPro.Api.dll
 
 - Start it with `docker compose up -d mailpit` (service defined in `docker-compose.yml`, image `axllent/mailpit`, SMTP on port 1025, web UI on port 8025).
 - Open **[http://localhost:8025](http://localhost:8025)** to see everything the app has sent.
-- Host/port are read from config (`Smtp:Host` / `Smtp:Port` in `appsettings.json`, default `localhost:1025`) rather than hardcoded, so production only needs to override them (plus SMTP auth/TLS, which Mailpit doesn't require but a real provider will) via `appsettings.Production.json` or environment variables — same layering as described in **Environments** above.
+- The real SMTP server (host, port, security, username, password) is set by an admin in **Impostazioni > Server email** and stored in the `settings` table (`Smtp*` codes). Those rows are hidden from the generic `/settings` endpoints and only go through the admin-only `/settings/smtp` ones; the password is never returned by the API (it is stored in plain text in the DB, though). "Invia email di prova" sends a test email to the logged-in admin with the form values, before saving.
+- When no server is saved, `MailService` falls back to `Smtp:Host` / `Smtp:Port` from config, which only `appsettings.Development.json` sets (Mailpit). A packaged app with no saved server sends nothing.
+- Expiration notifications are created with `EmailRequired`; `NotificationBackgroundService` sends one email per user (with email notifications on) and sets `EmailSentDate` only after a successful send, so failed emails are retried on the next run for up to 14 days. Each email is claimed with an atomic update first, so several installed apps running at once don't send it twice.
 
 ## Supabase setup (from scratch)
 
@@ -193,9 +195,13 @@ If your changes touched an entity (added/removed/renamed a field, added a table,
    dotnet ef database update --project GestioPro.Infrastructure --startup-project GestioPro.Api
    Remove-Item Env:\ASPNETCORE_ENVIRONMENT
    ```
-   Double-check first with `dotnet ef migrations list --project GestioPro.Infrastructure --startup-project GestioPro.Api` (same env var set) — every already-applied migration is listed plain, anything not yet applied is marked `(Pending)`. This is also how you confirm the command above actually went through: re-run `migrations list` afterward and the `(Pending)` tag should be gone.
+   On Linux/macOS (bash/zsh), prefix the variable to the command instead: it only applies to that one command, so there's nothing to remove afterwards and your shell can't stay stuck on `Production` by mistake:
+   ```
+   ASPNETCORE_ENVIRONMENT=Production dotnet ef database update --project GestioPro.Infrastructure --startup-project GestioPro.Api
+   ```
+   Double-check first with `dotnet ef migrations list --project GestioPro.Infrastructure --startup-project GestioPro.Api` (same env var set, or `ASPNETCORE_ENVIRONMENT=Production dotnet ef migrations list ...` on Linux/macOS) — every already-applied migration is listed plain, anything not yet applied is marked `(Pending)`. This is also how you confirm the command above actually went through: re-run `migrations list` afterward and the `(Pending)` tag should be gone.
 
-   This talks to the **live production database** used by everyone who has the app installed — there's no staging Supabase project. Double, triple check `$env:ASPNETCORE_ENVIRONMENT` is actually `Production` before running `database update` (an empty/wrong value silently falls back to the local dev connection string instead, per the environments gotcha above) and that the migration only *adds* things (new nullable/defaulted columns, new tables) rather than dropping or renaming — anything destructive should go through a manual backup first.
+   This talks to the **live production database** used by everyone who has the app installed — there's no staging Supabase project. Double, triple check `ASPNETCORE_ENVIRONMENT` is actually `Production` before running `database update` (an empty/wrong value silently falls back to the local dev connection string instead, per the environments gotcha above) and that the migration only *adds* things (new nullable/defaulted columns, new tables) rather than dropping or renaming — anything destructive should go through a manual backup first.
 
 ### 1. Bump the version
 

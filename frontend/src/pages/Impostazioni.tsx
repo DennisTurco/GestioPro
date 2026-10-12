@@ -3,6 +3,7 @@ import { SettingsAPI, ClientiAPI } from '../services/api'
 import { UserRole, type Setting } from '../types'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
+import SmtpSettingsCard from '../components/settings/SmtpSettingsCard'
 
 const SETTING_CODES = [
   'CompanyName',
@@ -321,6 +322,8 @@ export default function Impostazioni() {
           </div>
         </div>
 
+        {user?.userRole === UserRole.Admin && <SmtpSettingsCard />}
+
         <div className="card mb-24">
           <div className="card-header">
             <i className="fa-solid fa-gear" /> Sistema
@@ -334,7 +337,7 @@ export default function Impostazioni() {
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 0', color: 'var(--color-text-muted)' }}>Versione</td>
-                  <td style={{ padding: '6px 0' }}>0.7.0-beta</td>
+                  <td style={{ padding: '6px 0' }}>0.7.1-beta</td>
                 </tr>
                 {user && (
                   <>

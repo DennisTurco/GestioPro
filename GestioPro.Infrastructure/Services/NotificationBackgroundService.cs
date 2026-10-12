@@ -17,6 +17,8 @@ public class NotificationBackgroundService(
     IConfiguration configuration,
     ILogger<NotificationBackgroundService> logger) : BackgroundService
 {
+    private static readonly TimeSpan EmailRetryWindow = TimeSpan.FromDays(14);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var intervalHours = configuration.GetValue<double?>("Notification:IntervalHours") ?? 12;
@@ -39,7 +41,6 @@ public class NotificationBackgroundService(
             var contractService = scope.ServiceProvider.GetRequiredService<IContractService>();
 
             var contracts = await contractService.GetAllAsync();
-            var createdNotifications = new List<NotificationRequestDTO>();
 
             foreach (var contract in contracts)
             {
@@ -54,20 +55,15 @@ public class NotificationBackgroundService(
                     continue;
 
                 await notificationService.CreateAsync(notificationRequest);
-                logger.LogInformation("Exiration notification sent for contract: {ContractTitle}", contract.Title);
-                createdNotifications.Add(notificationRequest);
+                logger.LogInformation("Expiration notification sent for contract: {ContractTitle}", contract.Title);
             }
 
-            foreach (var notificationRequest in createdNotifications)
-                await SendEmailAsync(scope, notificationRequest);
+            // also picks up emails that failed on a previous run
+            await SendPendingEmailsAsync(scope);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             // shutting down
-        }
-        catch (InvalidDataException ex)
-        {
-            logger.LogWarning(ex, "Cannot send the email: " + ex.Message);
         }
         catch (Exception ex)
         {
@@ -75,18 +71,37 @@ public class NotificationBackgroundService(
         }
     }
 
-    private static async Task SendEmailAsync(IServiceScope scope, NotificationRequestDTO notification)
+    private async Task SendPendingEmailsAsync(IServiceScope scope)
     {
-        var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
         var mailService = scope.ServiceProvider.GetRequiredService<IMailService>();
 
-        var usersToNotifyViaEmail = await userService.GetUsersToSendEmailAsync();
-        List<Address> addresses = new List<Address>();
-        foreach (var user in usersToNotifyViaEmail)
+        // past this, the reminder is stale (the contract has likely expired or been renewed)
+        var pending = await notificationService.GetPendingEmailsAsync(DateTimeOffset.UtcNow.Add(-EmailRetryWindow));
+        if (pending.Count == 0)
+            return;
+
+        if (!await mailService.IsConfiguredAsync())
         {
-            var address = new Address($"{user.Name} {user.Surname}", user.Email);
-            addresses.Add(address);
+            logger.LogInformation("Email server not configured: {Count} email(s) waiting", pending.Count);
+            return;
         }
-        await mailService.SendEmailAsync(addresses, notification.Summary, notification.Description ?? "");
+
+        foreach (var notification in pending)
+        {
+            // another instance of the app may be sending the same email
+            if (!await notificationService.TryClaimEmailAsync(notification.Id))
+                continue;
+
+            try
+            {
+                await mailService.SendEmailAsync([new Address(notification.UserName, notification.UserEmail)], notification.Summary, notification.Description ?? "");
+            }
+            catch (Exception ex)
+            {
+                await notificationService.ReleaseEmailClaimAsync(notification.Id);
+                logger.LogWarning(ex, "Cannot send the email '{Summary}' to {Email}, will retry: {Message}", notification.Summary, notification.UserEmail, ex.Message);
+            }
+        }
     }
 }

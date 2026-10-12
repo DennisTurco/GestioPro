@@ -64,17 +64,23 @@ function configureLinuxAutoLaunch() {
     // builds run as "<name>.bin" behind the sandbox-detecting launcher script
     // (build/after-pack.cjs): autostart goes through the launcher too.
     const exec = process.env.APPIMAGE || process.execPath.replace(/\.bin$/, '');
+    // The bundled icon lives inside app.asar, which the desktop can't read:
+    // copy it next to the app data so the autostart entry shows the real icon.
+    const icon = path.join(app.getPath('userData'), 'icon.png');
     const entry = [
         '[Desktop Entry]',
         'Type=Application',
         'Name=GestioPro',
         `Exec="${exec}" ${HIDDEN_ARG}`,
+        `Icon=${icon}`,
         'Terminal=false',
         'X-GNOME-Autostart-enabled=true',
         '',
     ].join('\n');
 
     try {
+        fs.mkdirSync(path.dirname(icon), { recursive: true });
+        fs.writeFileSync(icon, fs.readFileSync(APP_ICON_PATH));
         fs.mkdirSync(path.dirname(file), { recursive: true });
         fs.writeFileSync(file, entry);
     } catch (err) {
@@ -90,10 +96,39 @@ function configureAutoLaunch() {
         return;
     }
 
+    // The macOS build isn't notarized: launched from the DMG or from Downloads,
+    // Gatekeeper runs it from a random read-only copy (App Translocation) that
+    // disappears afterwards. A login item registered from there points at a
+    // path that no longer exists, so System Settings shows a generic icon and
+    // the app doesn't start at login: only register once it's in Applications.
+    if (process.platform === 'darwin' && !app.isInApplicationsFolder()) {
+        offerMoveToApplications();
+        return;
+    }
+
     app.setLoginItemSettings({
         openAtLogin: true,
         args: [HIDDEN_ARG],
     });
+}
+
+function offerMoveToApplications() {
+    const choice = dialog.showMessageBoxSync({
+        type: 'question',
+        buttons: ['Sposta in Applicazioni', 'Non ora'],
+        defaultId: 0,
+        cancelId: 1,
+        message: 'Spostare GestioPro nella cartella Applicazioni?',
+        detail: 'GestioPro non è in esecuzione dalla cartella Applicazioni: l\'avvio automatico al login non può essere attivato finché non viene spostato.',
+    });
+    if (choice !== 0) return;
+
+    try {
+        // relaunches the app from /Applications on success
+        app.moveToApplicationsFolder();
+    } catch (err) {
+        console.error('[electron] move to Applications', err);
+    }
 }
 
 // ── Backend ───────────────────────────────────────────
