@@ -104,7 +104,7 @@ public class NotificationService(AppDbContext context) : INotificationService
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.EmailSentDate, (DateTimeOffset?)null));
 
     private static NotificationResponseDTO MapToDTO(Notification n)
-        => new (
+        => new(
             n.Id,
             n.UserId,
             n.Summary,

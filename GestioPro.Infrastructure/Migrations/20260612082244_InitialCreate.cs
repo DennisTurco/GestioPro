@@ -92,18 +92,18 @@ namespace GestioPro.Infrastructure.Migrations
                     table.PrimaryKey("PK_users", x => x.Id);
                 });
 
-             // default user -> username: admin, pass: admin
-             // Note: IsDisabled/LastUpdateDate/UserRole don't exist on the "users" table
-             // yet at this point in the migration history - they're added later by
-             // User-Role-Update, whose AddColumn default values (false / Admin) apply to
-             // this seeded row too, producing the same end state.
-             migrationBuilder.InsertData(
-                table: "users",
-                columns: new[] {"Id", "Username", "Email", "Password", "Name", "Surname", "CreatedDate"},
-                values: new object[,]
-                {
+            // default user -> username: admin, pass: admin
+            // Note: IsDisabled/LastUpdateDate/UserRole don't exist on the "users" table
+            // yet at this point in the migration history - they're added later by
+            // User-Role-Update, whose AddColumn default values (false / Admin) apply to
+            // this seeded row too, producing the same end state.
+            migrationBuilder.InsertData(
+               table: "users",
+               columns: new[] { "Id", "Username", "Email", "Password", "Name", "Surname", "CreatedDate" },
+               values: new object[,]
+               {
                     { "09793cde-0d45-4d4d-9e49-202a11e567fa", "admin", "admin@gmail.com", "100000.3Uf5xk/2GsWVV5RY9NFaWA==.TzWvJ/7dbXfhqAKAp+je13/McNfKdNcAsgIbuZDWk8Q=", "Admin", "Admin", DateTimeOffset.UtcNow }
-                });
+               });
 
             migrationBuilder.CreateTable(
                 name: "contracts",

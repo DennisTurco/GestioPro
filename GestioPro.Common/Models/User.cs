@@ -40,7 +40,7 @@ public class User
     public DateTimeOffset LastUpdateDate { get; set; }
 
     [Required]
-    public bool IsDisabled {get; set; } = false; // soft delete
+    public bool IsDisabled { get; set; } = false; // soft delete
 
     public bool EmailNotificationsEnabled { get; set; } = true;
 }

@@ -5,7 +5,6 @@ using GestioPro.Common.Interfaces;
 using GestioPro.Common.Helpers;
 using Microsoft.EntityFrameworkCore;
 using GestioPro.Common.Models;
-using GestioPro.Common.Enums;
 using GestioPro.Infrastructure.Extensions;
 using GestioPro.Common;
 using StringKit;
@@ -117,7 +116,7 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
     {
         var values = await GetSmtpValuesAsync();
         var host = values.GetValueOrDefault(SmtpHost);
-        if (host.IsNullOrWhiteSpace()) return null;
+        if (string.IsNullOrWhiteSpace(host)) return null;
 
         return new SmtpConfiguration(
             host!,
@@ -133,7 +132,7 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
     private async Task<SmtpConfiguration> ResolveSmtpConfigurationAsync(SmtpSettingsRequestDTO dto, bool requireHost)
     {
         var host = dto.Host?.Trim() ?? "";
-        var security = dto.Security.IsNullOrWhiteSpace() ? "Auto" : dto.Security!;
+        var security = string.IsNullOrWhiteSpace(dto.Security) ? "Auto" : dto.Security!;
 
         if (host.IsNullOrWhiteSpace())
         {
@@ -164,11 +163,11 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
             int.TryParse(values.GetValueOrDefault(SmtpPort), out var port) ? port : null,
             values.GetValueOrDefault(SmtpSecurity) ?? "Auto",
             values.GetValueOrDefault(SmtpUsername),
-            !values.GetValueOrDefault(SmtpPassword).IsNullOrWhiteSpace()
+            !string.IsNullOrWhiteSpace(values.GetValueOrDefault(SmtpPassword))
         );
 
     private static string? NullIfEmpty(string? value)
-        => value.IsNullOrWhiteSpace() ? null : value;
+        => string.IsNullOrWhiteSpace(value) ? null : value;
 
     private static SettingsResponseDTO MapToDto(Settings s)
         => new(
