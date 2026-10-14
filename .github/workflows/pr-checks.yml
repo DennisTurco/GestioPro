@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write # results comment on the PR
 
 concurrency:
   group: pr-checks-${{ github.event.pull_request.number }}
@@ -49,24 +50,57 @@ jobs:
           ./analyze.ps1 -Changed -Base "origin/${{ github.base_ref }}" *>&1 | Tee-Object -FilePath analyze-output.txt
           $code = $LASTEXITCODE
 
-          # Results Summary ... Result: line, plus the list of changed files, into the run page
-          $lines   = Get-Content analyze-output.txt
-          $mode    = $lines | Where-Object { $_ -match "^Mode: " }
-          $start   = [array]::FindIndex([string[]]$lines, [Predicate[string]]{ param($l) $l -match "Results Summary" })
+          # Results Summary ... Result: line, plus the list of changed files, for the run page and the PR comment
+          $lines   = [string[]](Get-Content analyze-output.txt)
+          $modeAt  = [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "^Mode: " })
+          $start   = [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "Results Summary" })
           $summary = if ($start -ge 0) { $lines[$start..($lines.Count - 1)] | Where-Object { $_ -notmatch "^=+$|^Open reports:|^\s+(Coverage|Warnings|Format|Security)\s+:" } } else { $lines | Select-Object -Last 20 }
-          @(
+          $mode    = if ($modeAt -ge 0) { $lines[$modeAt] } else { "" }
+          $files   = if ($modeAt -ge 0) { $lines[($modeAt + 1)..($lines.Count - 1)] | ForEach-Object -Begin { $go = $true } -Process { if ($go -and $_ -match "^  \S") { "- ``$($_.Trim())``" } else { $go = $false } } } else { @() }
+          $status  = if ($code -eq 0) { ":white_check_mark: **Passed**" } else { ":x: **Failed**" }
+          $runUrl  = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          $body = @(
             "## GestioPro - PR checks"
             ""
-            "$mode"
+            "$status - commit ${{ github.event.pull_request.head.sha }}"
             ""
             '```'
             $summary
             '```'
             ""
-            "Full report (coverage HTML, warnings, audit): **analyze-report** artifact below."
-          ) | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+            "<details><summary>$mode</summary>"
+            ""
+            $files
+            ""
+            "</details>"
+            ""
+            "Full report (coverage HTML, warnings, audit): **analyze-report** artifact of [this run]($runUrl)."
+          )
+          $body | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          $body | Out-File pr-comment.md -Encoding utf8
 
           exit $code
+
+      # One comment per PR, updated in place on every push (found by the hidden marker).
+      # continue-on-error: PRs from forks get a read-only token and cannot comment.
+      - name: Comment results on PR
+        if: always() && hashFiles('pr-comment.md') != ''
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- gestiopro-pr-checks -->';
+            const body = `${marker}\n${fs.readFileSync('pr-comment.md', 'utf8')}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find(c => c.user.type === 'Bot' && c.body.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
 
       - name: Upload report
         if: always()
