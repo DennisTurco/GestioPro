@@ -102,4 +102,5 @@ public class ContractServiceTests
         await Assert.ThrowsAsync<DuplicateEntityException>(() => service.CreateAsync(CreateRequest()));
         Assert.Equal(1, await context.Contracts.CountAsync());
     }
+
 }
