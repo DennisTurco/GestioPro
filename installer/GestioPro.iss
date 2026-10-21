@@ -26,7 +26,9 @@
 #endif
 
 [Setup]
-AppId={B8E1A6D4-2F3C-4A9B-8E5D-9A0C3F7B21D4}
+; La doppia "{{" è voluta: è l'escape di Inno Setup per una "{" letterale.
+; Con una sola graffa il GUID viene letto come costante e la build fallisce.
+AppId={{B8E1A6D4-2F3C-4A9B-8E5D-9A0C3F7B21D4}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
