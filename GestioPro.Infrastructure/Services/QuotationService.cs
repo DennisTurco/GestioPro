@@ -80,7 +80,7 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
 
         var oldValues = MapToDto(quotation);
 
-        if (oldValues.HasChanged(quotation, MapToDto)) return oldValues;
+        if (!dto.HasChanged(quotation, ToRequestDto)) return oldValues;
 
         quotation.CustomerId = dto.CustomerId;
         quotation.QuotationStatus = dto.QuotationStatus;
@@ -217,4 +217,10 @@ public class QuotationService(AppDbContext context, IAuditService auditService) 
                 p.UnitPrice * p.Quantity
             )).ToList()
         );
+
+    private static QuotationRequestDTO ToRequestDto(Quotation q) => new(
+        q.CustomerId, q.QuotationStatus, q.Number, q.Title,
+        q.Amount, q.VatPercentage, q.DiscountPercentage,
+        q.Description, q.Notes, q.IssueDate, q.ValidityDate,
+        q.Products.Select(p => new QuotationProductRequestDTO(p.ProductId, p.Quantity, p.ProductName, p.UnitPrice)).ToList());
 }

@@ -16,7 +16,7 @@
 #define AppName      "GestioPro"
 ; Sovrascrivibile da riga di comando (/DAppVersion=...), come fa la workflow di release
 #ifndef AppVersion
-  #define AppVersion "0.7.1-beta"
+  #define AppVersion "0.7.2-beta"
 #endif
 #define AppPublisher "DennisTurco"
 #define AppURL       "https://github.com/DennisTurco/GestioPro"
@@ -26,7 +26,7 @@
 #endif
 
 [Setup]
-AppId={{B8E1A6D4-2F3C-4A9B-8E5D-9A0C3F7B21D4}
+AppId={B8E1A6D4-2F3C-4A9B-8E5D-9A0C3F7B21D4}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}

@@ -72,7 +72,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
 
         var oldValues = MapToDto(entity);
 
-        if (oldValues.HasChanged(entity, MapToDto)) return oldValues;
+        if (!oldValues.HasChanged(entity, MapToDto)) return oldValues;
 
         entity.ProductStatus = dto.ProductStatus;
         entity.ItemType = dto.ItemType;

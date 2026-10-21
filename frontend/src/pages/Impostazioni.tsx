@@ -337,7 +337,7 @@ export default function Impostazioni() {
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 0', color: 'var(--color-text-muted)' }}>Versione</td>
-                  <td style={{ padding: '6px 0' }}>0.7.1-beta</td>
+                  <td style={{ padding: '6px 0' }}>0.7.2-beta</td>
                 </tr>
                 {user && (
                   <>

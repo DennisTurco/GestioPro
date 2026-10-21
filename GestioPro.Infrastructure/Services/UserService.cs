@@ -116,7 +116,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
 
         var oldValues = MapToDto(user);
 
-        if (oldValues.HasChanged(user, MapToDto)) return oldValues;
+        if (!oldValues.HasChanged(user, MapToDto)) return oldValues;
 
         user.Username = dto.Username;
         user.Email = dto.Email;

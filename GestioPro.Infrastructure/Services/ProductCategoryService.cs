@@ -61,7 +61,7 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
 
         var oldValues = MapToDto(existing);
 
-        if (oldValues.HasChanged(existing, MapToDto)) return oldValues;
+        if (!oldValues.HasChanged(existing, MapToDto)) return oldValues;
 
         existing.Name = dto.Name;
         existing.Description = dto.Description;

@@ -35,7 +35,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
         return contract is null ? null : MapToDto(contract);
     }
 
-    public async Task CreateAsync(ContractRequestDTO dto)
+    public async Task<ContractResponseDTO> CreateAsync(ContractRequestDTO dto)
     {
         var existing = await context.Contracts
             .FirstOrDefaultAsync(c => c.Number == dto.Number);
@@ -76,6 +76,8 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
 
         await auditService.LogAsync("Create", nameof(Contract), contract.Id.ToString(), newValues: MapToDto(contract));
         await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
+
+        return MapToDto(contract);
     }
 
     public async Task<ContractResponseDTO> UpdateAsync(long id, ContractRequestDTO dto)
@@ -86,7 +88,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
 
         var oldValues = MapToDto(contract);
 
-        if (!oldValues.HasChanged(contract, MapToDto)) return oldValues;
+        if (!dto.HasChanged(contract, ToRequestDto)) return oldValues;
 
         contract.QuotationId = dto.QuotationId;
         contract.Title = dto.Title;
@@ -201,4 +203,9 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
             c.LastUpdateDate,
             c.Status
         );
+
+    private static ContractRequestDTO ToRequestDto(Contract c) => new(
+        c.QuotationId, c.ContractType, c.Number, c.Title,
+        c.Amount, c.VatPercentage, c.Description, c.Notes,
+        c.FilePath, c.StartDate);
 }
