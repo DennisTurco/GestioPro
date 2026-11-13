@@ -35,7 +35,7 @@ Installers for every platform are attached to each [GitHub Release](https://gith
    ```
 2. Run the backend:
    ```bash
-   cd GestioPro.Api && dotnet run
+   dotnet run --project ./GestioPro.Api
    ```
 3. Run the frontend:
    ```bash

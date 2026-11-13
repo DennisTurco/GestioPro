@@ -70,7 +70,17 @@ export default function Clienti() {
       const [cList] = await Promise.all([
         ClientiAPI.getAll()
       ])
-      setCustomers(cList)
+      let sortedCustomers = cList.sort((c1, c2) => {
+        if (c1.contractCount === c2.contractCount) {
+            let name1 = (c1.name + " " + c1.surname).toLowerCase;
+            let name2 = (c2.name + " " + c2.surname).toLowerCase;
+            if (name1 > name2) return -1;
+            return 1;
+        }
+        if (c1.contractCount > c2.contractCount) return -1;
+        return 1;
+      });
+      setCustomers(sortedCustomers)
     } catch {
       showToast('Errore nel caricamento dei clienti', 'error')
     } finally {
