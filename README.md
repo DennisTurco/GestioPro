@@ -37,6 +37,10 @@ Installers for every platform are attached to each [GitHub Release](https://gith
    ```bash
    dotnet run --project ./GestioPro.Api
    ```
+   or
+   ```bash
+   dotnet run --project GestioPro.Api --launch-profile https
+   ```
 3. Run the frontend:
    ```bash
    cd frontend && npm install && npm run dev

@@ -1,5 +1,4 @@
 using GestioPro.Common.DTOs;
-using GestioPro.Common.Models;
 
 namespace GestioPro.Common.Interfaces;
 

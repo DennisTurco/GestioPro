@@ -47,7 +47,7 @@ public class NotificationBackgroundService(
                 if (contract.Status != ContractStatus.Expiring)
                     continue;
 
-                var notificationRequest = NotificationMessages.ContractExpiration(contract.Title, contract.Number, contract.EndDate);
+                var notificationRequest = NotificationMessages.ContractExpiration(contract.Title, contract.Number, contract.EndDate, contract.CustomerFullName);
 
                 // check if the notification is already sent in the last 1 month
                 var count = await notificationService.CountByDateAndDescriptionAsync(DateTimeOffset.UtcNow.AddMonths(-1), notificationRequest.Description ?? "");
