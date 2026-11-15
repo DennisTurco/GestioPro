@@ -61,7 +61,7 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
 
         var oldValues = MapToDto(existing);
 
-        if (!oldValues.HasChanged(existing, MapToDto)) return oldValues;
+        if (!dto.HasChanged(existing, ToProductCategoryRequestDTO)) return oldValues;
 
         existing.Name = dto.Name;
         existing.Description = dto.Description;
@@ -99,4 +99,8 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
             p.LastUpdateDate,
             p.IsDisabled
         );
+
+    private static ProductCategoryRequestDTO ToProductCategoryRequestDTO(ProductCategory p) => new (
+        p.Name, p.Description
+    );
 }
