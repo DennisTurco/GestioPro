@@ -100,7 +100,7 @@ public class ProductCategoryService(AppDbContext context, IAuditService auditSer
             p.IsDisabled
         );
 
-    private static ProductCategoryRequestDTO ToProductCategoryRequestDTO(ProductCategory p) => new (
+    private static ProductCategoryRequestDTO ToProductCategoryRequestDTO(ProductCategory p) => new(
         p.Name, p.Description
     );
 }

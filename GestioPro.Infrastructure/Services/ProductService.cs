@@ -125,7 +125,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
             p.IsDisabled
         );
 
-    private static ProductRequestDTO ToProductRequestDTO(Product p) => new (
+    private static ProductRequestDTO ToProductRequestDTO(Product p) => new(
         p.CategoryId, p.ProductStatus, p.ItemType, p.Code, p.Ean, p.Name,
         p.Description, p.Quantity, p.VatPercentage, p.Price
     );

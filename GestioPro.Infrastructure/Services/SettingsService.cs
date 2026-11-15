@@ -178,5 +178,5 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
         );
 
     private static SettingsRequestDTO ToSettingsRequestDTO(Settings s)
-        => new (s.Value);
+        => new(s.Value);
 }

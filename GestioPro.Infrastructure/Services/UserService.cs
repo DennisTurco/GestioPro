@@ -221,7 +221,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             u.LastUpdateDate
         );
 
-    private static UserUpdateDTO ToUserUpdateDTO(User u) => new (
+    private static UserUpdateDTO ToUserUpdateDTO(User u) => new(
         u.Username, u.Email, u.Name, u.Surname, u.EmailNotificationsEnabled
     );
 }

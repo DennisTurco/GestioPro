@@ -41,7 +41,7 @@ public class ContractServiceTests
 
         context.Customers.AddRange(
             new Customer { Id = 1, CustomerType = CustomerType.PRIVATE, Name = "Luigi", Surname = "Franchi", Email = "luigi.franchi@gmail.com", Phone = "3421555192", IsDisabled = false, InsertDate = DateTimeOffset.UtcNow, LastUpdateDate = DateTimeOffset.UtcNow },
-            new Customer { Id = 2, CustomerType = CustomerType.PRIVATE, Name = "Mario", Surname = "Rossi",   Email = "luigi.franchi@gmail.com", Phone = "3421444192", IsDisabled = false, InsertDate = DateTimeOffset.UtcNow, LastUpdateDate = DateTimeOffset.UtcNow });
+            new Customer { Id = 2, CustomerType = CustomerType.PRIVATE, Name = "Mario", Surname = "Rossi", Email = "luigi.franchi@gmail.com", Phone = "3421444192", IsDisabled = false, InsertDate = DateTimeOffset.UtcNow, LastUpdateDate = DateTimeOffset.UtcNow });
 
         context.Quotations.AddRange(
             new Quotation { Id = 1, CustomerId = 1, Number = "2026-001", Title = "Preventivo 1" },
