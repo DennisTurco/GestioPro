@@ -72,7 +72,7 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
 
         var oldValues = MapToDto(entity);
 
-        if (!oldValues.HasChanged(entity, MapToDto)) return oldValues;
+        if (!dto.HasChanged(entity, ToProductRequestDTO)) return oldValues;
 
         entity.ProductStatus = dto.ProductStatus;
         entity.ItemType = dto.ItemType;
@@ -124,4 +124,9 @@ public class ProductService(AppDbContext context, IAuditService auditService) : 
             p.Price,
             p.IsDisabled
         );
+
+    private static ProductRequestDTO ToProductRequestDTO(Product p) => new(
+        p.CategoryId, p.ProductStatus, p.ItemType, p.Code, p.Ean, p.Name,
+        p.Description, p.Quantity, p.VatPercentage, p.Price
+    );
 }

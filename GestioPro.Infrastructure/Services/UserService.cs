@@ -116,7 +116,7 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
 
         var oldValues = MapToDto(user);
 
-        if (!oldValues.HasChanged(user, MapToDto)) return oldValues;
+        if (!dto.HasChanged(user, ToUserUpdateDTO)) return oldValues;
 
         user.Username = dto.Username;
         user.Email = dto.Email;
@@ -220,4 +220,8 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             u.CreatedDate,
             u.LastUpdateDate
         );
+
+    private static UserUpdateDTO ToUserUpdateDTO(User u) => new(
+        u.Username, u.Email, u.Name, u.Surname, u.EmailNotificationsEnabled
+    );
 }

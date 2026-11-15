@@ -16,8 +16,8 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
     public async Task<List<ContractResponseDTO>> GetAllAsync()
     {
         var contracts = await context.Contracts
-            .Include(c => c.Quotation)
             .Include(c => c.Renewals)
+            .Include(c => c.Quotation).ThenInclude(q => q.Customer)
             .AsNoTracking()
             .ToListAsync();
 
@@ -27,8 +27,8 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
     public async Task<ContractResponseDTO?> GetByIdAsync(long id)
     {
         var contract = await context.Contracts
-            .Include(c => c.Quotation)
             .Include(c => c.Renewals)
+            .Include(c => c.Quotation).ThenInclude(q => q.Customer)
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -110,7 +110,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
     public async Task<ContractResponseDTO> RenewalAsync(long id)
     {
         var contract = await context.Contracts
-            .Include(x => x.Quotation)
+            .Include(x => x.Quotation).ThenInclude(q => q.Customer)
             .Include(x => x.Renewals)
             .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EntityNotFoundException("Contratto non trovato");
 
@@ -128,7 +128,7 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
         await auditService.LogAsync("Update", nameof(Contract), contract.Id.ToString(), oldValues, newValues);
         await auditService.LogAsync("Create", nameof(ContractRenewal), renewal.Id.ToString(), newValues: MapToDto(renewal));
 
-        await notificationService.CreateAsync(NotificationMessages.ContractRenewed(contract.Title, contract.Number, contract.EndDate));
+        await notificationService.CreateAsync(NotificationMessages.ContractRenewed(contract.Title, contract.Number, contract.EndDate, contract.Quotation.Customer.Name + " " + contract.Quotation.Customer.Surname));
 
         return newValues;
     }
@@ -201,7 +201,8 @@ public class ContractService(AppDbContext context, IAuditService auditService, I
             c.FilePath,
             c.CreationDate,
             c.LastUpdateDate,
-            c.Status
+            c.Status,
+            c.Quotation.Customer.Name + " " + c.Quotation.Customer.Surname
         );
 
     private static ContractRequestDTO ToRequestDto(Contract c) => new(

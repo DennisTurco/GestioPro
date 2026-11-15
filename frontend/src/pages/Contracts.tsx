@@ -303,10 +303,11 @@ export default function Contratti() {
 
   function exportCsv() {
     const rows = [
-      ["N&#176;", "Titolo", "Tipo", "Stato", "Importo", "IVA%", "Inizio", "Fine"],
+      ["N&#176;", "Titolo", "Cliente", "Tipo", "Stato", "Importo", "IVA%", "Inizio", "Fine"],
       ...filtered.map((c) => [
         c.number,
         c.title,
+        c.customerFullName,
         CONTRACT_TYPE_LABEL[c.contractType] ?? "",
         c.status,
         String(c.amount),
@@ -504,6 +505,7 @@ export default function Contratti() {
                 <tr>
                   <th>N&#176;</th>
                   <th>Titolo</th>
+                  <th>Cliente</th>
                   <th>Tipo</th>
                   <th>Stato</th>
                   <th className="col-num">Importo</th>
@@ -520,6 +522,7 @@ export default function Contratti() {
                       <code className="cell-code">{c.number}</code>
                     </td>
                     <td>{c.title}</td>
+                    <td>{c.customerFullName}</td>
                     <td>{CONTRACT_TYPE_LABEL[c.contractType] ?? "—"}</td>
                     <td>
                       <Badge cls={statusBadgeCls(c.status)}>{c.status}</Badge>

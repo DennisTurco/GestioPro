@@ -18,5 +18,6 @@ public record ContractResponseDTO
     string? FilePath,
     DateTimeOffset CreationDate,
     DateTimeOffset LastUpdateDate,
-    string Status
+    string Status,
+    string CustomerFullName
 );

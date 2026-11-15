@@ -56,7 +56,7 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
 
         var oldValues = MapToDto(setting);
 
-        if (!oldValues.HasChanged(setting, MapToDto)) return oldValues;
+        if (!dto.HasChanged(setting, ToSettingsRequestDTO)) return oldValues;
 
         setting.Value = dto.Value;
         setting.LastUpdateDate = DateTime.UtcNow;
@@ -176,4 +176,7 @@ public class SettingsService(AppDbContext context, IAuditService auditService) :
             s.Description,
             s.LastUpdateDate
         );
+
+    private static SettingsRequestDTO ToSettingsRequestDTO(Settings s)
+        => new(s.Value);
 }

@@ -333,6 +333,7 @@ export interface Contract {
   creationDate: string
   lastUpdateDate: string
   status: string
+  customerFullName: string
 }
 
 export interface ContractRequest {

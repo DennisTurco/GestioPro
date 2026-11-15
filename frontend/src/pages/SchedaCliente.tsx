@@ -93,7 +93,7 @@ export default function SchedaCliente() {
         const quotationIds = new Set(customerQuotations.map(q => q.id))
         setCustomer(c)
         setQuotations(customerQuotations)
-        setContracts(cs.filter(c => quotationIds.has(c.quotationId)))
+        setContracts(cs.filter(c => quotationIds.has(c.quotationId))) // TODO: we should expose a method getAllByCustomerId instead
         setSettings(se)
         setProducts(pr)
         setDocuments(docs)
