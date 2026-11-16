@@ -19,6 +19,7 @@ import Contratti from './pages/Contracts'
 import RinnoviContratto from './pages/RinnoviContratto'
 import Audit from './pages/Audit'
 import AuditDetails from './pages/AuditDetails'
+import AuditAccessi from './pages/AuditAccessi'
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/profilo" element={<Profilo />} />
               <Route path="/contratti" element={<Contratti />} />
               <Route path="/audit" element={<RequireRole role={UserRole.Admin}><Audit /></RequireRole>} />
+              <Route path="/audit-accessi" element={<RequireRole role={UserRole.Admin}><AuditAccessi /></RequireRole>} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

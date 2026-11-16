@@ -29,7 +29,7 @@ export default function RinnoviContratto() {
   useEffect(() => {
     if (!id) return
     const numId = Number(id)
-    document.title = "Rinnovi - GestioPro";
+    document.title = "Rinnovi | GestioPro";
     loadRenewals(numId);
   }, [id]);
 

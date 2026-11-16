@@ -98,7 +98,7 @@ export default function Contratti() {
   const kpiExpired = kpiFor("Scaduto");
 
   useEffect(() => {
-    document.title = "Contratti - GestioPro";
+    document.title = "Contratti | GestioPro";
     loadData();
   }, []);
 

@@ -15,6 +15,7 @@ interface NavItem {
 const ADMIN_ITEMS: NavItem[] = [
   { path: '/utenti',       page: 'utenti',       icon: 'fa-solid fa-users-gear',     label: 'Utenti'       },
   { path: '/audit',        page: 'audit',        icon: 'fa-solid fa-scroll',         label: 'Audit'        },
+  { path: '/audit-accessi',page: 'audit-accessi',icon: 'fa-solid fa-scroll',         label: 'Audit Accessi'        },
   { path: '/ripristino',   page: 'ripristino',   icon: 'fa-solid fa-rotate-left',    label: 'Ripristino',  disabled: true },
 ]
 

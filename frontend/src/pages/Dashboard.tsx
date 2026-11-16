@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [quickActionOpen, setQuickActionOpen] = useState(false)
 
   useEffect(() => {
-    document.title = 'Dashboard - GestioPro'
+    document.title = 'Dashboard | GestioPro'
   }, [])
 
   useEffect(() => {

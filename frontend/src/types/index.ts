@@ -274,6 +274,30 @@ export const AUDIT_ENTITY_LABEL: Record<string, string> = {
   User: 'Utente',
 }
 
+export interface LoginAudit {
+  id: number
+  timestamp: string
+  userId: string
+  username: string
+  action: string
+  status: string
+  notes: string
+  statusType: string
+  ipAddress?: string
+}
+
+export const LOGIN_AUDIT_ACTION_LABEL: Record<string, string> = {
+  Login: 'Login',
+  Logout: 'Logout',
+  Register: 'Registrazione',
+}
+
+export const LOGIN_AUDIT_ACTION_STATUS_LABEL: Record<string, string> = {
+  Success: 'Successo',
+  LoginError: 'Errore Login',
+  RegisterError: 'Errore Registrazione'
+}
+
 // UI helpers
 export const CUSTOMER_TYPE_LABEL: Record<CustomerType, string> = {
   [CustomerType.Company]:     'Azienda',

@@ -98,7 +98,7 @@ export default function SchedaCliente() {
         setProducts(pr)
         setDocuments(docs)
         setNote(c.notes ?? '')
-        document.title = `${c.name} ${c.surname} - GestioPro`
+        document.title = `${c.name} ${c.surname} | GestioPro`
       })
       .catch(() => showToast('Impossibile caricare i dati del cliente', 'error'))
       .finally(() => setLoading(false))

@@ -24,7 +24,7 @@ export default function Audit() {
   const pageSize = 20;
 
   useEffect(() => {
-    document.title = "Audit - GestioPro";
+    document.title = "Audit | GestioPro";
     loadLogs();
   }, []);
 

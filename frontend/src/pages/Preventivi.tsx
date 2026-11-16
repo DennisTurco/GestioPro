@@ -74,7 +74,7 @@ export default function Preventivi() {
   const pageSize = 20
 
   useEffect(() => {
-    document.title = "Preventivi - GestioPro";
+    document.title = "Preventivi | GestioPro";
   }, []);
 
   useEffect(() => {
