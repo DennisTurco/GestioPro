@@ -41,7 +41,7 @@ export default function Impostazioni() {
   const [testing, setTesting] = useState(false)
 
   useEffect(() => {
-    document.title = 'Impostazioni - GestioPro'
+    document.title = 'Impostazioni | GestioPro'
     SettingsAPI.getAll()
       .then((settings: Setting[]) => {
         const map: Record<string, string> = {}

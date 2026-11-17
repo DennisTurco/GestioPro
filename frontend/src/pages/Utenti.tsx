@@ -43,7 +43,7 @@ export default function Utenti() {
     const pageSize = 20
 
   useEffect(() => {
-    document.title = "Utenti - GestioPro";
+    document.title = "Utenti | GestioPro";
     loadUsers();
   }, []);
 

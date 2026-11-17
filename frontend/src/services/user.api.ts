@@ -14,6 +14,7 @@ export const UserAPI = {
             method: 'POST',
             body: JSON.stringify({ username, password }),
         }),
+    logout: () => apiFetch<null>('/users/logout'),
     // Right now the Register has been disabled because a user could be created only throw an Admin user
     // register: (data: RegisterRequest) =>
     //     apiFetch<LoginResponse>('/auth/register', {

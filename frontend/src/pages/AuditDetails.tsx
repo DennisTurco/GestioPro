@@ -98,7 +98,7 @@ export default function AuditDetails() {
     try {
       const result = await AuditAPI.getById(logId);
       setLog(result);
-      document.title = `Audit #${result.id} - GestioPro`;
+      document.title = `Audit #${result.id} | GestioPro`;
     } catch (err: unknown) {
       showToast(
         err instanceof Error ? err.message : "Errore nel caricamento del log",

@@ -19,7 +19,10 @@ public class UsersController(IUserService userService) : ControllerBase
             User.FindFirst("sub")?.Value;
 
         if (!Guid.TryParse(userId, out var guid))
+        {
+            await userService.LogUnauthorizedAsync(guid);
             return Unauthorized();
+        }
 
         var user = await userService.LoginByIdAsync(guid);
 
@@ -27,6 +30,22 @@ public class UsersController(IUserService userService) : ControllerBase
             return NotFound();
 
         return Ok(user);
+    }
+
+    [Authorize]
+    [HttpGet("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var userId =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            User.FindFirst("sub")?.Value;
+
+        if (!Guid.TryParse(userId, out var guid))
+            await userService.LogUnauthorizedAsync(guid);
+
+        await userService.LogoutAsync(guid);
+
+        return Ok();
     }
 
     /// <summary>

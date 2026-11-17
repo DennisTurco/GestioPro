@@ -5,6 +5,8 @@ namespace GestioPro.Common.Interfaces;
 public interface IUserService
 {
     Task<List<UserResponseDTO>> GetAllAsync();
+    Task LogUnauthorizedAsync(Guid? userId, string username = "");
+    Task LogoutAsync(Guid userId);
     Task<List<UserResponseDTO>> GetUsersToSendEmailAsync();
     Task<UserResponseDTO?> LoginByIdAsync(Guid id);
     Task<UserResponseDTO?> GetByIdAsync(Guid id);

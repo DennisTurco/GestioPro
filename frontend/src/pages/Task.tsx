@@ -79,7 +79,7 @@ export default function Task() {
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
   useEffect(() => {
-    document.title = 'Task - GestioPro'
+    document.title = 'Task | GestioPro'
   }, [])
 
   useEffect(() => {

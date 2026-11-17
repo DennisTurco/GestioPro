@@ -18,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Settings> Settings => Set<Settings>();
     public DbSet<HeartBeat> HeartBeats => Set<HeartBeat>();
     public DbSet<Audit> Audit => Set<Audit>();
+    public DbSet<LoginAudit> LoginAudit => Set<LoginAudit>();
     public DbSet<Notification> Notification => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

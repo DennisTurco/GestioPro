@@ -56,7 +56,7 @@ export default function Clienti() {
   const pageSize = 20
 
   useEffect(() => {
-    document.title = 'Clienti - GestioPro'
+    document.title = 'Clienti | GestioPro'
     loadData()
   }, [])
 

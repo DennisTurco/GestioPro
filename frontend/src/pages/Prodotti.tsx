@@ -50,7 +50,7 @@ export default function Prodotti() {
   const pageSize = 20
 
   useEffect(() => {
-    document.title = 'Prodotti e Servizi - GestioPro'
+    document.title = 'Prodotti e Servizi | GestioPro'
     loadData()
   }, [])
 

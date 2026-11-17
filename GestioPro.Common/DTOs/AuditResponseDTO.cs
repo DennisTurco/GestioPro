@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace GestioPro.Common.DTOs;
 
 public record AuditResponseDTO(

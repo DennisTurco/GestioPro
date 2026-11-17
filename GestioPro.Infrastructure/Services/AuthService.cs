@@ -1,5 +1,6 @@
 using GestioPro.Common.DTOs;
 using GestioPro.Common.Enums;
+using GestioPro.Common.Exceptions;
 using GestioPro.Common.Helpers;
 using GestioPro.Common.Interfaces;
 using GestioPro.Infrastructure.Data;
@@ -12,7 +13,7 @@ using System.Text;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class AuthService(AppDbContext context, IConfiguration config) : IAuthService
+public class AuthService(AppDbContext context, IConfiguration config, ILoginAuditService loginAuditService) : IAuthService
 {
     public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO dto)
     {
@@ -25,9 +26,19 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
 
         if (user is null || !PasswordHasher.Verify(dto.Password, user.Password)) return null;
 
+        if (user.IsDisabled)
+        {
+            const string errorMessage = "L'utente è stato disattivato. Se ritenuto un errore, si prega di contattare l'amministrazione";
+            await loginAuditService.LogAsync(user.Id, user.Username, "Login", "LoginError", errorMessage);
+            throw new UserException(errorMessage);
+        }
+
         var token = GenerateToken(user.Id, user.Username, user.UserRole);
 
         var userDto = new UserResponseDTO(user.Id, user.UserRole, user.Username, user.Email, user.Name, user.Surname, user.IsDisabled, user.EmailNotificationsEnabled, user.CreatedDate, user.LastUpdateDate);
+
+        await loginAuditService.LogAsync(user.Id, user.Username, "Login", "Success", string.Empty);
+
         return new LoginResponseDTO(token, userDto);
     }
 

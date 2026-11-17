@@ -29,7 +29,7 @@ export default function Categorie() {
   const pageSize = 20
 
   useEffect(() => {
-    document.title = 'Categorie - GestioPro'
+    document.title = 'Categorie | GestioPro'
     loadCategories()
   }, [])
 
