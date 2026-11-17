@@ -72,11 +72,11 @@ export default function AuditAccessi() {
     ];
     const rows = filtered.map((a) => [
       `"${new Date(a.timestamp).toLocaleString("it-IT")}"`,
-      `"${a.userId.replace(/"/g, '""')}"`,
+      `"${a.userId?.replace(/"/g, '""')}"`,
       `"${a.username.replace(/"/g, '""')}"`,
       `"${a.action.replace(/"/g, '""')}"`,
       `"${a.status.replace(/"/g, '""')}"`,
-      `"${a.notes.replace(/"/g, '""')}"`,
+      `"${a.notes?.replace(/"/g, '""')}"`,
       `"${a.ipAddress?.replace(/"/g, '""')}"`,
     ]);
     const csv = [header.join(","), ...rows.map((a) => a.join(","))].join("\n");
@@ -84,7 +84,7 @@ export default function AuditAccessi() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "audit.csv";
+    a.download = "audit_accessi.csv";
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -99,7 +99,7 @@ export default function AuditAccessi() {
       if (!q) return true;
       return (
         a.timestamp.toString().toLowerCase().includes(q) ||
-        a.userId.toString().toLowerCase().includes(q) ||
+        a.userId?.toString().toLowerCase().includes(q) ||
         a.username.toLocaleLowerCase().includes(q)
       );
     })
@@ -228,7 +228,7 @@ export default function AuditAccessi() {
                 {paginated.map((log) => (
                   <tr>
                     <td>{new Date(log.timestamp).toLocaleString("it-IT")}</td>
-                    <td>{log.userId.toString()}</td>
+                    <td>{log.userId?.toString()}</td>
                     <td>{log.username}</td>
                     <td>{LOGIN_AUDIT_ACTION_LABEL[log.action] ?? log.action}</td>
                     <td>{LOGIN_AUDIT_ACTION_STATUS_LABEL[log.status] ?? log.status}</td>

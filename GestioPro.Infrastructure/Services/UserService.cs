@@ -42,7 +42,7 @@ public class UserService(AppDbContext context, IAuditService auditService, ILogi
 
         if (user.IsDisabled)
         {
-            const string errorMessage = "L'utente è stato disattivato. Se ritenuto un errore, si praga di contattare l'amministrazione";
+            const string errorMessage = "L'utente è stato disattivato. Se ritenuto un errore, si prega di contattare l'amministrazione";
             await loginAuditService.LogAsync(id, user.Username, "Login", "LoginError", errorMessage);
             throw new UserException(errorMessage);
         }

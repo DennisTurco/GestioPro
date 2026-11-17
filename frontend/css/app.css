@@ -197,6 +197,18 @@ textarea {
     text-align: center;
 }
 
+/* Gruppo di voci apribile (es. Audit) */
+.nav-group-chevron {
+    margin-left: auto;
+    font-size: 10px;
+    opacity: 0.7;
+    transition: transform var(--transition);
+}
+.nav-group-chevron--open { transform: rotate(180deg); }
+.nav-subitems--closed { display: none; }
+.nav-item.nav-subitem { margin-left: 24px; font-size: 13px; }
+.nav-item.nav-subitem.active::before { left: -24px; }
+
 .sidebar-footer {
     margin: 0 10px 10px;
     padding: 10px;
@@ -285,6 +297,11 @@ textarea {
 .sidebar--collapsed .nav-label {
     display: none;
 }
+/* Sidebar a icone: niente intestazione del gruppo, le voci figlie restano visibili */
+.sidebar--collapsed .nav-group-toggle { display: none; }
+.sidebar--collapsed .nav-subitems--closed { display: block; }
+.sidebar--collapsed .nav-item.nav-subitem { margin: 2px 12px; font-size: inherit; }
+.sidebar--collapsed .nav-item.nav-subitem.active::before { left: -12px; }
 .sidebar--collapsed .sidebar-footer {
     margin: 0 10px 10px;
     padding: 8px 0;
@@ -314,6 +331,10 @@ textarea {
     .sidebar .nav-item { justify-content: center; margin: 2px 10px; padding: 10px 0; }
     .sidebar .nav-item.active::before { left: -10px; }
     .sidebar .nav-item .nav-icon { width: auto; font-size: 15px; }
+    .sidebar .nav-group-toggle { display: none; }
+    .sidebar .nav-subitems--closed { display: block; }
+    .sidebar .nav-item.nav-subitem { margin: 2px 10px; font-size: inherit; }
+    .sidebar .nav-item.nav-subitem.active::before { left: -10px; }
     .sidebar .sidebar-footer { margin: 0 8px 8px; padding: 8px 0; }
     .sidebar .sidebar-footer .user-info { justify-content: center; }
 }

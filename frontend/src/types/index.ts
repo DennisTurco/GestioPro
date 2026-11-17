@@ -277,11 +277,11 @@ export const AUDIT_ENTITY_LABEL: Record<string, string> = {
 export interface LoginAudit {
   id: number
   timestamp: string
-  userId: string
+  userId?: string
   username: string
   action: string
   status: string
-  notes: string
+  notes?: string
   statusType: string
   ipAddress?: string
 }
