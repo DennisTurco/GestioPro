@@ -3,7 +3,6 @@ import { LoginAudit, LOGIN_AUDIT_ACTION_LABEL, LOGIN_AUDIT_ACTION_STATUS_LABEL }
 import { useToast } from "../context/ToastContext";
 import EmptyState from "../components/ui/EmptyState";
 import { LoginAuditAPI } from "../services/api";
-import { useNavigate } from "react-router-dom";
 import TablePagination from '../components/ui/TablePagination'
 
 export default function AuditAccessi() {

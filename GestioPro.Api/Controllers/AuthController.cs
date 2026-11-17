@@ -16,7 +16,11 @@ public class AuthController(IAuthService authService, IUserService userService) 
     public async Task<IActionResult> Login([FromBody] LoginRequestDTO dto)
     {
         var result = await authService.LoginAsync(dto);
-        if (result is null) return Unauthorized(new { message = "Credenziali non valide" });
+        if (result is null)
+        {
+            await userService.LogUnauthorizedAsync(result?.User.Id, dto.Username);
+            return Unauthorized(new { message = "Credenziali non valide" });
+        }
         return Ok(result);
     }
 

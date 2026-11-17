@@ -40,7 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user)
   }
 
-  function logout() {
+  async function logout() {
+    await UserAPI.logout()
     localStorage.removeItem('auth_token')
     setUser(null)
   }

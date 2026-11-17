@@ -10,7 +10,7 @@ using GestioPro.Infrastructure.Extensions;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class UserService(AppDbContext context, IAuditService auditService, INotificationService notificationService) : IUserService
+public class UserService(AppDbContext context, IAuditService auditService, ILoginAuditService loginAuditService, INotificationService notificationService) : IUserService
 {
     public async Task<List<UserResponseDTO>> GetAllAsync()
         => await context.Users
@@ -25,6 +25,12 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             .Select(u => MapToDto(u))
             .ToListAsync();
 
+    public async Task LogUnauthorizedAsync(Guid? userId, string? username)
+        => await loginAuditService.LogAsync(userId, username, "Login", "LoginError", "Credenziali non valide");
+
+    public async Task LogoutAsync(Guid userId)
+        => await loginAuditService.LogAsync(userId, (await GetByIdAsync(userId))?.Username, "Logout", "Success", string.Empty);
+
     public async Task<UserResponseDTO?> LoginByIdAsync(Guid id)
     {
         var user = await context.Users
@@ -35,7 +41,13 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             return null;
 
         if (user.IsDisabled)
-            throw new UserException("L'utente è stato disattivato. Se ritenuto un errore, si praga di contattare l'amministrazione");
+        {
+            const string errorMessage = "L'utente è stato disattivato. Se ritenuto un errore, si praga di contattare l'amministrazione";
+            await loginAuditService.LogAsync(id, user.Username, "Login", "LoginError", errorMessage);
+            throw new UserException(errorMessage);
+        }
+
+        await loginAuditService.LogAsync(id, user.Username, "Login", "Success", string.Empty);
 
         return MapToDto(user);
     }
@@ -55,7 +67,11 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
     public async Task CreateAsync(UserRequestDTO dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Password))
-            throw new ArgumentException("La password è obbligatoria");
+        {
+            const string errorMessage = "La password è obbligatoria";
+            await loginAuditService.LogAsync(null, null, "Register", "RegisterError", errorMessage);
+            throw new ArgumentException(errorMessage);
+        }
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
         var user = new User
@@ -71,10 +87,19 @@ public class UserService(AppDbContext context, IAuditService auditService, INoti
             CreatedDate = now,
             LastUpdateDate = now
         };
-        context.Users.Add(user);
-        await context.SaveChangesAsync();
+
+        try
+        {
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            await loginAuditService.LogAsync(null, null, "Register", "RegisterError", ex.Message);
+        }
 
         await auditService.LogAsync("Create", nameof(User), user.Id.ToString(), newValues: MapToDto(user));
+        await loginAuditService.LogAsync(user.Id, user.Username, "Register", "Success", string.Empty);
     }
 
     public async Task<UserResponseDTO> UpdateForceAsync(Guid id, UserRequestDTO dto)

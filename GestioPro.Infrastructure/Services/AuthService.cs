@@ -12,7 +12,7 @@ using System.Text;
 
 namespace GestioPro.Infrastructure.Services;
 
-public class AuthService(AppDbContext context, IConfiguration config) : IAuthService
+public class AuthService(AppDbContext context, IConfiguration config, ILoginAuditService loginAuditService) : IAuthService
 {
     public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO dto)
     {
@@ -28,6 +28,9 @@ public class AuthService(AppDbContext context, IConfiguration config) : IAuthSer
         var token = GenerateToken(user.Id, user.Username, user.UserRole);
 
         var userDto = new UserResponseDTO(user.Id, user.UserRole, user.Username, user.Email, user.Name, user.Surname, user.IsDisabled, user.EmailNotificationsEnabled, user.CreatedDate, user.LastUpdateDate);
+
+        await loginAuditService.LogAsync(user.Id, user.Username, "Login", "Success", string.Empty);
+
         return new LoginResponseDTO(token, userDto);
     }
 
